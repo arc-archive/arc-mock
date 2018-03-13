@@ -1,0 +1,25 @@
+{
+  "name": "arc-data-generator",
+  "version": "1.0.0",
+  "description": "Generates data for ARC demo pages and tests",
+  "main": "arc-data-generator.html",
+  "dependencies": {
+    "chance": "chancejs/chancejs#^1.0.4",
+    "app-pouchdb": "PolymerElements/app-pouchdb#^2.1.1"
+  },
+  "devDependencies": {
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  },
+  "authors": [
+    "Pawel Psztyc",
+    "The Advanced REST client authors <arc@mulesoft.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
+    "email": "arc@mulesoft.com"
+  }
+}
