@@ -23,13 +23,11 @@ DataGenerator.setMidninght = function(time) {
  */
 DataGenerator.createProjectObject = function() {
   const project = {
-    _id: chance.string({
-      length: 12,
-      pool: stringPool
-    }),
+    _id: chance.guid({version: 5}),
     name: chance.sentence({words: 2}),
     order: 0,
-    description: chance.paragraph()
+    description: chance.paragraph(),
+    requests: []
   };
   return project;
 };
@@ -285,13 +283,9 @@ DataGenerator.generateSavedItem = function(opts) {
     item.payload = payload;
   }
 
-  item._id = encodeURIComponent(requestName.toLowerCase()) + '/' +
-    encodeURIComponent(item.url.toLowerCase()) + '/' +
-    item.method.toLowerCase();
+  item._id = chance.guid({version: 5});
   if (opts.project) {
-    item._id += '/' + opts.project;
-    item.legacyProject = opts.project;
-    item.projectOrder = chance.integer({min: 0, max: 10});
+    item.projects = [opts.project];
   }
   return item;
 };
@@ -307,6 +301,7 @@ DataGenerator.generateSavedItem = function(opts) {
  * -   `noHeaders` (Boolean) will not generate headers string (will set empty
  *      string). If payload is generated then it will always contain a
  *      `content-type` header.
+ * -   `noId` (Boolen) If set it won't generate ID
  * @return {Object} A request object
  */
 DataGenerator.generateHistoryObject = function(opts) {
@@ -329,26 +324,27 @@ DataGenerator.generateHistoryObject = function(opts) {
   if (payload) {
     item.payload = payload;
   }
-
-  item._id = DataGenerator.setMidninght(LAST_TIME) + '/' +
-    encodeURIComponent(url.toLowerCase()) + '/' +
-    method.toLowerCase();
+  if (!opts.noId) {
+    item._id = chance.guid({version: 5});
+  }
   return item;
 };
 /**
- * Picks a random project ID from the list of passed in `opts` map projects.
+ * Picks a random project from the list of passed in `opts` projects.
  *
  * @param {Object} opts Configuration options:
  * -   `projects` (Array<Object>) List of generated projects
- * @return {String|undefined} Project id or undefined.
+ * @return {Object|undefined} Project id or undefined.
  */
-DataGenerator.pickProjectId = function(opts) {
+DataGenerator.pickProject = function(opts) {
   opts = opts || {};
   if (!opts.projects) {
     return;
   }
-  const projectsIndex = chance.integer({min: 0, max: opts.projects.length - 1});
-  return chance.bool() ? opts.projects[projectsIndex]._id : undefined;
+  if (chance.bool()) {
+    const projectsIndex = chance.integer({min: 0, max: opts.projects.length - 1});
+    return opts.projects[projectsIndex];
+  }
 };
 /**
  * Generates a list of saved requests.
@@ -365,10 +361,17 @@ DataGenerator.generateRequests = function(opts) {
   const list = [];
   const size = opts.requestsSize || 25;
   for (let i = 0; i < size; i++) {
-    const project = DataGenerator.pickProjectId(opts);
+    const project = DataGenerator.pickProject(opts);
     const _opts = Object.assign({}, opts);
-    _opts.project = project;
-    list.push(DataGenerator.generateSavedItem(_opts));
+    _opts.project = project && project._id;
+    const item = DataGenerator.generateSavedItem(_opts);
+    if (project) {
+      if (!project.requests) {
+        project.requests = [];
+      }
+      project.requests.push(item._id);
+    }
+    list.push(item);
   }
   return list;
 };
@@ -437,7 +440,7 @@ DataGenerator.generateVariableObject = function() {
     enabled: chance.bool({likelihood: 85}),
     value: chance.sentence({words: 2}),
     variable: chance.word(),
-    _id: chance.string()
+    _id: chance.guid({version: 5})
   };
   if (isDefault) {
     result.environment = 'default';
@@ -487,7 +490,7 @@ DataGenerator.generateHeaderSetObject = function(opts) {
     order: chance.integer({min: 0, max: 10}),
     name: chance.sentence({words: 2}),
     headers: headers,
-    _id: chance.string()
+    _id: chance.guid({version: 5})
   };
   return result;
 };
@@ -517,7 +520,7 @@ DataGenerator.generateCookieObject = function() {
     maxAge: chance.integer({min: 100, max: 1000}),
     name: chance.word(),
     value: chance.word(),
-    _id: chance.string(),
+    _id: chance.guid({version: 5}),
     domain: chance.domain(),
     hostOnly: chance.bool(),
     httponly: chance.bool(),
@@ -631,13 +634,25 @@ DataGenerator.insertHistoryIfNotExists = function(opts) {
 DataGenerator.insertSavedRequestData = function(opts) {
   opts = opts || {};
   const data = DataGenerator.generateSavedRequestData(opts);
-  const savedDb = new PouchDB('saved-requests');
   const projectsDb = new PouchDB('legacy-projects');
   return projectsDb.bulkDocs(data.projects)
-  .then(function() {
+  .then(function(response) {
+    for (let i = 0; i < response.length; i++) {
+      if (response[i].error) {
+        continue;
+      }
+      data.projects[i]._rev = response[i].rev;
+    }
+    const savedDb = new PouchDB('saved-requests');
     return savedDb.bulkDocs(data.requests);
   })
-  .then(function() {
+  .then(function(response) {
+    for (let i = 0; i < response.length; i++) {
+      if (response[i].error) {
+        continue;
+      }
+      data.requests[i]._rev = response[i].rev;
+    }
     return data;
   });
 };
