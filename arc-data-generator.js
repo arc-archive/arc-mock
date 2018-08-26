@@ -596,6 +596,28 @@ DataGenerator.generateHostRulesData = function(opts) {
   return result;
 };
 /**
+ * Generates basic authorization data
+ *
+ * @param {Object} opts Configuration options:
+ * -   `size` (Number) Number of items to generate. Default to 25.
+ * @return {Array} List of datastore entries.
+ */
+DataGenerator.generateBasicAuthData = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  opts.size = opts.size || 25;
+  const result = [];
+  for (let i = 0; i < opts.size; i++) {
+    result.push({
+      _id: 'basic/' + chance.string(),
+      type: 'basic',
+      url: chance.url()
+    });
+  }
+  return result;
+};
+/**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
  * @param {Object} opts See `DataGenerator.generateSavedRequestData`
