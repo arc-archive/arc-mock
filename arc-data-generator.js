@@ -720,6 +720,125 @@ DataGenerator.insertHistoryRequestData = function(opts) {
   });
 };
 /**
+ * Generates and saves websocket data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateUrlsData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertWebsocketData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateUrlsData(opts);
+  const db = new PouchDB('websocket-url-history');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves url history data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateUrlsData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertUrlHistoryData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateUrlsData(opts);
+  const db = new PouchDB('url-history');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves variables data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateVariablesData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertVariablesData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateVariablesData(opts);
+  const db = new PouchDB('variables');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves headers sets data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateHeadersSetsData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertHeadersSetsData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateHeadersSetsData(opts);
+  const db = new PouchDB('headers-sets');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves cookies data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateCookiesData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertCookiesData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateCookiesData(opts);
+  const db = new PouchDB('cookies');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves basic auth data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateBasicAuthData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertBasicAuthData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateBasicAuthData(opts);
+  const db = new PouchDB('auth-data');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
+ * Generates and saves host rules data to the data store.
+ *
+ * @param {Object} opts See `DataGenerator.generateHostRulesData`
+ * for description.
+ * @return {Promise} Resolved promise when data are inserted into the datastore.
+ * Promise resolves to generated data object
+ */
+DataGenerator.insertHostRulesData = function(opts) {
+  opts = opts || {};
+  const data = DataGenerator.generateHostRulesData(opts);
+  const db = new PouchDB('host-rules');
+  return db.bulkDocs(data)
+  .then(function() {
+    return data;
+  });
+};
+/**
  * Destroys saved and projects database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
