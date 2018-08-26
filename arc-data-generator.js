@@ -572,6 +572,30 @@ DataGenerator.generateUrlsData = function(opts) {
   return result;
 };
 /**
+ * Generates host rules
+ *
+ * @param {Object} opts Configuration options:
+ * -   `size` (Number) Number of items to generate. Default to 25.
+ * @return {Array} List of datastore entries.
+ */
+DataGenerator.generateHostRulesData = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  opts.size = opts.size || 25;
+  const result = [];
+  for (let i = 0; i < opts.size; i++) {
+    result.push({
+      _id: chance.guid({version: 5}),
+      from: chance.url(),
+      to: chance.url(),
+      enabled: chance.bool(),
+      comment: chance.string()
+    });
+  }
+  return result;
+};
+/**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
  * @param {Object} opts See `DataGenerator.generateSavedRequestData`
@@ -744,6 +768,14 @@ DataGenerator.destroyAuthDataData = function() {
   return db.destroy();
 };
 /**
+ * Destroys hosts data database.
+ * @return {Promise} Resolved promise when the data are cleared.
+ */
+DataGenerator.destroyHostRulesData = function() {
+  const db = new PouchDB('host-rules');
+  return db.destroy();
+};
+/**
  * Destroys all databases.
  * @return {Promise} Resolved promise when the data are cleared.
  */
@@ -769,6 +801,9 @@ DataGenerator.destroyAll = function() {
   })
   .then(function() {
     return DataGenerator.destroyAuthDataData();
+  })
+  .then(function() {
+    return DataGenerator.destroyHostRulesData();
   });
 };
 /**
@@ -861,6 +896,10 @@ DataGenerator.getDatastoreUrlsData = function() {
 // Returns a promise with all saved authorization data.
 DataGenerator.getDatastoreAthDataData = function() {
   return DataGenerator.getDatastoreData('auth-data');
+};
+// Returns a promise with all host rules data.
+DataGenerator.getDatastoreAthDataData = function() {
+  return DataGenerator.getDatastoreData('host-rules');
 };
 /**
  * Updates an object in an data store.
