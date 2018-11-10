@@ -19,9 +19,13 @@ DataGenerator.setMidninght = function(time) {
 /**
  * Generates a random ARC legacy project object.
  *
+ * @param {Object} opts Create options:
+ * - requestId - Request id to add to `requests` array
+ * - autoRequestId - If set it generates request ID to add to `requests` array
  * @return {Object} ARC's object.
  */
-DataGenerator.createProjectObject = function() {
+DataGenerator.createProjectObject = function(opts) {
+  opts = opts || {};
   const project = {
     _id: chance.guid({version: 5}),
     name: chance.sentence({words: 2}),
@@ -29,6 +33,11 @@ DataGenerator.createProjectObject = function() {
     description: chance.paragraph(),
     requests: []
   };
+  if (opts.requestId) {
+    project.requests.push(opts.requestId);
+  } else if (opts.autoRequestId) {
+    project.requests.push(chance.guid({version: 5}));
+  }
   return project;
 };
 DataGenerator.payloadMethods = ['POST', 'PUT', 'DELETE', 'OPTIONS'];
@@ -379,7 +388,9 @@ DataGenerator.generateRequests = function(opts) {
  * Generates a list of project objects.
  *
  * @param {Object} opts Configuration options:
- * -   `projectsSize` (Number) A number of projects to generate.
+ * - `projectsSize` (Number) A number of projects to generate.
+ * - requestId - Request id to add to `requests` array
+ * - autoRequestId - If set it generates request ID to add to `requests` array
  * @return {Array<Object>} List of generated project objects.
  */
 DataGenerator.generateProjects = function(opts) {
@@ -387,7 +398,7 @@ DataGenerator.generateProjects = function(opts) {
   const size = opts.projectsSize || 5;
   const result = [];
   for (let i = 0; i < size; i++) {
-    result.push(DataGenerator.createProjectObject());
+    result.push(DataGenerator.createProjectObject(opts));
   }
   return result;
 };
@@ -703,7 +714,7 @@ DataGenerator.insertSavedRequestData = function(opts) {
   });
 };
 /**
- * Generates and saves cookies data to the data store.
+ * Generates and saves history data to the data store.
  *
  * @param {Object} opts See `DataGenerator.generateHistoryRequestsData`
  * for description.
@@ -717,6 +728,24 @@ DataGenerator.insertHistoryRequestData = function(opts) {
   return db.bulkDocs(data)
   .then(function() {
     return data;
+  });
+};
+/**
+ * Generates and saves a list of project objects.
+ *
+ * @param {Object} opts Configuration options:
+ * - `projectsSize` (Number) A number of projects to generate.
+ * - requestId - Request id to add to `requests` array
+ * - autoRequestId - If set it generates request ID to add to `requests` array
+ * @return {Promise}
+ */
+DataGenerator.insertProjectsData = function(opts) {
+  opts = opts || {};
+  const projects = DataGenerator.generateProjects(opts);
+  const db = new PouchDB('legacy-projects');
+  return db.bulkDocs(projects)
+  .then(function() {
+    return projects;
   });
 };
 /**
