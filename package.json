@@ -1,6 +1,6 @@
 {
   "name": "@advanced-resr-client/arc-data-generator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "Apache-2.0",
   "description": "Generates data for ARC demo pages and tests",
   "main": "arc-data-generator.js",
@@ -9,7 +9,7 @@
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1"
+    "@polymer/gen-typescript-declarations": "^1.5.1"
   },
   "scripts": {
     "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
