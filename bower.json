@@ -1,6 +1,6 @@
 {
   "name": "arc-data-generator",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generates data for ARC demo pages and tests",
   "main": "arc-data-generator.html",
   "dependencies": {
