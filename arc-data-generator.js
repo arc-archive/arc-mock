@@ -887,6 +887,14 @@ DataGenerator.destroyHistoryData = function() {
   return db.destroy();
 };
 /**
+ * Destroys legacy projects database.
+ * @return {Promise} Resolved promise when the data are cleared.
+ */
+DataGenerator.clearLegacyProjects = function() {
+  const db = new PouchDB('legacy-projects');
+  return db.destroy();
+};
+/**
  * Destroys websockets URL history database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
