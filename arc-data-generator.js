@@ -680,6 +680,24 @@ DataGenerator.insertHistoryIfNotExists = function(opts) {
   });
 };
 /**
+ * Creates `_id` on the original insert object if it wasn't created before and
+ * updates `_rev` property.
+ * @param {Array<Object>} insertResponse PouchDB build insert response
+ * @param {Array<Object>} insertedData The original array of inserted objects.
+ * This changes contents of te array items which is passed by reference.
+ */
+function updateRevsAndIds(insertResponse, insertedData) {
+  for (let i = 0, len = insertResponse.length; i < len; i++) {
+    if (insertResponse[i].error) {
+      continue;
+    }
+    if (!insertedData[i]._id) {
+      insertedData[i]._id = insertResponse[i].id;
+    }
+    insertedData[i]._rev = insertResponse[i].rev;
+  }
+}
+/**
  * Generates saved requests data and inserts them into the data store if they
  * are missing.
  *
@@ -704,12 +722,7 @@ DataGenerator.insertSavedRequestData = function(opts) {
     return savedDb.bulkDocs(data.requests);
   })
   .then(function(response) {
-    for (let i = 0; i < response.length; i++) {
-      if (response[i].error) {
-        continue;
-      }
-      data.requests[i]._rev = response[i].rev;
-    }
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -726,7 +739,8 @@ DataGenerator.insertHistoryRequestData = function(opts) {
   const data = DataGenerator.generateHistoryRequestsData(opts);
   const db = new PouchDB('history-requests');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -741,11 +755,12 @@ DataGenerator.insertHistoryRequestData = function(opts) {
  */
 DataGenerator.insertProjectsData = function(opts) {
   opts = opts || {};
-  const projects = DataGenerator.generateProjects(opts);
+  const data = DataGenerator.generateProjects(opts);
   const db = new PouchDB('legacy-projects');
-  return db.bulkDocs(projects)
-  .then(function() {
-    return projects;
+  return db.bulkDocs(data)
+  .then(function(response) {
+    updateRevsAndIds(response, data);
+    return data;
   });
 };
 /**
@@ -761,7 +776,8 @@ DataGenerator.insertWebsocketData = function(opts) {
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('websocket-url-history');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -778,7 +794,8 @@ DataGenerator.insertUrlHistoryData = function(opts) {
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('url-history');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -795,7 +812,8 @@ DataGenerator.insertVariablesData = function(opts) {
   const data = DataGenerator.generateVariablesData(opts);
   const db = new PouchDB('variables');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -812,7 +830,8 @@ DataGenerator.insertHeadersSetsData = function(opts) {
   const data = DataGenerator.generateHeadersSetsData(opts);
   const db = new PouchDB('headers-sets');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -829,7 +848,8 @@ DataGenerator.insertCookiesData = function(opts) {
   const data = DataGenerator.generateCookiesData(opts);
   const db = new PouchDB('cookies');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -846,7 +866,8 @@ DataGenerator.insertBasicAuthData = function(opts) {
   const data = DataGenerator.generateBasicAuthData(opts);
   const db = new PouchDB('auth-data');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
@@ -863,7 +884,8 @@ DataGenerator.insertHostRulesData = function(opts) {
   const data = DataGenerator.generateHostRulesData(opts);
   const db = new PouchDB('host-rules');
   return db.bulkDocs(data)
-  .then(function() {
+  .then(function(response) {
+    updateRevsAndIds(response, data);
     return data;
   });
 };
