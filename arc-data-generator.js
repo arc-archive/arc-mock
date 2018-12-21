@@ -712,17 +712,12 @@ DataGenerator.insertSavedRequestData = function(opts) {
   const projectsDb = new PouchDB('legacy-projects');
   return projectsDb.bulkDocs(data.projects)
   .then(function(response) {
-    for (let i = 0; i < response.length; i++) {
-      if (response[i].error) {
-        continue;
-      }
-      data.projects[i]._rev = response[i].rev;
-    }
+    updateRevsAndIds(response, data.projects);
     const savedDb = new PouchDB('saved-requests');
     return savedDb.bulkDocs(data.requests);
   })
   .then(function(response) {
-    updateRevsAndIds(response, data);
+    updateRevsAndIds(response, data.requests);
     return data;
   });
 };
