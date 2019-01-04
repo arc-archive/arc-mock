@@ -328,7 +328,8 @@ DataGenerator.generateHistoryObject = function(opts) {
     method: method,
     headers: headers,
     created: LAST_TIME,
-    updated: LAST_TIME
+    updated: LAST_TIME,
+    type: 'history'
   };
   if (payload) {
     item.payload = payload;
