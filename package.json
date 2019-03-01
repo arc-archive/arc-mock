@@ -1,25 +1,39 @@
 {
-  "name": "@advanced-rest-client/arc-data-generator",
-  "version": "1.0.8",
-  "license": "Apache-2.0",
   "description": "Generates data for ARC demo pages and tests",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
+  },
+  "name": "@advanced-rest-client/arc-data-generator",
+  "version": "3.0.0-preview.1",
+  "license": "Apache-2.0",
   "main": "arc-data-generator.js",
   "authors": [
     "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.5.1"
+    "@polymer/gen-typescript-declarations": "^1.6.1",
+    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "@polymer/test-fixture": "^4.0.2",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.3",
+    "wct-mocha": "^1.0.0"
   },
   "scripts": {
     "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
-  },
   "bugs": {
     "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
     "email": "arc@mulesoft.com"
+  },
+  "contributors": [
+    "Pawel Psztyc",
+    "The Advanced REST client authors <arc@mulesoft.com>"
+  ],
+  "dependencies": {
+    "chance": "^1.0.18",
+    "pouchdb": "^7.0.0"
   }
 }

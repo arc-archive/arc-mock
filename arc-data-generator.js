@@ -1,7 +1,9 @@
-/* global chance, PouchDB */
+import '../../pouchdb/dist/pouchdb.js';
+import '../../chance/dist/chance.min.js';
+/* global Chance, PouchDB */
+const chance = new Chance();
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-const DataGenerator = {};
-
+export const DataGenerator = {};
 let LAST_TIME = Date.now();
 const stringPool =
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
