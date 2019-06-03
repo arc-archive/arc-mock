@@ -1,5 +1,5 @@
-import '../../pouchdb/dist/pouchdb.js';
-import '../../chance/dist/chance.min.js';
+import 'pouchdb/dist/pouchdb.js';
+import 'chance/dist/chance.min.js';
 /* global Chance, PouchDB */
 const chance = new Chance();
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
@@ -29,8 +29,8 @@ DataGenerator.setMidninght = function(time) {
 DataGenerator.createProjectObject = function(opts) {
   opts = opts || {};
   const project = {
-    _id: chance.guid({version: 5}),
-    name: chance.sentence({words: 2}),
+    _id: chance.guid({ version: 5 }),
+    name: chance.sentence({ words: 2 }),
     order: 0,
     description: chance.paragraph(),
     requests: []
@@ -38,7 +38,7 @@ DataGenerator.createProjectObject = function(opts) {
   if (opts.requestId) {
     project.requests.push(opts.requestId);
   } else if (opts.autoRequestId) {
-    project.requests.push(chance.guid({version: 5}));
+    project.requests.push(chance.guid({ version: 5 }));
   }
   return project;
 };
@@ -72,7 +72,7 @@ DataGenerator.generateHeaders = function(contentType, opts) {
     }
   }
   if (contentType) {
-    headers += 'content-type: ' + contentType;
+    headers += 'content-type: ' + contentType + '\n';
   }
   return headers;
 };
@@ -90,8 +90,11 @@ DataGenerator.generateHeaders = function(contentType, opts) {
  */
 DataGenerator.generateMethod = function(isPayload, opts) {
   opts = opts || {};
+  if (opts.methodsPools) {
+    return chance.pick(opts.methodsPools);
+  }
   if (isPayload) {
-    return chance.pick(opts.methodsPools || DataGenerator.payloadMethods);
+    return chance.pick(DataGenerator.payloadMethods);
   }
   return chance.pick(DataGenerator.nonPayloadMethods);
 };
@@ -127,7 +130,7 @@ DataGenerator.generateContentType = function() {
  * @return {String} The x-www-form-urlencoded payload.
  */
 DataGenerator.generateUrlEncodedData = function() {
-  const size = chance.integer({min: 1, max: 10});
+  const size = chance.integer({ min: 1, max: 10 });
   let result = '';
   for (let i = 0; i < size; i++) {
     const name = encodeURIComponent(chance.word()).replace(/%20/g, '+');
@@ -144,7 +147,7 @@ DataGenerator.generateUrlEncodedData = function() {
  * @return {String} JSON payload
  */
 DataGenerator.generateJsonData = function() {
-  const size = chance.integer({min: 1, max: 10});
+  const size = chance.integer({ min: 1, max: 10 });
   let result = '{';
   let addComa = false;
   for (let i = 0; i < size; i++) {
@@ -167,7 +170,7 @@ DataGenerator.generateJsonData = function() {
  * @return {String} XML payload
  */
 DataGenerator.generateXmlData = function() {
-  const size = chance.integer({min: 1, max: 10});
+  const size = chance.integer({ min: 1, max: 10 });
   let result = '<feed>';
   for (let i = 0; i < size; i++) {
     const name = chance.word();
@@ -201,7 +204,7 @@ DataGenerator.generatePayload = function(contentType) {
   }
 };
 /**
- * Generates a request timestamp that is withing this month.
+ * Generates a request timestamp that is within last month.
  * @return {Number} The timestamp
  */
 DataGenerator.generateRequestTime = function() {
@@ -213,7 +216,7 @@ DataGenerator.generateRequestTime = function() {
     month = 11;
     year--;
   }
-  const randomDay = chance.date({year: year, month: month});
+  const randomDay = chance.date({ year: year, month: month });
   return randomDay.getTime();
 };
 /**
@@ -243,7 +246,7 @@ DataGenerator.generateDescription = function(opts) {
   if (opts && opts.noDescription) {
     return;
   }
-  return chance.bool({likelihood: 70}) ? chance.paragraph() : undefined;
+  return chance.bool({ likelihood: 70 }) ? chance.paragraph() : undefined;
 };
 /**
  * Generates random saved request item.
@@ -271,7 +274,7 @@ DataGenerator.generateSavedItem = function(opts) {
   const headers = DataGenerator.generateHeaders(contentType, opts);
   const payload = DataGenerator.generatePayload(contentType);
   const time = DataGenerator.generateRequestTime();
-  const requestName = chance.sentence({words: 2});
+  const requestName = chance.sentence({ words: 2 });
   const driveId = DataGenerator.generateDriveId(opts);
   const description = DataGenerator.generateDescription(opts);
 
@@ -294,7 +297,7 @@ DataGenerator.generateSavedItem = function(opts) {
     item.payload = payload;
   }
 
-  item._id = chance.guid({version: 5});
+  item._id = chance.guid({ version: 5 });
   if (opts.project) {
     item.projects = [opts.project];
   }
@@ -317,11 +320,10 @@ DataGenerator.generateSavedItem = function(opts) {
  */
 DataGenerator.generateHistoryObject = function(opts) {
   opts = opts || {};
-  LAST_TIME -= chance.integer({min: 1.8e+6, max: 8.64e+7});
+  LAST_TIME -= chance.integer({ min: 1.8e+6, max: 8.64e+7 });
   const isPayload = DataGenerator.generateIsPayload(opts);
   const method = DataGenerator.generateMethod(isPayload, opts);
-  const contentType = isPayload ? DataGenerator.generateContentType() :
-    undefined;
+  const contentType = isPayload ? DataGenerator.generateContentType() : undefined;
   const headers = DataGenerator.generateHeaders(contentType, opts);
   const payload = DataGenerator.generatePayload(contentType);
   const url = chance.url();
@@ -337,7 +339,7 @@ DataGenerator.generateHistoryObject = function(opts) {
     item.payload = payload;
   }
   if (!opts.noId) {
-    item._id = chance.guid({version: 5});
+    item._id = chance.guid({ version: 5 });
   }
   return item;
 };
@@ -353,9 +355,14 @@ DataGenerator.pickProject = function(opts) {
   if (!opts.projects) {
     return;
   }
-  if (chance.bool()) {
-    const projectsIndex = chance.integer({min: 0, max: opts.projects.length - 1});
-    return opts.projects[projectsIndex];
+  let allow;
+  if (opts.forceProject) {
+    allow = true;
+  } else {
+    allow = chance.bool();
+  }
+  if (allow) {
+    return chance.pick(opts.projects);
   }
 };
 /**
@@ -446,20 +453,30 @@ DataGenerator.generateHistoryRequestsData = function(opts) {
 
 /**
  * Generates a random data for a variable object
+ * @param {Object} opts
+ * - {Boolean} defaultEnv When set it always set environment to "default"
  * @return {Object} A variable object.
  */
-DataGenerator.generateVariableObject = function() {
-  const isDefault = chance.bool();
+DataGenerator.generateVariableObject = function(opts) {
+  opts = opts || {};
+  let isDefault;
+  if (opts.defaultEnv) {
+    isDefault = true;
+  } else if (opts.randomEnv) {
+    isDefault = false;
+  } else {
+    isDefault = chance.bool();
+  }
   const result = {
-    enabled: chance.bool({likelihood: 85}),
-    value: chance.sentence({words: 2}),
+    enabled: chance.bool({ likelihood: 85 }),
+    value: chance.sentence({ words: 2 }),
     variable: chance.word(),
-    _id: chance.guid({version: 5})
+    _id: chance.guid({ version: 5 })
   };
   if (isDefault) {
     result.environment = 'default';
   } else {
-    result.environment = chance.sentence({words: 2});
+    result.environment = chance.sentence({ words: 2 });
   }
   return result;
 };
@@ -501,10 +518,10 @@ DataGenerator.generateHeaderSetObject = function(opts) {
   const result = {
     created: time,
     updated: time,
-    order: chance.integer({min: 0, max: 10}),
-    name: chance.sentence({words: 2}),
-    headers: headers,
-    _id: chance.guid({version: 5})
+    order: chance.integer({ min: 0, max: 10 }),
+    name: chance.sentence({ words: 2 }),
+    headers,
+    _id: chance.guid({ version: 5 })
   };
   return result;
 };
@@ -531,10 +548,10 @@ DataGenerator.generateCookieObject = function() {
     created: time,
     updated: time,
     expires: chance.hammertime(),
-    maxAge: chance.integer({min: 100, max: 1000}),
+    maxAge: chance.integer({ min: 100, max: 1000 }),
     name: chance.word(),
     value: chance.word(),
-    _id: chance.guid({version: 5}),
+    _id: chance.guid({ version: 5 }),
     domain: chance.domain(),
     hostOnly: chance.bool(),
     httponly: chance.bool(),
@@ -564,7 +581,7 @@ DataGenerator.generateCookiesData = function(opts) {
 DataGenerator.generateUrlObject = function() {
   const result = {
     time: chance.hammertime(),
-    cnt: chance.integer({min: 100, max: 1000}),
+    cnt: chance.integer({ min: 100, max: 1000 }),
     _id: chance.url()
   };
   return result;
@@ -586,6 +603,20 @@ DataGenerator.generateUrlsData = function(opts) {
   return result;
 };
 /**
+ * Generates random URL data object.
+ * @return {Object}
+ */
+DataGenerator.generateHostRuleObject = function() {
+  const result = {
+    _id: chance.guid({ version: 5 }),
+    from: chance.url(),
+    to: chance.url(),
+    enabled: chance.bool(),
+    comment: chance.string()
+  };
+  return result;
+};
+/**
  * Generates host rules
  *
  * @param {Object} opts Configuration options:
@@ -599,14 +630,20 @@ DataGenerator.generateHostRulesData = function(opts) {
   opts.size = opts.size || 25;
   const result = [];
   for (let i = 0; i < opts.size; i++) {
-    result.push({
-      _id: chance.guid({version: 5}),
-      from: chance.url(),
-      to: chance.url(),
-      enabled: chance.bool(),
-      comment: chance.string()
-    });
+    result.push(DataGenerator.generateHostRuleObject());
   }
+  return result;
+};
+/**
+ * Generates random Basic authorization object.
+ * @return {Object}
+ */
+DataGenerator.generateBasicAuthObject = function() {
+  const result = {
+    _id: 'basic/' + chance.string(),
+    type: 'basic',
+    url: chance.url()
+  };
   return result;
 };
 /**
@@ -623,11 +660,7 @@ DataGenerator.generateBasicAuthData = function(opts) {
   opts.size = opts.size || 25;
   const result = [];
   for (let i = 0; i < opts.size; i++) {
-    result.push({
-      _id: 'basic/' + chance.string(),
-      type: 'basic',
-      url: chance.url()
-    });
+    result.push(DataGenerator.generateBasicAuthObject());
   }
   return result;
 };
@@ -675,10 +708,14 @@ DataGenerator.insertSavedIfNotExists = function(opts) {
 DataGenerator.insertHistoryIfNotExists = function(opts) {
   opts = opts || {};
   const db = new PouchDB('history-requests');
-  return db.allDocs()
+  return db.allDocs({
+    include_docs: true
+  })
   .then(function(response) {
     if (!response.rows.length) {
       return DataGenerator.insertHistoryRequestData(opts);
+    } else {
+      return response.rows.map((item) => item.doc);
     }
   });
 };
@@ -732,15 +769,13 @@ DataGenerator.insertSavedRequestData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHistoryRequestData = function(opts) {
+DataGenerator.insertHistoryRequestData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateHistoryRequestsData(opts);
   const db = new PouchDB('history-requests');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves a list of project objects.
@@ -751,15 +786,13 @@ DataGenerator.insertHistoryRequestData = function(opts) {
  * - autoRequestId - If set it generates request ID to add to `requests` array
  * @return {Promise}
  */
-DataGenerator.insertProjectsData = function(opts) {
+DataGenerator.insertProjectsData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateProjects(opts);
   const db = new PouchDB('legacy-projects');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves websocket data to the data store.
@@ -769,15 +802,13 @@ DataGenerator.insertProjectsData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertWebsocketData = function(opts) {
+DataGenerator.insertWebsocketData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('websocket-url-history');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves url history data to the data store.
@@ -787,15 +818,13 @@ DataGenerator.insertWebsocketData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertUrlHistoryData = function(opts) {
+DataGenerator.insertUrlHistoryData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('url-history');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves variables data to the data store.
@@ -805,15 +834,13 @@ DataGenerator.insertUrlHistoryData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertVariablesData = function(opts) {
+DataGenerator.insertVariablesData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateVariablesData(opts);
   const db = new PouchDB('variables');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves headers sets data to the data store.
@@ -823,15 +850,13 @@ DataGenerator.insertVariablesData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHeadersSetsData = function(opts) {
+DataGenerator.insertHeadersSetsData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateHeadersSetsData(opts);
   const db = new PouchDB('headers-sets');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves cookies data to the data store.
@@ -841,15 +866,13 @@ DataGenerator.insertHeadersSetsData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertCookiesData = function(opts) {
+DataGenerator.insertCookiesData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateCookiesData(opts);
   const db = new PouchDB('cookies');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves basic auth data to the data store.
@@ -859,15 +882,13 @@ DataGenerator.insertCookiesData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertBasicAuthData = function(opts) {
+DataGenerator.insertBasicAuthData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateBasicAuthData(opts);
   const db = new PouchDB('auth-data');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Generates and saves host rules data to the data store.
@@ -877,132 +898,130 @@ DataGenerator.insertBasicAuthData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHostRulesData = function(opts) {
+DataGenerator.insertHostRulesData = async (opts) => {
   opts = opts || {};
   const data = DataGenerator.generateHostRulesData(opts);
   const db = new PouchDB('host-rules');
-  return db.bulkDocs(data)
-  .then(function(response) {
-    updateRevsAndIds(response, data);
-    return data;
-  });
+  const response = await db.bulkDocs(data);
+  updateRevsAndIds(response, data);
+  return data;
 };
 /**
  * Destroys saved and projects database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroySavedRequestData = function() {
+DataGenerator.destroySavedRequestData = async () => {
   const savedDb = new PouchDB('saved-requests');
   const projectsDb = new PouchDB('legacy-projects');
-  return savedDb.destroy().then(function() {
-    return projectsDb.destroy();
-  });
+  await savedDb.destroy();
+  await projectsDb.destroy();
 };
 /**
  * Destroys history database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyHistoryData = function() {
+DataGenerator.destroyHistoryData = async () => {
   const db = new PouchDB('history-requests');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys legacy projects database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.clearLegacyProjects = function() {
+DataGenerator.clearLegacyProjects = async () => {
   const db = new PouchDB('legacy-projects');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys websockets URL history database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyWebsocketsData = function() {
+DataGenerator.destroyWebsocketsData = async () => {
   const db = new PouchDB('websocket-url-history');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys URL history database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyUrlData = function() {
+DataGenerator.destroyUrlData = async () => {
   const db = new PouchDB('url-history');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys headers sets database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyHeadersData = function() {
+DataGenerator.destroyHeadersData = async () => {
   const db = new PouchDB('headers-sets');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys variables and anvironments database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyVariablesData = function() {
+DataGenerator.destroyVariablesData = async () => {
   const db = new PouchDB('variables');
   const db2 = new PouchDB('variables-environments');
-  return db.destroy().then(function() {
-    return db2.destroy();
-  });
+  await db.destroy();
+  await db2.destroy();
 };
 /**
  * Destroys cookies database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyCookiesData = function() {
+DataGenerator.destroyCookiesData = async () => {
   const db = new PouchDB('cookies');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys auth data database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyAuthDataData = function() {
+DataGenerator.destroyAuthData = async () => {
   const db = new PouchDB('auth-data');
-  return db.destroy();
+  await db.destroy();
 };
 /**
  * Destroys hosts data database.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyHostRulesData = function() {
+DataGenerator.destroyHostRulesData = async () => {
   const db = new PouchDB('host-rules');
-  return db.destroy();
+  await db.destroy();
+};
+/**
+ * Destroys api-index data database.
+ * @return {Promise} Resolved promise when the data are cleared.
+ */
+DataGenerator.destroyApiIndexData = async () => {
+  const db = new PouchDB('api-index');
+  await db.destroy();
+};
+/**
+ * Destroys api-data database.
+ * @return {Promise} Resolved promise when the data are cleared.
+ */
+DataGenerator.destroyApiData = async () => {
+  const db = new PouchDB('api-data');
+  await db.destroy();
 };
 /**
  * Destroys all databases.
  * @return {Promise} Resolved promise when the data are cleared.
  */
-DataGenerator.destroyAll = function() {
-  return DataGenerator.destroySavedRequestData()
-  .then(function() {
-    return DataGenerator.destroyHistoryData();
-  })
-  .then(function() {
-    return DataGenerator.destroyWebsocketsData();
-  })
-  .then(function() {
-    return DataGenerator.destroyUrlData();
-  })
-  .then(function() {
-    return DataGenerator.destroyHeadersData();
-  })
-  .then(function() {
-    return DataGenerator.destroyVariablesData();
-  })
-  .then(function() {
-    return DataGenerator.destroyCookiesData();
-  })
-  .then(function() {
-    return DataGenerator.destroyAuthDataData();
-  })
-  .then(function() {
-    return DataGenerator.destroyHostRulesData();
-  });
+DataGenerator.destroyAll = async () => {
+  await DataGenerator.destroySavedRequestData();
+  await DataGenerator.destroyHistoryData();
+  await DataGenerator.destroyWebsocketsData();
+  await DataGenerator.destroyUrlData();
+  await DataGenerator.destroyHeadersData();
+  await DataGenerator.destroyVariablesData();
+  await DataGenerator.destroyCookiesData();
+  await DataGenerator.destroyAuthData();
+  await DataGenerator.destroyHostRulesData();
+  await DataGenerator.destroyApiIndexData();
+  await DataGenerator.destroyApiData();
 };
 /**
  * Deeply clones an object.
@@ -1011,7 +1030,7 @@ DataGenerator.destroyAll = function() {
  */
 DataGenerator.clone = function(obj) {
   let copy;
-  if (null === obj || 'object' !== typeof obj) {
+  if (obj === null || typeof obj !== 'object') {
     return obj;
   }
   if (obj instanceof Date) {
@@ -1049,11 +1068,7 @@ DataGenerator.getDatastoreData = function(name) {
   return db.allDocs({
     include_docs: true
   })
-  .then(function(response) {
-    return response.rows.map(function(item) {
-      return item.doc;
-    });
-  });
+  .then((response) => response.rows.map((item) => item.doc));
 };
 // Returns a promise with all saved requests
 DataGenerator.getDatastoreRequestData = function() {
@@ -1076,7 +1091,7 @@ DataGenerator.getDatastoreEnvironmentsData = function() {
   return DataGenerator.getDatastoreData('variables-environments');
 };
 // Returns a promise with all headers sets
-DataGenerator.getDatastoreheadersData = function() {
+DataGenerator.getDatastoreHeadersData = function() {
   return DataGenerator.getDatastoreData('headers-sets');
 };
 // Returns a promise with all cookies
@@ -1092,11 +1107,11 @@ DataGenerator.getDatastoreUrlsData = function() {
   return DataGenerator.getDatastoreData('url-history');
 };
 // Returns a promise with all saved authorization data.
-DataGenerator.getDatastoreAthDataData = function() {
+DataGenerator.getDatastoreAuthData = function() {
   return DataGenerator.getDatastoreData('auth-data');
 };
 // Returns a promise with all host rules data.
-DataGenerator.getDatastoreAthDataData = function() {
+DataGenerator.getDatastoreHostRulesData = function() {
   return DataGenerator.getDatastoreData('host-rules');
 };
 /**
