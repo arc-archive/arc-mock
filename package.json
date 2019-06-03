@@ -5,7 +5,7 @@
     "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
   },
   "name": "@advanced-rest-client/arc-data-generator",
-  "version": "3.0.0-preview.1",
+  "version": "3.0.0",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
   "authors": [
