@@ -6,7 +6,7 @@ const createBaseConfig = require('./karma.conf.js');
 module.exports = (config) => {
   const cnf = {
     sauceLabs: {
-      testName: 'arc-models'
+      testName: 'arc-data-generators'
     }
   };
   if (process.env.TRAVIS) {

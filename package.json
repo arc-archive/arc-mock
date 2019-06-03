@@ -13,9 +13,9 @@
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "devDependencies": {
+    "@advanced-rest-client/testing-karma-sl": "^1.0.2",
     "@open-wc/testing": "^0.11.1",
     "@open-wc/testing-karma": "^2.0.0",
-    "@open-wc/testing-karma-bs": "^1.0.0",
     "@polymer/gen-typescript-declarations": "^1.6.1",
     "lit-html": "^1.1.0",
     "sinon": "^7.3.2",
@@ -29,7 +29,7 @@
     "test:prune-snapshots": "karma start --prune-snapshots",
     "test:legacy": "karma start --legacy --coverage",
     "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
-    "test:bs": "karma start karma.bs.config.js --legacy --coverage"
+    "test:sl": "karma start karma.sl.config.js --legacy --coverage"
   },
   "bugs": {
     "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
