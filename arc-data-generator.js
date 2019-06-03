@@ -147,7 +147,9 @@ DataGenerator.generateUrlEncodedData = function() {
  * @return {String} JSON payload
  */
 DataGenerator.generateJsonData = function() {
-  const size = chance.integer({ min: 1, max: 10 });
+  const size = chance.integer({
+    min: 1, max: 10
+  });
   let result = '{';
   let addComa = false;
   for (let i = 0; i < size; i++) {

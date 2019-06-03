@@ -4,10 +4,56 @@ const slSettings = require('@advanced-rest-client/testing-karma-sl/sl-settings.j
 const createBaseConfig = require('./karma.conf.js');
 
 module.exports = (config) => {
+  const customLaunchers = {
+    'SL_Chrome': {
+      base: 'SauceLabs',
+      browserName: 'chrome',
+      version: 'latest',
+      platform: 'Windows 10'
+    },
+    'SL_Chrome-1': {
+      base: 'SauceLabs',
+      browserName: 'chrome',
+      version: 'latest-1',
+      platform: 'Windows 10'
+    },
+    'SL_Firefox': {
+      base: 'SauceLabs',
+      browserName: 'firefox',
+      version: 'latest',
+      platform: 'Windows 10'
+    },
+    'SL_Firefox-1': {
+      base: 'SauceLabs',
+      browserName: 'firefox',
+      version: 'latest-1',
+      platform: 'Windows 10'
+    },
+    'SL_Safari-1': {
+      base: 'SauceLabs',
+      browserName: 'safari',
+      version: 'latest-1',
+      platform: 'macOS 10.13'
+    },
+    'SL_Safari': {
+      base: 'SauceLabs',
+      browserName: 'safari',
+      version: 'latest',
+      platform: 'macOS 10.13'
+    },
+    'SL_EDGE': {
+      base: 'SauceLabs',
+      browserName: 'microsoftedge',
+      platform: 'Windows 10',
+      version: 'latest'
+    }
+  };
   const cnf = {
     sauceLabs: {
       testName: 'arc-data-generators'
-    }
+    },
+    customLaunchers,
+    browsers: Object.keys(customLaunchers)
   };
   if (process.env.TRAVIS) {
     const buildLabel = 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')';

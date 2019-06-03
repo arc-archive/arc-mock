@@ -1,6 +1,7 @@
 import { assert } from '@open-wc/testing';
-import { DataGenerator } from '../arc-data-generator.js';
 import sinon from 'sinon/pkg/sinon-esm.js';
+import 'pouchdb/dist/pouchdb.js';
+import { DataGenerator } from '../arc-data-generator.js';
 
 describe('DataGenerator', () => {
   describe('setMidninght()', () => {
