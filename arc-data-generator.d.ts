@@ -5,9 +5,11 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   arc-data-generator.html
  *   arc-data-generator.js
  */
 
-/// <reference path="../app-pouchdb/pouchdb.d.ts" />
 
+// tslint:disable:variable-name Describing an API that's defined elsewhere.
+
+
+export {};

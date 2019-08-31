@@ -1,46 +1,69 @@
 {
+  "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
+  "version": "3.0.2",
+  "license": "Apache-2.0",
+  "main": "arc-data-generator.js",
+  "keywords": [
+    "advanced-rest-client",
+    "tests",
+    "helper",
+    "database"
+  ],
+  "authors": [
+    "Pawel Psztyc"
+  ],
+  "contributors": [
+    "The Advanced REST client authors <arc@mulesoft.com>"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
-  },
-  "name": "@advanced-rest-client/arc-data-generator",
-  "version": "3.0.1",
-  "license": "Apache-2.0",
-  "main": "arc-data-generator.js",
-  "authors": [
-    "Pawel Psztyc",
-    "The Advanced REST client authors <arc@mulesoft.com>"
-  ],
-  "devDependencies": {
-    "@advanced-rest-client/testing-karma-sl": "^1.0.2",
-    "@open-wc/testing": "^0.11.1",
-    "@open-wc/testing-karma": "^2.0.16",
-    "@polymer/gen-typescript-declarations": "^1.6.2",
-    "lit-html": "^1.1.1",
-    "sinon": "^7.3.2",
-    "webpack-merge": "^4.1.5"
-  },
-  "scripts": {
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
-    "test": "karma start --coverage",
-    "test:watch": "karma start --auto-watch=true --single-run=false",
-    "test:update-snapshots": "karma start --update-snapshots",
-    "test:prune-snapshots": "karma start --prune-snapshots",
-    "test:legacy": "karma start --legacy --coverage",
-    "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
-    "test:sl": "karma start karma.sl.config.js --legacy --coverage"
   },
   "bugs": {
     "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
     "email": "arc@mulesoft.com"
   },
-  "contributors": [
-    "Pawel Psztyc",
-    "The Advanced REST client authors <arc@mulesoft.com>"
-  ],
   "dependencies": {
-    "chance": "^1.0.18",
+    "chance": "^1.1.0",
     "pouchdb": "^7.1.1"
+  },
+  "devDependencies": {
+    "@advanced-rest-client/eslint-config": "^1.1.1",
+    "@advanced-rest-client/prettier-config": "^0.1.0",
+    "@advanced-rest-client/testing-karma-sl": "^1.0.3",
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^7.0.0",
+    "@open-wc/testing": "^2.2.8",
+    "@open-wc/testing-karma": "^3.1.28",
+    "@polymer/gen-typescript-declarations": "^1.6.2",
+    "lit-html": "^1.1.2",
+    "deepmerge": "^4.0.0",
+    "husky": "^1.0.0",
+    "karma": "^4.2.0",
+    "lint-staged": "^9.2.5",
+    "sinon": "^7.4.1"
+  },
+  "scripts": {
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
+    "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier",
+    "test": "karma start --coverage",
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "test:update-snapshots": "karma start --update-snapshots",
+    "test:prune-snapshots": "karma start --prune-snapshots",
+    "test:compatibility": "karma start --compatibility all --coverage",
+    "test:compatibility:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --compatibility all --coverage"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

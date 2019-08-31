@@ -1,16 +1,15 @@
 language: node_js
-node_js: 10
+node_js: stable
 sudo: required
 addons:
-  firefox: latest
   apt:
     sources:
     - google-chrome
     packages:
     - google-chrome-stable
-cache: npm
 script:
 - npm test
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then npm run test:sl; fi
 env:
   global:
   - secure: MFJhuwsLZHH5aOWugM8YslBOTUS54zXU1sEtT3VT9+JJnWYc0c4NpvbNNBswVM1Gs0EixAXO1xStbCCZB/+s63ndivYPtiChcjaC2y43rGGQlrCbPc78MRJ5Zl9V87fxfJxNpufpzWSdeyxjs9uJyZt24hriLR1hcgdRWGMoiMK69AHWV96656d9/nPbplTYFqrQbIEX8Vw1BSUqLW9Ctb8JaiCkkWKqMmS8+CHkfvCqmqAowftmJjnx+kye+1RkgrqZ+qw7Uh1W7fSFoB2XFjwg6MGQL7lKfV5Q8qaHv3iNP2gQEHUzPWVpJTT5UuVq0A5XMYSPrNdROxVqpDhAvS+VX11oRBIhKDvFW/J88CufQu3WqZ0Dk5sWQMAGVAOahd6tMHfKxCd4vBFBcOPRz/GGDnbuW0BJBBnWK6zBKtk7UdU4IBe6qlYofYN6TrmM/Xw/9mA48dE8njPqzQL0S8IL8FweLSV0pMclMVKyrX4TTEIOoVD1tG6LigKhPp9UNl0xP/ifx042FD2rr3pc9RQmiXlu7SdnVLoIMtiaX54WiBOdol+krGNYkHW9MUT9Vn36PzZKGpakbAt5w2Svuf/oC6HhK8uxqCBM20jShBEkSGoV1Z9bjBQFnHy6jI+vHRZEADQGhNmvafZ6CNX0B4F6GfAdtbkDNTZcBy/DP6U=
