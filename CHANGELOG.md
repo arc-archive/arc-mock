@@ -42,3 +42,13 @@
 
 
 
+## [3.0.3](https://github.com/advanced-rest-client/arc-data-generator/compare/3.0.0...3.0.3) (2019-09-01)
+
+
+### Bug Fixes
+
+* fixing `httpOnly` property on the cookie object ([0fee855](https://github.com/advanced-rest-client/arc-data-generator/commit/0fee855))
+* upgrading dependencies to fix audit errors ([0bb3549](https://github.com/advanced-rest-client/arc-data-generator/commit/0bb3549))
+
+
+
