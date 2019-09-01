@@ -1,7 +1,9 @@
 import { assert } from '@open-wc/testing';
-import sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
 import 'pouchdb/dist/pouchdb.js';
 import { DataGenerator } from '../arc-data-generator.js';
+
+/* global PouchDB */
 
 describe('DataGenerator', () => {
   describe('setMidninght()', () => {
@@ -751,7 +753,7 @@ describe('DataGenerator', () => {
       ['value', 'string'],
       ['domain', 'string'],
       ['hostOnly', 'boolean'],
-      ['httponly', 'boolean'],
+      ['httpOnly', 'boolean'],
       ['lastAccess', 'number'],
       ['path', 'string'],
       ['persistent', 'boolean']
@@ -1520,7 +1522,6 @@ describe('DataGenerator', () => {
     ];
 
     before(async function() {
-      this.timeout(10000);
       fns.forEach((fn) => {
         const spy = sinon.spy(DataGenerator, fn);
         spies.push(spy);
@@ -1568,12 +1569,10 @@ describe('DataGenerator', () => {
 
   describe('Data getters', () => {
     before(function() {
-      this.timeout(10000);
       return DataGenerator.destroyAll();
     });
 
     after(function() {
-      this.timeout(10000);
       return DataGenerator.destroyAll();
     });
 

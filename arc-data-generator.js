@@ -556,7 +556,7 @@ DataGenerator.generateCookieObject = function() {
     _id: chance.guid({ version: 5 }),
     domain: chance.domain(),
     hostOnly: chance.bool(),
-    httponly: chance.bool(),
+    httpOnly: chance.bool(),
     lastAccess: time,
     path: chance.bool() ? '/' : '/' + chance.word(),
     persistent: chance.bool()
