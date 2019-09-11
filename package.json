@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
   "keywords": [
@@ -35,14 +35,14 @@
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^7.0.0",
     "@open-wc/testing": "^2.2.8",
-    "@open-wc/testing-karma": "^3.1.28",
+    "@open-wc/testing-karma": "^3.1.32",
     "@polymer/gen-typescript-declarations": "^1.6.2",
-    "lit-html": "^1.1.2",
     "deepmerge": "^4.0.0",
     "husky": "^1.0.0",
     "karma": "^4.2.0",
     "lint-staged": "^9.2.5",
-    "sinon": "^7.4.1"
+    "lit-html": "^1.1.2",
+    "sinon": "^7.4.2"
   },
   "scripts": {
     "update-types": "gen-typescript-declarations --deleteExisting --outDir .",

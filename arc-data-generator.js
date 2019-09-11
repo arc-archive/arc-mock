@@ -666,6 +666,66 @@ DataGenerator.generateBasicAuthData = function(opts) {
   }
   return result;
 };
+
+DataGenerator.generateApiIndex = function(opts) {
+  opts = opts || {};
+  const result = {};
+  const versionsSize = opts.versionSize ? opts.versionSize : chance.integer({ min: 1, max: 5 });
+  const versions = [];
+  let last;
+  for (let i = 0; i < versionsSize; i++) {
+    last = versions[versions.length] = `v${i}`;
+  }
+  result.order = opts.order || 0;
+  result.title = chance.sentence({ words: 2 });
+  result.type = 'RAML 1.0';
+  result._id = chance.url();
+  result.versions = versions;
+  result.latest = last;
+  return result;
+};
+
+DataGenerator.generateApiIndexList = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  opts.size = opts.size || 25;
+  const result = [];
+  for (let i = 0; i < opts.size; i++) {
+    result.push(DataGenerator.generateApiIndex({
+      order: i
+    }));
+  }
+  return result;
+};
+
+DataGenerator.generateApiData = function(index, opts) {
+  opts = opts || {};
+  const result = [];
+  index.versions.forEach((version) => {
+    const item = {
+      data: '[{}]',
+      indexId: index._id,
+      version,
+      _id: index._id + '|' + version
+    };
+    result[result.length] = item;
+  });
+  return result;
+};
+
+DataGenerator.generateApiDataList = function(indexes, opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = indexes.length;
+  let result = [];
+  for (let i = 0; i < size; i++) {
+    const data = DataGenerator.generateApiData(indexes[i], opts);
+    result = result.concat(data);
+  }
+  return result;
+};
 /**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
@@ -908,6 +968,20 @@ DataGenerator.insertHostRulesData = async (opts) => {
   updateRevsAndIds(response, data);
   return data;
 };
+DataGenerator.insertApiData = async function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const index = DataGenerator.generateApiIndexList(opts);
+  const data = DataGenerator.generateApiDataList(index, opts);
+  const indexDb = new PouchDB('api-index');
+  const indexResponse = await indexDb.bulkDocs(index);
+  updateRevsAndIds(indexResponse, index);
+  const dataDb = new PouchDB('api-data');
+  const dataResponse = await dataDb.bulkDocs(data);
+  updateRevsAndIds(dataResponse, data);
+  return [index, data];
+};
 /**
  * Destroys saved and projects database.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1007,6 +1081,11 @@ DataGenerator.destroyApiIndexData = async () => {
 DataGenerator.destroyApiData = async () => {
   const db = new PouchDB('api-data');
   await db.destroy();
+};
+
+DataGenerator.destroyAllApiData = async () => {
+  await DataGenerator.destroyApiIndexData();
+  await DataGenerator.destroyApiData();
 };
 /**
  * Destroys all databases.
@@ -1113,6 +1192,14 @@ DataGenerator.getDatastoreAuthData = function() {
 // Returns a promise with all host rules data.
 DataGenerator.getDatastoreHostRulesData = function() {
   return DataGenerator.getDatastoreData('host-rules');
+};
+// Returns a promise with all api-index data.
+DataGenerator.getDatastoreApiIndexData = function() {
+  return DataGenerator.getDatastoreData('api-index');
+};
+// Returns a promise with all api-data data.
+DataGenerator.getDatastoreHostApiData = function() {
+  return DataGenerator.getDatastoreData('api-data');
 };
 /**
  * Updates an object in an data store.

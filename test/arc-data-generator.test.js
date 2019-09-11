@@ -943,6 +943,87 @@ describe('DataGenerator', () => {
     });
   });
 
+
+  describe('generateApiIndex()', () => {
+    it('Returns an object', () => {
+      const result = DataGenerator.generateApiIndex();
+      assert.typeOf(result, 'object');
+    });
+
+    [
+      ['_id', 'string'],
+      ['order', 'number'],
+      ['title', 'string'],
+      ['type', 'string'],
+      ['latest', 'string'],
+      ['versions', 'array']
+    ].forEach(([property, type]) => {
+      it(`Has ${property} property of a type ${type}`, () => {
+        const result = DataGenerator.generateApiIndex();
+        assert.typeOf(result[property], type);
+      });
+    });
+
+    it('generate versionsSize versions', () => {
+      const result = DataGenerator.generateApiIndex({
+        versionSize: 10
+      });
+      assert.lengthOf(result.versions, 10);
+    });
+  });
+
+  describe('generateApiIndexList()', () => {
+    it('returns an array', () => {
+      const result = DataGenerator.generateApiIndexList();
+      assert.typeOf(result, 'array');
+    });
+
+    it('has size items', () => {
+      const result = DataGenerator.generateApiIndexList({
+        size: 10
+      });
+      assert.lengthOf(result, 10);
+    });
+
+    it('calls generateApiIndex() for each item', () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiIndex');
+      DataGenerator.generateApiIndexList({
+        size: 2
+      });
+      DataGenerator.generateApiIndex.restore();
+      assert.equal(spy.callCount, 2);
+    });
+  });
+
+  describe('generateApiData()', () => {
+    it('Returns an array', () => {
+      const index = DataGenerator.generateApiIndex();
+      const result = DataGenerator.generateApiData(index);
+      assert.typeOf(result, 'array');
+    });
+
+    [
+      ['_id', 'string'],
+      ['data', 'string'],
+      ['version', 'string'],
+      ['indexId', 'string']
+    ].forEach(([property, type]) => {
+      it(`Has ${property} property of a type ${type}`, () => {
+        const index = DataGenerator.generateApiIndex();
+        const result = DataGenerator.generateApiData(index)[0];
+        assert.typeOf(result[property], type);
+      });
+    });
+
+    it('generate an item for each version', () => {
+      const index = DataGenerator.generateApiIndex({
+        versionSize: 6
+      });
+      const result = DataGenerator.generateApiData(index);
+      assert.lengthOf(result, 6);
+    });
+  });
+
   describe('insertSavedIfNotExists()', () => {
     beforeEach(async () => {
       await DataGenerator.destroySavedRequestData();
@@ -1329,6 +1410,44 @@ describe('DataGenerator', () => {
         size: 1
       });
       DataGenerator.generateHostRulesData.restore();
+      assert.isTrue(spy.called);
+    });
+  });
+
+  describe('insertApiData()', () => {
+    beforeEach(async () => {
+      await DataGenerator.destroyAllApiData();
+    });
+
+    it('returns generated data', async () => {
+      const result = await DataGenerator.insertApiData();
+      assert.lengthOf(result[0], 25);
+      assert.isAbove(result[1].length, 25);
+    });
+
+    it('object has updated _rev', async () => {
+      const result = await DataGenerator.insertApiData({
+        size: 1
+      });
+      assert.typeOf(result[0][0]._id, 'string', 'Object has _id');
+      assert.typeOf(result[0][0]._rev, 'string', 'Object has _rev');
+    });
+
+    it('Calls generateApiIndexList()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiIndexList');
+      await DataGenerator.insertApiData({
+        size: 1
+      });
+      DataGenerator.generateApiIndexList.restore();
+      assert.isTrue(spy.called);
+    });
+
+    it('Calls generateApiDataList()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiDataList');
+      await DataGenerator.insertApiData({
+        size: 1
+      });
+      DataGenerator.generateApiDataList.restore();
       assert.isTrue(spy.called);
     });
   });
