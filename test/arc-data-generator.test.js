@@ -1024,6 +1024,87 @@ describe('DataGenerator', () => {
     });
   });
 
+  describe('generateClientCertificate()', () => {
+    it('Returns an object', () => {
+      const result = DataGenerator.generateClientCertificate();
+      assert.typeOf(result, 'object');
+    });
+
+    [
+      ['type', 'String'],
+      ['cert', 'object'],
+      ['key', 'object'],
+      ['name', 'string'],
+      ['created', 'number'],
+    ].forEach(([prop, type]) => {
+      it(`Has ${prop} property of a type ${type}`, () => {
+        const result = DataGenerator.generateClientCertificate();
+        assert.typeOf(result[prop], type);
+      });
+    });
+
+    it('uses passed type', () => {
+      const result = DataGenerator.generateClientCertificate({
+        type: 'p12'
+      });
+      assert.equal(result.type, 'p12');
+    });
+
+    it('ignores created', () => {
+      const result = DataGenerator.generateClientCertificate({
+        noCreated: true
+      });
+      assert.isUndefined(result.created);
+    });
+
+    it('creates binnary data on a certificate', () => {
+      const result = DataGenerator.generateClientCertificate({
+        binnary: true
+      });
+      assert.typeOf(result.cert.data, 'Uint8Array');
+    });
+
+    it('adds passphrase to a certificate by default', () => {
+      const result = DataGenerator.generateClientCertificate({});
+      assert.typeOf(result.cert.passphrase, 'string');
+    });
+
+    it('ignores passphrase on a certificate', () => {
+      const result = DataGenerator.generateClientCertificate({
+        noPassphrase: true
+      });
+      assert.isUndefined(result.cert.passphrase);
+    });
+  });
+
+  describe('generateClientCertificates()', () => {
+    it('Returns an array', () => {
+      const result = DataGenerator.generateClientCertificates();
+      assert.typeOf(result, 'array');
+    });
+
+    it('List has default number of items', () => {
+      const result = DataGenerator.generateClientCertificates();
+      assert.lengthOf(result, 15);
+    });
+
+    it('Returns requested number of items', () => {
+      const result = DataGenerator.generateClientCertificates({
+        size: 5
+      });
+      assert.lengthOf(result, 5);
+    });
+
+    it('Calls generateClientCertificate()', () => {
+      const spy = sinon.spy(DataGenerator, 'generateClientCertificate');
+      DataGenerator.generateClientCertificates({
+        size: 5
+      });
+      DataGenerator.generateClientCertificate.restore();
+      assert.equal(spy.callCount, 5);
+    });
+  });
+
   describe('insertSavedIfNotExists()', () => {
     beforeEach(async () => {
       await DataGenerator.destroySavedRequestData();
@@ -1452,6 +1533,34 @@ describe('DataGenerator', () => {
     });
   });
 
+  describe('insertCertificatesData()', () => {
+    beforeEach(async () => {
+      await DataGenerator.destroyClientCertificates();
+    });
+
+    it('returns generated data', async () => {
+      const result = await DataGenerator.insertCertificatesData();
+      assert.lengthOf(result, 15);
+    });
+
+    it('object has updated _rev', async () => {
+      const result = await DataGenerator.insertCertificatesData({
+        size: 1
+      });
+      assert.typeOf(result[0]._id, 'string', 'Object has _id');
+      assert.typeOf(result[0]._rev, 'string', 'Object has _rev');
+    });
+
+    it('Calls generateClientCertificates()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateClientCertificates');
+      await DataGenerator.insertCertificatesData({
+        size: 1
+      });
+      DataGenerator.generateClientCertificates.restore();
+      assert.isTrue(spy.called);
+    });
+  });
+
   describe('destroySavedRequestData()', () => {
     beforeEach(async () => {
       await DataGenerator.insertSavedRequestData();
@@ -1619,6 +1728,20 @@ describe('DataGenerator', () => {
     it('Clears api-index store', async () => {
       await DataGenerator.destroyApiData();
       const savedDb = new PouchDB('api-data');
+      const docs = await savedDb.allDocs();
+      assert.equal(docs.total_rows, 0);
+    });
+  });
+
+  describe('destroyClientCertificates()', () => {
+    beforeEach(async () => {
+      const db = new PouchDB('client-certificates');
+      await db.put({ _id: 'test-' + Date.now() });
+    });
+
+    it('Clears client-certificates store', async () => {
+      await DataGenerator.destroyClientCertificates();
+      const savedDb = new PouchDB('client-certificates');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
     });

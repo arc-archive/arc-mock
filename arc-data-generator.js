@@ -727,6 +727,107 @@ DataGenerator.generateApiDataList = function(indexes, opts) {
   return result;
 };
 /**
+ * Transforms ASCII string to buffer.
+ * @param {String} asciiString
+ * @return {Uint8Array}
+ */
+DataGenerator.strToBuffer = function(asciiString) {
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Converts incomming data to base64 string.
+ * @param {ArrayBuffer|Buffer} ab
+ * @return {String} Safe to store string.
+ */
+DataGenerator.bufferToBase64 = function (ab) {
+  return btoa(String.fromCharCode(...ab));
+};
+/**
+ * Converts base64 string to Uint8Array.
+ * @param {String} str
+ * @return {Uint8Array} Restored array view.
+ */
+DataGenerator.base64ToBuffer = function(str) {
+  const asciiString = atob(str);
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Creates a certificate struct.
+ * @param {?Object} opts
+ * - binnary {Boolean}
+ * - noPassphrase {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  let data = chance.paragraph();
+  if (opts.binnary) {
+    data = DataGenerator.strToBuffer(data);
+  }
+  const result = {
+    data
+  };
+  if (!opts.noPassphrase) {
+    result.passphrase = chance.word();
+  }
+  return result;
+};
+/**
+ * Creates a clientCertificate struct.
+ * @param {?Object} opts
+ * - binnary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateClientCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const type = opts.type ? opts.type : chance.pick(['p12', 'pem']);
+  const cert = DataGenerator.generateCertificate(opts);
+  const name = chance.word();
+  const result = {
+    type,
+    name,
+    cert
+  };
+  if (!opts.noKey) {
+    result.key = DataGenerator.generateCertificate(opts);
+  }
+  if (!opts.noCreated) {
+    result.created = Date.now();
+  }
+  return result;
+};
+/**
+ * Creates a list of ClientCertificate struct.
+ * @param {?Object} opts
+ * - size {Number} - default 15
+ * - binnary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Array<Object>}
+ */
+DataGenerator.generateClientCertificates = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = opts.size || 15;
+  const result = [];
+  for (let i = 0; i < size; i++) {
+    result[result.length] = DataGenerator.generateClientCertificate(opts);
+  }
+  return result;
+};
+
+/**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
  * @param {Object} opts See `DataGenerator.generateSavedRequestData`
@@ -982,6 +1083,41 @@ DataGenerator.insertApiData = async function(opts) {
   updateRevsAndIds(dataResponse, data);
   return [index, data];
 };
+
+function certificateToStore(cert) {
+  if (typeof cert.data === 'string') {
+    return cert;
+  }
+  cert.type = 'buffer';
+  cert.data = DataGenerator.bufferToBase64(cert.data);
+  return cert;
+};
+
+DataGenerator.insertCertificatesData = async function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const data = DataGenerator.generateClientCertificates(opts);
+  const responses = [];
+  const indexDb = new PouchDB('client-certificates');
+  const dataDb = new PouchDB('client-certificates-data');
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const dataDoc = {
+      cert: certificateToStore(item.cert)
+    };
+    delete item.cert;
+    if (item.key) {
+      dataDoc.key = certificateToStore(item.key);
+      delete item.key;
+    }
+    const dataRes = await dataDb.post(dataDoc);
+    item.dataKey = dataRes.id;
+    responses[responses.length] = await indexDb.post(item);
+  }
+  updateRevsAndIds(responses, data);
+  return data;
+};
 /**
  * Destroys saved and projects database.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1087,6 +1223,11 @@ DataGenerator.destroyAllApiData = async () => {
   await DataGenerator.destroyApiIndexData();
   await DataGenerator.destroyApiData();
 };
+
+DataGenerator.destroyClientCertificates = async () => {
+  await new PouchDB('client-certificates').destroy();
+  await new PouchDB('client-certificates-data').destroy();
+};
 /**
  * Destroys all databases.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1103,6 +1244,7 @@ DataGenerator.destroyAll = async () => {
   await DataGenerator.destroyHostRulesData();
   await DataGenerator.destroyApiIndexData();
   await DataGenerator.destroyApiData();
+  await DataGenerator.destroyClientCertificates();
 };
 /**
  * Deeply clones an object.
