@@ -754,7 +754,7 @@ DataGenerator.base64ToBuffer = function(str) {
 /**
  * Creates a certificate struct.
  * @param {?Object} opts
- * - binnary {Boolean}
+ * - binary {Boolean}
  * - noPassphrase {Boolean}
  * @return {Object}
  */
@@ -763,7 +763,7 @@ DataGenerator.generateCertificate = function(opts) {
     opts = {};
   }
   let data = chance.paragraph();
-  if (opts.binnary) {
+  if (opts.binary) {
     data = DataGenerator.strToBuffer(data);
   }
   const result = {
@@ -777,7 +777,7 @@ DataGenerator.generateCertificate = function(opts) {
 /**
  * Creates a clientCertificate struct.
  * @param {?Object} opts
- * - binnary {Boolean}
+ * - binary {Boolean}
  * - noPassphrase {Boolean}
  * - type {String} - `p12` or `pem`
  * - noKey {Boolean}
@@ -808,7 +808,7 @@ DataGenerator.generateClientCertificate = function(opts) {
  * Creates a list of ClientCertificate struct.
  * @param {?Object} opts
  * - size {Number} - default 15
- * - binnary {Boolean}
+ * - binary {Boolean}
  * - noPassphrase {Boolean}
  * - type {String} - `p12` or `pem`
  * - noKey {Boolean}

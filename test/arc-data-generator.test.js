@@ -1057,9 +1057,9 @@ describe('DataGenerator', () => {
       assert.isUndefined(result.created);
     });
 
-    it('creates binnary data on a certificate', () => {
+    it('creates binary data on a certificate', () => {
       const result = DataGenerator.generateClientCertificate({
-        binnary: true
+        binary: true
       });
       assert.typeOf(result.cert.data, 'Uint8Array');
     });
