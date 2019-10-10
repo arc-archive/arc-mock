@@ -68,3 +68,20 @@
 
 
 
+## [3.0.6](https://github.com/advanced-rest-client/arc-data-generator/compare/3.0.0...3.0.6) (2019-10-10)
+
+
+### Bug Fixes
+
+* fixing `httpOnly` property on the cookie object ([0fee855](https://github.com/advanced-rest-client/arc-data-generator/commit/0fee855))
+* fixing spelling ([58e0b3a](https://github.com/advanced-rest-client/arc-data-generator/commit/58e0b3a))
+* upgrading dependencies to fix audit errors ([0bb3549](https://github.com/advanced-rest-client/arc-data-generator/commit/0bb3549))
+
+
+### Features
+
+* adding API data generators ([61ce40c](https://github.com/advanced-rest-client/arc-data-generator/commit/61ce40c))
+* fixing [#2](https://github.com/advanced-rest-client/arc-data-generator/issues/2) - client certificates support ([ffcaa4a](https://github.com/advanced-rest-client/arc-data-generator/commit/ffcaa4a))
+
+
+
