@@ -228,8 +228,8 @@ DataGenerator.generateRequestTime = function() {
  * -   `noGoogleDrive` (Boolean) if set then it will never generate Drive ID.
  * @return {String|undefined} Google Drive ID or undefined.
  */
-DataGenerator.generateDriveId = function(opts) {
-  if (opts && opts.noGoogleDrive) {
+DataGenerator.generateDriveId = function(opts={}) {
+  if (opts.noGoogleDrive) {
     return;
   }
   return chance.string({
@@ -267,8 +267,7 @@ DataGenerator.generateDescription = function(opts) {
  *      properties.
  * @return {Object} A request object
  */
-DataGenerator.generateSavedItem = function(opts) {
-  opts = opts || {};
+DataGenerator.generateSavedItem = function(opts={}) {
   const isPayload = DataGenerator.generateIsPayload(opts);
   const method = DataGenerator.generateMethod(isPayload, opts);
   const contentType = isPayload ? DataGenerator.generateContentType() :
@@ -350,7 +349,7 @@ DataGenerator.generateHistoryObject = function(opts) {
  *
  * @param {Object} opts Configuration options:
  * -   `projects` (Array<Object>) List of generated projects
- * @return {Object|undefined} Project id or undefined.
+ * @return {String|undefined} Project id or undefined.
  */
 DataGenerator.pickProject = function(opts) {
   opts = opts || {};
@@ -377,8 +376,7 @@ DataGenerator.pickProject = function(opts) {
  * `DataGenerator.generateSavedItem`
  * @return {Array<Object>} List of requests.
  */
-DataGenerator.generateRequests = function(opts) {
-  opts = opts || {};
+DataGenerator.generateRequests = function(opts={}) {
   const list = [];
   const size = opts.requestsSize || 25;
   for (let i = 0; i < size; i++) {
@@ -405,8 +403,7 @@ DataGenerator.generateRequests = function(opts) {
  * - autoRequestId - If set it generates request ID to add to `requests` array
  * @return {Array<Object>} List of generated project objects.
  */
-DataGenerator.generateProjects = function(opts) {
-  opts = opts || {};
+DataGenerator.generateProjects = function(opts={}) {
   const size = opts.projectsSize || 5;
   const result = [];
   for (let i = 0; i < size; i++) {
@@ -424,8 +421,7 @@ DataGenerator.generateProjects = function(opts) {
  * `DataGenerator.generateSavedItem`
  * @return {Object} A map with `projects` and `requests` arrays.
  */
-DataGenerator.generateSavedRequestData = function(opts) {
-  opts = opts || {};
+DataGenerator.generateSavedRequestData = function(opts={}) {
   const projects = DataGenerator.generateProjects(opts);
   opts.projects = projects;
   const requests = DataGenerator.generateRequests(opts);
@@ -443,8 +439,7 @@ DataGenerator.generateSavedRequestData = function(opts) {
  * `DataGenerator.generateHistoryObject`
  * @return {Array} List of history requests objects
  */
-DataGenerator.generateHistoryRequestsData = function(opts) {
-  opts = opts || {};
+DataGenerator.generateHistoryRequestsData = function(opts={}) {
   const size = opts.requestsSize || 25;
   const result = [];
   for (let i = 0; i < size; i++) {
@@ -556,7 +551,7 @@ DataGenerator.generateCookieObject = function() {
     _id: chance.guid({ version: 5 }),
     domain: chance.domain(),
     hostOnly: chance.bool(),
-    httponly: chance.bool(),
+    httpOnly: chance.bool(),
     lastAccess: time,
     path: chance.bool() ? '/' : '/' + chance.word(),
     persistent: chance.bool()
@@ -595,8 +590,7 @@ DataGenerator.generateUrlObject = function() {
  * -   `size` (Number) Number of items to generate. Default to 25.
  * @return {Array} List of datastore entries.
  */
-DataGenerator.generateUrlsData = function(opts) {
-  opts = opts || {};
+DataGenerator.generateUrlsData = function(opts={}) {
   const size = opts.size || 25;
   const result = [];
   for (let i = 0; i < size; i++) {
@@ -666,6 +660,167 @@ DataGenerator.generateBasicAuthData = function(opts) {
   }
   return result;
 };
+
+DataGenerator.generateApiIndex = function(opts) {
+  opts = opts || {};
+  const result = {};
+  const versionsSize = opts.versionSize ? opts.versionSize : chance.integer({ min: 1, max: 5 });
+  const versions = [];
+  let last;
+  for (let i = 0; i < versionsSize; i++) {
+    last = versions[versions.length] = `v${i}`;
+  }
+  result.order = opts.order || 0;
+  result.title = chance.sentence({ words: 2 });
+  result.type = 'RAML 1.0';
+  result._id = chance.url();
+  result.versions = versions;
+  result.latest = last;
+  return result;
+};
+
+DataGenerator.generateApiIndexList = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  opts.size = opts.size || 25;
+  const result = [];
+  for (let i = 0; i < opts.size; i++) {
+    result.push(DataGenerator.generateApiIndex({
+      order: i
+    }));
+  }
+  return result;
+};
+
+DataGenerator.generateApiData = function(index, opts) {
+  opts = opts || {};
+  const result = [];
+  index.versions.forEach((version) => {
+    const item = {
+      data: '[{}]',
+      indexId: index._id,
+      version,
+      _id: index._id + '|' + version
+    };
+    result[result.length] = item;
+  });
+  return result;
+};
+
+DataGenerator.generateApiDataList = function(indexes, opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = indexes.length;
+  let result = [];
+  for (let i = 0; i < size; i++) {
+    const data = DataGenerator.generateApiData(indexes[i], opts);
+    result = result.concat(data);
+  }
+  return result;
+};
+/**
+ * Transforms ASCII string to buffer.
+ * @param {String} asciiString
+ * @return {Uint8Array}
+ */
+DataGenerator.strToBuffer = function(asciiString) {
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Converts incomming data to base64 string.
+ * @param {ArrayBuffer|Buffer} ab
+ * @return {String} Safe to store string.
+ */
+DataGenerator.bufferToBase64 = function (ab) {
+  return btoa(String.fromCharCode(...ab));
+};
+/**
+ * Converts base64 string to Uint8Array.
+ * @param {String} str
+ * @return {Uint8Array} Restored array view.
+ */
+DataGenerator.base64ToBuffer = function(str) {
+  const asciiString = atob(str);
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Creates a certificate struct.
+ * @param {?Object} opts
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  let data = chance.paragraph();
+  if (opts.binary) {
+    data = DataGenerator.strToBuffer(data);
+  }
+  const result = {
+    data
+  };
+  if (!opts.noPassphrase) {
+    result.passphrase = chance.word();
+  }
+  return result;
+};
+/**
+ * Creates a clientCertificate struct.
+ * @param {?Object} opts
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateClientCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const type = opts.type ? opts.type : chance.pick(['p12', 'pem']);
+  const cert = DataGenerator.generateCertificate(opts);
+  const name = chance.word();
+  const result = {
+    type,
+    name,
+    cert
+  };
+  if (!opts.noKey) {
+    result.key = DataGenerator.generateCertificate(opts);
+  }
+  if (!opts.noCreated) {
+    result.created = Date.now();
+  }
+  return result;
+};
+/**
+ * Creates a list of ClientCertificate struct.
+ * @param {?Object} opts
+ * - size {Number} - default 15
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Array<Object>}
+ */
+DataGenerator.generateClientCertificates = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = opts.size || 15;
+  const result = [];
+  for (let i = 0; i < size; i++) {
+    result[result.length] = DataGenerator.generateClientCertificate(opts);
+  }
+  return result;
+};
+
 /**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
@@ -673,32 +828,28 @@ DataGenerator.generateBasicAuthData = function(opts) {
  * for description.
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  */
-DataGenerator.insertSavedIfNotExists = function(opts) {
+DataGenerator.insertSavedIfNotExists = async function(opts) {
   opts = opts || {};
   const savedDb = new PouchDB('saved-requests');
-  return savedDb.allDocs({
+  const response = await savedDb.allDocs({
     include_docs: true
-  })
-  .then(function(response) {
-    if (!response.rows.length) {
-      return DataGenerator.insertSavedRequestData(opts);
-    }
-    const result = {
-      requests: response.rows.map(function(item) {
-        return item.doc;
-      })
-    };
-    const projectsDb = new PouchDB('legacy-projects');
-    return projectsDb.allDocs({
-      include_docs: true
-    })
-    .then(function(response) {
-      result.projects = response.rows.map(function(item) {
-        return item.doc;
-      });
-      return result;
-    });
   });
+  if (!response.rows.length) {
+    return await DataGenerator.insertSavedRequestData(opts);
+  }
+  const result = {
+    requests: response.rows.map(function(item) {
+      return item.doc;
+    })
+  };
+  const projectsDb = new PouchDB('legacy-projects');
+  const projectsResponse = await projectsDb.allDocs({
+    include_docs: true
+  });
+  result.projects = projectsResponse.rows.map(function(item) {
+    return item.doc;
+  });
+  return result;
 };
 /**
  * Preforms `DataGenerator.insertHistoryRequestData` if no requests data are in
@@ -707,19 +858,17 @@ DataGenerator.insertSavedIfNotExists = function(opts) {
  * for description.
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  */
-DataGenerator.insertHistoryIfNotExists = function(opts) {
+DataGenerator.insertHistoryIfNotExists = async function(opts) {
   opts = opts || {};
   const db = new PouchDB('history-requests');
-  return db.allDocs({
+  const response = await db.allDocs({
     include_docs: true
-  })
-  .then(function(response) {
-    if (!response.rows.length) {
-      return DataGenerator.insertHistoryRequestData(opts);
-    } else {
-      return response.rows.map((item) => item.doc);
-    }
   });
+  if (!response.rows.length) {
+    return await DataGenerator.insertHistoryRequestData(opts);
+  } else {
+    return response.rows.map((item) => item.doc);
+  }
 };
 /**
  * Creates `_id` on the original insert object if it wasn't created before and
@@ -748,20 +897,15 @@ function updateRevsAndIds(insertResponse, insertedData) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertSavedRequestData = function(opts) {
-  opts = opts || {};
+DataGenerator.insertSavedRequestData = async function(opts={}) {
   const data = DataGenerator.generateSavedRequestData(opts);
   const projectsDb = new PouchDB('legacy-projects');
-  return projectsDb.bulkDocs(data.projects)
-  .then(function(response) {
-    updateRevsAndIds(response, data.projects);
-    const savedDb = new PouchDB('saved-requests');
-    return savedDb.bulkDocs(data.requests);
-  })
-  .then(function(response) {
-    updateRevsAndIds(response, data.requests);
-    return data;
-  });
+  const response = await projectsDb.bulkDocs(data.projects);
+  updateRevsAndIds(response, data.projects);
+  const savedDb = new PouchDB('saved-requests');
+  const response2 = await savedDb.bulkDocs(data.requests);
+  updateRevsAndIds(response2, data.requests);
+  return data;
 };
 /**
  * Generates and saves history data to the data store.
@@ -771,8 +915,7 @@ DataGenerator.insertSavedRequestData = function(opts) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHistoryRequestData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertHistoryRequestData = async (opts={}) => {
   const data = DataGenerator.generateHistoryRequestsData(opts);
   const db = new PouchDB('history-requests');
   const response = await db.bulkDocs(data);
@@ -788,8 +931,7 @@ DataGenerator.insertHistoryRequestData = async (opts) => {
  * - autoRequestId - If set it generates request ID to add to `requests` array
  * @return {Promise}
  */
-DataGenerator.insertProjectsData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertProjectsData = async (opts={}) => {
   const data = DataGenerator.generateProjects(opts);
   const db = new PouchDB('legacy-projects');
   const response = await db.bulkDocs(data);
@@ -804,8 +946,7 @@ DataGenerator.insertProjectsData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertWebsocketData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertWebsocketData = async (opts={}) => {
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('websocket-url-history');
   const response = await db.bulkDocs(data);
@@ -820,8 +961,7 @@ DataGenerator.insertWebsocketData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertUrlHistoryData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertUrlHistoryData = async (opts={}) => {
   const data = DataGenerator.generateUrlsData(opts);
   const db = new PouchDB('url-history');
   const response = await db.bulkDocs(data);
@@ -836,8 +976,7 @@ DataGenerator.insertUrlHistoryData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertVariablesData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertVariablesData = async (opts={}) => {
   const data = DataGenerator.generateVariablesData(opts);
   const db = new PouchDB('variables');
   const response = await db.bulkDocs(data);
@@ -852,8 +991,7 @@ DataGenerator.insertVariablesData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHeadersSetsData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertHeadersSetsData = async (opts={}) => {
   const data = DataGenerator.generateHeadersSetsData(opts);
   const db = new PouchDB('headers-sets');
   const response = await db.bulkDocs(data);
@@ -868,8 +1006,7 @@ DataGenerator.insertHeadersSetsData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertCookiesData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertCookiesData = async (opts={}) => {
   const data = DataGenerator.generateCookiesData(opts);
   const db = new PouchDB('cookies');
   const response = await db.bulkDocs(data);
@@ -884,8 +1021,7 @@ DataGenerator.insertCookiesData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertBasicAuthData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertBasicAuthData = async (opts={}) => {
   const data = DataGenerator.generateBasicAuthData(opts);
   const db = new PouchDB('auth-data');
   const response = await db.bulkDocs(data);
@@ -900,12 +1036,54 @@ DataGenerator.insertBasicAuthData = async (opts) => {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertHostRulesData = async (opts) => {
-  opts = opts || {};
+DataGenerator.insertHostRulesData = async (opts={}) => {
   const data = DataGenerator.generateHostRulesData(opts);
   const db = new PouchDB('host-rules');
   const response = await db.bulkDocs(data);
   updateRevsAndIds(response, data);
+  return data;
+};
+DataGenerator.insertApiData = async function(opts={}) {
+  const index = DataGenerator.generateApiIndexList(opts);
+  const data = DataGenerator.generateApiDataList(index, opts);
+  const indexDb = new PouchDB('api-index');
+  const indexResponse = await indexDb.bulkDocs(index);
+  updateRevsAndIds(indexResponse, index);
+  const dataDb = new PouchDB('api-data');
+  const dataResponse = await dataDb.bulkDocs(data);
+  updateRevsAndIds(dataResponse, data);
+  return [index, data];
+};
+
+function certificateToStore(cert) {
+  if (typeof cert.data === 'string') {
+    return cert;
+  }
+  cert.type = 'buffer';
+  cert.data = DataGenerator.bufferToBase64(cert.data);
+  return cert;
+};
+
+DataGenerator.insertCertificatesData = async function(opts={}) {
+  const data = DataGenerator.generateClientCertificates(opts);
+  const responses = [];
+  const indexDb = new PouchDB('client-certificates');
+  const dataDb = new PouchDB('client-certificates-data');
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const dataDoc = {
+      cert: certificateToStore(item.cert)
+    };
+    delete item.cert;
+    if (item.key) {
+      dataDoc.key = certificateToStore(item.key);
+      delete item.key;
+    }
+    const dataRes = await dataDb.post(dataDoc);
+    item.dataKey = dataRes.id;
+    responses[responses.length] = await indexDb.post(item);
+  }
+  updateRevsAndIds(responses, data);
   return data;
 };
 /**
@@ -1008,6 +1186,16 @@ DataGenerator.destroyApiData = async () => {
   const db = new PouchDB('api-data');
   await db.destroy();
 };
+
+DataGenerator.destroyAllApiData = async () => {
+  await DataGenerator.destroyApiIndexData();
+  await DataGenerator.destroyApiData();
+};
+
+DataGenerator.destroyClientCertificates = async () => {
+  await new PouchDB('client-certificates').destroy();
+  await new PouchDB('client-certificates-data').destroy();
+};
 /**
  * Destroys all databases.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1024,6 +1212,7 @@ DataGenerator.destroyAll = async () => {
   await DataGenerator.destroyHostRulesData();
   await DataGenerator.destroyApiIndexData();
   await DataGenerator.destroyApiData();
+  await DataGenerator.destroyClientCertificates();
 };
 /**
  * Deeply clones an object.
@@ -1065,12 +1254,12 @@ DataGenerator.clone = function(obj) {
  * `_pouch_` prefix
  * @return {Promise} Promise resolved to all read docs.
  */
-DataGenerator.getDatastoreData = function(name) {
+DataGenerator.getDatastoreData = async function(name) {
   const db = new PouchDB(name);
-  return db.allDocs({
+  const response = await db.allDocs({
     include_docs: true
-  })
-  .then((response) => response.rows.map((item) => item.doc));
+  });
+  return response.rows.map((item) => item.doc);
 };
 // Returns a promise with all saved requests
 DataGenerator.getDatastoreRequestData = function() {
@@ -1116,6 +1305,20 @@ DataGenerator.getDatastoreAuthData = function() {
 DataGenerator.getDatastoreHostRulesData = function() {
   return DataGenerator.getDatastoreData('host-rules');
 };
+// Returns a promise with all api-index data.
+DataGenerator.getDatastoreApiIndexData = function() {
+  return DataGenerator.getDatastoreData('api-index');
+};
+// Returns a promise with all api-data data.
+DataGenerator.getDatastoreHostApiData = function() {
+  return DataGenerator.getDatastoreData('api-data');
+};
+// Returns a promise with all client certificates and the data.
+DataGenerator.getDatastoreClientCertificates = async function() {
+  const certs = await DataGenerator.getDatastoreData('client-certificates');
+  const data = await DataGenerator.getDatastoreData('client-certificates-data');
+  return [certs, data];
+};
 /**
  * Updates an object in an data store.
  *
@@ -1123,9 +1326,9 @@ DataGenerator.getDatastoreHostRulesData = function() {
  * @param {Object} obj The object to be stored.
  * @return {Promise} A promise resolved to insert result.
  */
-DataGenerator.updateObject = function(dbName, obj) {
-  const db = new PouchDB(name);
-  return db.put(obj, {
+DataGenerator.updateObject = async function(dbName, obj) {
+  const db = new PouchDB(dbName);
+  return await db.put(obj, {
     force: true
   });
 };

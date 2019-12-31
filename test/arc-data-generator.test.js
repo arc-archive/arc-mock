@@ -1,7 +1,9 @@
 import { assert } from '@open-wc/testing';
-import sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
 import 'pouchdb/dist/pouchdb.js';
 import { DataGenerator } from '../arc-data-generator.js';
+
+/* global PouchDB */
 
 describe('DataGenerator', () => {
   describe('setMidninght()', () => {
@@ -751,7 +753,7 @@ describe('DataGenerator', () => {
       ['value', 'string'],
       ['domain', 'string'],
       ['hostOnly', 'boolean'],
-      ['httponly', 'boolean'],
+      ['httpOnly', 'boolean'],
       ['lastAccess', 'number'],
       ['path', 'string'],
       ['persistent', 'boolean']
@@ -937,6 +939,168 @@ describe('DataGenerator', () => {
         size: 5
       });
       DataGenerator.generateBasicAuthObject.restore();
+      assert.equal(spy.callCount, 5);
+    });
+  });
+
+
+  describe('generateApiIndex()', () => {
+    it('Returns an object', () => {
+      const result = DataGenerator.generateApiIndex();
+      assert.typeOf(result, 'object');
+    });
+
+    [
+      ['_id', 'string'],
+      ['order', 'number'],
+      ['title', 'string'],
+      ['type', 'string'],
+      ['latest', 'string'],
+      ['versions', 'array']
+    ].forEach(([property, type]) => {
+      it(`Has ${property} property of a type ${type}`, () => {
+        const result = DataGenerator.generateApiIndex();
+        assert.typeOf(result[property], type);
+      });
+    });
+
+    it('generate versionsSize versions', () => {
+      const result = DataGenerator.generateApiIndex({
+        versionSize: 10
+      });
+      assert.lengthOf(result.versions, 10);
+    });
+  });
+
+  describe('generateApiIndexList()', () => {
+    it('returns an array', () => {
+      const result = DataGenerator.generateApiIndexList();
+      assert.typeOf(result, 'array');
+    });
+
+    it('has size items', () => {
+      const result = DataGenerator.generateApiIndexList({
+        size: 10
+      });
+      assert.lengthOf(result, 10);
+    });
+
+    it('calls generateApiIndex() for each item', () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiIndex');
+      DataGenerator.generateApiIndexList({
+        size: 2
+      });
+      DataGenerator.generateApiIndex.restore();
+      assert.equal(spy.callCount, 2);
+    });
+  });
+
+  describe('generateApiData()', () => {
+    it('Returns an array', () => {
+      const index = DataGenerator.generateApiIndex();
+      const result = DataGenerator.generateApiData(index);
+      assert.typeOf(result, 'array');
+    });
+
+    [
+      ['_id', 'string'],
+      ['data', 'string'],
+      ['version', 'string'],
+      ['indexId', 'string']
+    ].forEach(([property, type]) => {
+      it(`Has ${property} property of a type ${type}`, () => {
+        const index = DataGenerator.generateApiIndex();
+        const result = DataGenerator.generateApiData(index)[0];
+        assert.typeOf(result[property], type);
+      });
+    });
+
+    it('generate an item for each version', () => {
+      const index = DataGenerator.generateApiIndex({
+        versionSize: 6
+      });
+      const result = DataGenerator.generateApiData(index);
+      assert.lengthOf(result, 6);
+    });
+  });
+
+  describe('generateClientCertificate()', () => {
+    it('Returns an object', () => {
+      const result = DataGenerator.generateClientCertificate();
+      assert.typeOf(result, 'object');
+    });
+
+    [
+      ['type', 'String'],
+      ['cert', 'object'],
+      ['key', 'object'],
+      ['name', 'string'],
+      ['created', 'number'],
+    ].forEach(([prop, type]) => {
+      it(`Has ${prop} property of a type ${type}`, () => {
+        const result = DataGenerator.generateClientCertificate();
+        assert.typeOf(result[prop], type);
+      });
+    });
+
+    it('uses passed type', () => {
+      const result = DataGenerator.generateClientCertificate({
+        type: 'p12'
+      });
+      assert.equal(result.type, 'p12');
+    });
+
+    it('ignores created', () => {
+      const result = DataGenerator.generateClientCertificate({
+        noCreated: true
+      });
+      assert.isUndefined(result.created);
+    });
+
+    it('creates binary data on a certificate', () => {
+      const result = DataGenerator.generateClientCertificate({
+        binary: true
+      });
+      assert.typeOf(result.cert.data, 'Uint8Array');
+    });
+
+    it('adds passphrase to a certificate by default', () => {
+      const result = DataGenerator.generateClientCertificate({});
+      assert.typeOf(result.cert.passphrase, 'string');
+    });
+
+    it('ignores passphrase on a certificate', () => {
+      const result = DataGenerator.generateClientCertificate({
+        noPassphrase: true
+      });
+      assert.isUndefined(result.cert.passphrase);
+    });
+  });
+
+  describe('generateClientCertificates()', () => {
+    it('Returns an array', () => {
+      const result = DataGenerator.generateClientCertificates();
+      assert.typeOf(result, 'array');
+    });
+
+    it('List has default number of items', () => {
+      const result = DataGenerator.generateClientCertificates();
+      assert.lengthOf(result, 15);
+    });
+
+    it('Returns requested number of items', () => {
+      const result = DataGenerator.generateClientCertificates({
+        size: 5
+      });
+      assert.lengthOf(result, 5);
+    });
+
+    it('Calls generateClientCertificate()', () => {
+      const spy = sinon.spy(DataGenerator, 'generateClientCertificate');
+      DataGenerator.generateClientCertificates({
+        size: 5
+      });
+      DataGenerator.generateClientCertificate.restore();
       assert.equal(spy.callCount, 5);
     });
   });
@@ -1331,6 +1495,72 @@ describe('DataGenerator', () => {
     });
   });
 
+  describe('insertApiData()', () => {
+    beforeEach(async () => {
+      await DataGenerator.destroyAllApiData();
+    });
+
+    it('returns generated data', async () => {
+      const result = await DataGenerator.insertApiData();
+      assert.lengthOf(result[0], 25);
+      assert.isAbove(result[1].length, 25);
+    });
+
+    it('object has updated _rev', async () => {
+      const result = await DataGenerator.insertApiData({
+        size: 1
+      });
+      assert.typeOf(result[0][0]._id, 'string', 'Object has _id');
+      assert.typeOf(result[0][0]._rev, 'string', 'Object has _rev');
+    });
+
+    it('Calls generateApiIndexList()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiIndexList');
+      await DataGenerator.insertApiData({
+        size: 1
+      });
+      DataGenerator.generateApiIndexList.restore();
+      assert.isTrue(spy.called);
+    });
+
+    it('Calls generateApiDataList()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateApiDataList');
+      await DataGenerator.insertApiData({
+        size: 1
+      });
+      DataGenerator.generateApiDataList.restore();
+      assert.isTrue(spy.called);
+    });
+  });
+
+  describe('insertCertificatesData()', () => {
+    beforeEach(async () => {
+      await DataGenerator.destroyClientCertificates();
+    });
+
+    it('returns generated data', async () => {
+      const result = await DataGenerator.insertCertificatesData();
+      assert.lengthOf(result, 15);
+    });
+
+    it('object has updated _rev', async () => {
+      const result = await DataGenerator.insertCertificatesData({
+        size: 1
+      });
+      assert.typeOf(result[0]._id, 'string', 'Object has _id');
+      assert.typeOf(result[0]._rev, 'string', 'Object has _rev');
+    });
+
+    it('Calls generateClientCertificates()', async () => {
+      const spy = sinon.spy(DataGenerator, 'generateClientCertificates');
+      await DataGenerator.insertCertificatesData({
+        size: 1
+      });
+      DataGenerator.generateClientCertificates.restore();
+      assert.isTrue(spy.called);
+    });
+  });
+
   describe('destroySavedRequestData()', () => {
     beforeEach(async () => {
       await DataGenerator.insertSavedRequestData();
@@ -1503,6 +1733,20 @@ describe('DataGenerator', () => {
     });
   });
 
+  describe('destroyClientCertificates()', () => {
+    beforeEach(async () => {
+      const db = new PouchDB('client-certificates');
+      await db.put({ _id: 'test-' + Date.now() });
+    });
+
+    it('Clears client-certificates store', async () => {
+      await DataGenerator.destroyClientCertificates();
+      const savedDb = new PouchDB('client-certificates');
+      const docs = await savedDb.allDocs();
+      assert.equal(docs.total_rows, 0);
+    });
+  });
+
   describe('destroyAll()', () => {
     const spies = [];
     const fns = [
@@ -1520,7 +1764,6 @@ describe('DataGenerator', () => {
     ];
 
     before(async function() {
-      this.timeout(10000);
       fns.forEach((fn) => {
         const spy = sinon.spy(DataGenerator, fn);
         spies.push(spy);
@@ -1568,12 +1811,10 @@ describe('DataGenerator', () => {
 
   describe('Data getters', () => {
     before(function() {
-      this.timeout(10000);
       return DataGenerator.destroyAll();
     });
 
     after(function() {
-      this.timeout(10000);
       return DataGenerator.destroyAll();
     });
 
@@ -1587,7 +1828,7 @@ describe('DataGenerator', () => {
       ['getDatastoreUrlsData', 'insertUrlHistoryData', 25],
       ['getDatastoreAuthData', 'insertBasicAuthData', 25],
       ['getDatastoreHostRulesData', 'insertHostRulesData', 25],
-      ['getDatastoreCookiesData', 'insertCookiesData', 25]
+      ['getDatastoreCookiesData', 'insertCookiesData', 25],
     ].forEach((item) => {
       it(`${item[0]}() returns the data`, async () => {
         await DataGenerator[item[1]]();
@@ -1595,6 +1836,16 @@ describe('DataGenerator', () => {
         assert.typeOf(data, 'array');
         assert.lengthOf(data, item[2]);
       });
+    });
+
+    it(`getDatastoreClientCertificates() returns the data`, async () => {
+      await DataGenerator.insertCertificatesData();
+      const data = await DataGenerator.getDatastoreClientCertificates();
+      assert.typeOf(data, 'array');
+      assert.lengthOf(data, 2, 'has both results');
+      const [certs, cData] = data;
+      assert.lengthOf(certs, 15, 'has certificates list');
+      assert.lengthOf(cData, 15, 'has certificates data list');
     });
   });
 });
