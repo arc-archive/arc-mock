@@ -1357,7 +1357,7 @@ DataGenerator.getDatastoreClientCertificates = async function() {
  * @return {Promise} A promise resolved to insert result.
  */
 DataGenerator.updateObject = function(dbName, obj) {
-  const db = new PouchDB(name);
+  const db = new PouchDB(dbName);
   return db.put(obj, {
     force: true
   });
