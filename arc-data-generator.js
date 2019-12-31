@@ -556,7 +556,7 @@ DataGenerator.generateCookieObject = function() {
     _id: chance.guid({ version: 5 }),
     domain: chance.domain(),
     hostOnly: chance.bool(),
-    httponly: chance.bool(),
+    httpOnly: chance.bool(),
     lastAccess: time,
     path: chance.bool() ? '/' : '/' + chance.word(),
     persistent: chance.bool()
@@ -666,6 +666,167 @@ DataGenerator.generateBasicAuthData = function(opts) {
   }
   return result;
 };
+
+DataGenerator.generateApiIndex = function(opts) {
+  opts = opts || {};
+  const result = {};
+  const versionsSize = opts.versionSize ? opts.versionSize : chance.integer({ min: 1, max: 5 });
+  const versions = [];
+  let last;
+  for (let i = 0; i < versionsSize; i++) {
+    last = versions[versions.length] = `v${i}`;
+  }
+  result.order = opts.order || 0;
+  result.title = chance.sentence({ words: 2 });
+  result.type = 'RAML 1.0';
+  result._id = chance.url();
+  result.versions = versions;
+  result.latest = last;
+  return result;
+};
+
+DataGenerator.generateApiIndexList = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  opts.size = opts.size || 25;
+  const result = [];
+  for (let i = 0; i < opts.size; i++) {
+    result.push(DataGenerator.generateApiIndex({
+      order: i
+    }));
+  }
+  return result;
+};
+
+DataGenerator.generateApiData = function(index, opts) {
+  opts = opts || {};
+  const result = [];
+  index.versions.forEach((version) => {
+    const item = {
+      data: '[{}]',
+      indexId: index._id,
+      version,
+      _id: index._id + '|' + version
+    };
+    result[result.length] = item;
+  });
+  return result;
+};
+
+DataGenerator.generateApiDataList = function(indexes, opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = indexes.length;
+  let result = [];
+  for (let i = 0; i < size; i++) {
+    const data = DataGenerator.generateApiData(indexes[i], opts);
+    result = result.concat(data);
+  }
+  return result;
+};
+/**
+ * Transforms ASCII string to buffer.
+ * @param {String} asciiString
+ * @return {Uint8Array}
+ */
+DataGenerator.strToBuffer = function(asciiString) {
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Converts incomming data to base64 string.
+ * @param {ArrayBuffer|Buffer} ab
+ * @return {String} Safe to store string.
+ */
+DataGenerator.bufferToBase64 = function (ab) {
+  return btoa(String.fromCharCode(...ab));
+};
+/**
+ * Converts base64 string to Uint8Array.
+ * @param {String} str
+ * @return {Uint8Array} Restored array view.
+ */
+DataGenerator.base64ToBuffer = function(str) {
+  const asciiString = atob(str);
+  return new Uint8Array([...asciiString].map((char) => char.charCodeAt(0)));
+};
+/**
+ * Creates a certificate struct.
+ * @param {?Object} opts
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  let data = chance.paragraph();
+  if (opts.binary) {
+    data = DataGenerator.strToBuffer(data);
+  }
+  const result = {
+    data
+  };
+  if (!opts.noPassphrase) {
+    result.passphrase = chance.word();
+  }
+  return result;
+};
+/**
+ * Creates a clientCertificate struct.
+ * @param {?Object} opts
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Object}
+ */
+DataGenerator.generateClientCertificate = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const type = opts.type ? opts.type : chance.pick(['p12', 'pem']);
+  const cert = DataGenerator.generateCertificate(opts);
+  const name = chance.word();
+  const result = {
+    type,
+    name,
+    cert
+  };
+  if (!opts.noKey) {
+    result.key = DataGenerator.generateCertificate(opts);
+  }
+  if (!opts.noCreated) {
+    result.created = Date.now();
+  }
+  return result;
+};
+/**
+ * Creates a list of ClientCertificate struct.
+ * @param {?Object} opts
+ * - size {Number} - default 15
+ * - binary {Boolean}
+ * - noPassphrase {Boolean}
+ * - type {String} - `p12` or `pem`
+ * - noKey {Boolean}
+ * - noCreated {Boolean}
+ * @return {Array<Object>}
+ */
+DataGenerator.generateClientCertificates = function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const size = opts.size || 15;
+  const result = [];
+  for (let i = 0; i < size; i++) {
+    result[result.length] = DataGenerator.generateClientCertificate(opts);
+  }
+  return result;
+};
+
 /**
  * Preforms `DataGenerator.insertSavedRequestData` if no requests data are in
  * the data store.
@@ -908,6 +1069,55 @@ DataGenerator.insertHostRulesData = async (opts) => {
   updateRevsAndIds(response, data);
   return data;
 };
+DataGenerator.insertApiData = async function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const index = DataGenerator.generateApiIndexList(opts);
+  const data = DataGenerator.generateApiDataList(index, opts);
+  const indexDb = new PouchDB('api-index');
+  const indexResponse = await indexDb.bulkDocs(index);
+  updateRevsAndIds(indexResponse, index);
+  const dataDb = new PouchDB('api-data');
+  const dataResponse = await dataDb.bulkDocs(data);
+  updateRevsAndIds(dataResponse, data);
+  return [index, data];
+};
+
+function certificateToStore(cert) {
+  if (typeof cert.data === 'string') {
+    return cert;
+  }
+  cert.type = 'buffer';
+  cert.data = DataGenerator.bufferToBase64(cert.data);
+  return cert;
+};
+
+DataGenerator.insertCertificatesData = async function(opts) {
+  if (!opts) {
+    opts = {};
+  }
+  const data = DataGenerator.generateClientCertificates(opts);
+  const responses = [];
+  const indexDb = new PouchDB('client-certificates');
+  const dataDb = new PouchDB('client-certificates-data');
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const dataDoc = {
+      cert: certificateToStore(item.cert)
+    };
+    delete item.cert;
+    if (item.key) {
+      dataDoc.key = certificateToStore(item.key);
+      delete item.key;
+    }
+    const dataRes = await dataDb.post(dataDoc);
+    item.dataKey = dataRes.id;
+    responses[responses.length] = await indexDb.post(item);
+  }
+  updateRevsAndIds(responses, data);
+  return data;
+};
 /**
  * Destroys saved and projects database.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1008,6 +1218,16 @@ DataGenerator.destroyApiData = async () => {
   const db = new PouchDB('api-data');
   await db.destroy();
 };
+
+DataGenerator.destroyAllApiData = async () => {
+  await DataGenerator.destroyApiIndexData();
+  await DataGenerator.destroyApiData();
+};
+
+DataGenerator.destroyClientCertificates = async () => {
+  await new PouchDB('client-certificates').destroy();
+  await new PouchDB('client-certificates-data').destroy();
+};
 /**
  * Destroys all databases.
  * @return {Promise} Resolved promise when the data are cleared.
@@ -1024,6 +1244,7 @@ DataGenerator.destroyAll = async () => {
   await DataGenerator.destroyHostRulesData();
   await DataGenerator.destroyApiIndexData();
   await DataGenerator.destroyApiData();
+  await DataGenerator.destroyClientCertificates();
 };
 /**
  * Deeply clones an object.
@@ -1049,11 +1270,9 @@ DataGenerator.clone = function(obj) {
   }
   if (obj instanceof Object) {
     copy = {};
-    for (let attr in obj) {
-      if (obj.hasOwnProperty(attr)) {
-        copy[attr] = DataGenerator.clone(obj[attr]);
-      }
-    }
+    Object.keys(obj).forEach((key) => {
+      copy[key] = DataGenerator.clone(obj[key]);
+    });
     return copy;
   }
   throw new Error('Unable to copy obj! Its type isn\'t supported.');
@@ -1115,6 +1334,14 @@ DataGenerator.getDatastoreAuthData = function() {
 // Returns a promise with all host rules data.
 DataGenerator.getDatastoreHostRulesData = function() {
   return DataGenerator.getDatastoreData('host-rules');
+};
+// Returns a promise with all api-index data.
+DataGenerator.getDatastoreApiIndexData = function() {
+  return DataGenerator.getDatastoreData('api-index');
+};
+// Returns a promise with all api-data data.
+DataGenerator.getDatastoreHostApiData = function() {
+  return DataGenerator.getDatastoreData('api-data');
 };
 /**
  * Updates an object in an data store.

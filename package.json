@@ -1,9 +1,15 @@
 {
   "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
-  "version": "3.0.0",
+  "version": "3.0.6",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
+  "keywords": [
+    "advanced-rest-client",
+    "tests",
+    "helper",
+    "database"
+  ],
   "authors": [
     "Pawel Psztyc"
   ],
@@ -39,13 +45,19 @@
   },
   "scripts": {
     "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
+    "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier",
     "test": "karma start --coverage",
     "test:watch": "karma start --auto-watch=true --single-run=false",
     "test:update-snapshots": "karma start --update-snapshots",
     "test:prune-snapshots": "karma start --prune-snapshots",
-    "test:legacy": "karma start --legacy --coverage",
-    "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
-    "test:sl": "karma start karma.sl.config.js --legacy --coverage"
+    "test:compatibility": "karma start --compatibility all --coverage",
+    "test:compatibility:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --compatibility all --coverage"
   },
   "lint-staged": {
     "*.js": [
