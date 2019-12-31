@@ -834,32 +834,28 @@ DataGenerator.generateClientCertificates = function(opts) {
  * for description.
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  */
-DataGenerator.insertSavedIfNotExists = function(opts) {
+DataGenerator.insertSavedIfNotExists = async function(opts) {
   opts = opts || {};
   const savedDb = new PouchDB('saved-requests');
-  return savedDb.allDocs({
+  const response = await savedDb.allDocs({
     include_docs: true
-  })
-  .then(function(response) {
-    if (!response.rows.length) {
-      return DataGenerator.insertSavedRequestData(opts);
-    }
-    const result = {
-      requests: response.rows.map(function(item) {
-        return item.doc;
-      })
-    };
-    const projectsDb = new PouchDB('legacy-projects');
-    return projectsDb.allDocs({
-      include_docs: true
-    })
-    .then(function(response) {
-      result.projects = response.rows.map(function(item) {
-        return item.doc;
-      });
-      return result;
-    });
   });
+  if (!response.rows.length) {
+    return await DataGenerator.insertSavedRequestData(opts);
+  }
+  const result = {
+    requests: response.rows.map(function(item) {
+      return item.doc;
+    })
+  };
+  const projectsDb = new PouchDB('legacy-projects');
+  const projectsResponse = await projectsDb.allDocs({
+    include_docs: true
+  });
+  result.projects = projectsResponse.rows.map(function(item) {
+    return item.doc;
+  });
+  return result;
 };
 /**
  * Preforms `DataGenerator.insertHistoryRequestData` if no requests data are in
@@ -868,19 +864,17 @@ DataGenerator.insertSavedIfNotExists = function(opts) {
  * for description.
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  */
-DataGenerator.insertHistoryIfNotExists = function(opts) {
+DataGenerator.insertHistoryIfNotExists = async function(opts) {
   opts = opts || {};
   const db = new PouchDB('history-requests');
-  return db.allDocs({
+  const response = await db.allDocs({
     include_docs: true
-  })
-  .then(function(response) {
-    if (!response.rows.length) {
-      return DataGenerator.insertHistoryRequestData(opts);
-    } else {
-      return response.rows.map((item) => item.doc);
-    }
   });
+  if (!response.rows.length) {
+    return await DataGenerator.insertHistoryRequestData(opts);
+  } else {
+    return response.rows.map((item) => item.doc);
+  }
 };
 /**
  * Creates `_id` on the original insert object if it wasn't created before and
@@ -909,20 +903,16 @@ function updateRevsAndIds(insertResponse, insertedData) {
  * @return {Promise} Resolved promise when data are inserted into the datastore.
  * Promise resolves to generated data object
  */
-DataGenerator.insertSavedRequestData = function(opts) {
+DataGenerator.insertSavedRequestData = async function(opts) {
   opts = opts || {};
   const data = DataGenerator.generateSavedRequestData(opts);
   const projectsDb = new PouchDB('legacy-projects');
-  return projectsDb.bulkDocs(data.projects)
-  .then(function(response) {
-    updateRevsAndIds(response, data.projects);
-    const savedDb = new PouchDB('saved-requests');
-    return savedDb.bulkDocs(data.requests);
-  })
-  .then(function(response) {
-    updateRevsAndIds(response, data.requests);
-    return data;
-  });
+  const response = await projectsDb.bulkDocs(data.projects);
+  updateRevsAndIds(response, data.projects);
+  const savedDb = new PouchDB('saved-requests');
+  const response2 = await savedDb.bulkDocs(data.requests);
+  updateRevsAndIds(response2, data.requests);
+  return data;
 };
 /**
  * Generates and saves history data to the data store.
@@ -1284,12 +1274,12 @@ DataGenerator.clone = function(obj) {
  * `_pouch_` prefix
  * @return {Promise} Promise resolved to all read docs.
  */
-DataGenerator.getDatastoreData = function(name) {
+DataGenerator.getDatastoreData = async function(name) {
   const db = new PouchDB(name);
-  return db.allDocs({
+  const response = await db.allDocs({
     include_docs: true
-  })
-  .then((response) => response.rows.map((item) => item.doc));
+  });
+  return response.rows.map((item) => item.doc);
 };
 // Returns a promise with all saved requests
 DataGenerator.getDatastoreRequestData = function() {
