@@ -1,25 +1,41 @@
 {
-  "description": "Generates data for ARC demo pages and tests",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
-  },
   "name": "@advanced-rest-client/arc-data-generator",
+  "description": "Generates data for ARC demo pages and tests",
   "version": "3.0.0",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
   "authors": [
-    "Pawel Psztyc",
+    "Pawel Psztyc"
+  ],
+  "contributors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
+  "bugs": {
+    "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
+    "email": "arc@mulesoft.com"
+  },
+  "dependencies": {
+    "chance": "^1.1.4",
+    "pouchdb": "^7.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/advanced-rest-client/arc-data-generator.git"
+  },
   "devDependencies": {
+    "@advanced-rest-client/eslint-config": "^1.1.4",
+    "@advanced-rest-client/prettier-config": "^0.1.0",
     "@advanced-rest-client/testing-karma-sl": "^1.1.0",
     "@open-wc/testing": "^2.4.2",
     "@open-wc/testing-karma": "^3.2.24",
     "@polymer/gen-typescript-declarations": "^1.6.2",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "lit-html": "^1.1.2",
     "sinon": "^8.0.2",
-    "webpack-merge": "^4.2.2"
+    "deepmerge": "^4.2.2",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0"
   },
   "scripts": {
     "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
@@ -31,16 +47,10 @@
     "test:legacy:watch": "karma start --legacy --auto-watch=true --single-run=false",
     "test:sl": "karma start karma.sl.config.js --legacy --coverage"
   },
-  "bugs": {
-    "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
-    "email": "arc@mulesoft.com"
-  },
-  "contributors": [
-    "Pawel Psztyc",
-    "The Advanced REST client authors <arc@mulesoft.com>"
-  ],
-  "dependencies": {
-    "chance": "^1.1.4",
-    "pouchdb": "^7.1.1"
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
