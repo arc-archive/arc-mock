@@ -1343,6 +1343,12 @@ DataGenerator.getDatastoreApiIndexData = function() {
 DataGenerator.getDatastoreHostApiData = function() {
   return DataGenerator.getDatastoreData('api-data');
 };
+// Returns a promise with all client certificates and the data.
+DataGenerator.getDatastoreClientCertificates = async function() {
+  const certs = await DataGenerator.getDatastoreData('client-certificates');
+  const data = await DataGenerator.getDatastoreData('client-certificates-data');
+  return [certs, data];
+};
 /**
  * Updates an object in an data store.
  *

@@ -1828,7 +1828,7 @@ describe('DataGenerator', () => {
       ['getDatastoreUrlsData', 'insertUrlHistoryData', 25],
       ['getDatastoreAuthData', 'insertBasicAuthData', 25],
       ['getDatastoreHostRulesData', 'insertHostRulesData', 25],
-      ['getDatastoreCookiesData', 'insertCookiesData', 25]
+      ['getDatastoreCookiesData', 'insertCookiesData', 25],
     ].forEach((item) => {
       it(`${item[0]}() returns the data`, async () => {
         await DataGenerator[item[1]]();
@@ -1836,6 +1836,16 @@ describe('DataGenerator', () => {
         assert.typeOf(data, 'array');
         assert.lengthOf(data, item[2]);
       });
+    });
+
+    it(`getDatastoreClientCertificates() returns the data`, async () => {
+      await DataGenerator.insertCertificatesData();
+      const data = await DataGenerator.getDatastoreClientCertificates();
+      assert.typeOf(data, 'array');
+      assert.lengthOf(data, 2, 'has both results');
+      const [certs, cData] = data;
+      assert.lengthOf(certs, 15, 'has certificates list');
+      assert.lengthOf(cData, 15, 'has certificates data list');
     });
   });
 });
