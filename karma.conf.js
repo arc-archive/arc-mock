@@ -1,8 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
-const createDefaultConfig = require('@open-wc/testing-karma/default-config');
-const merge = require('webpack-merge');
+const { createDefaultConfig } = require('@open-wc/testing-karma');
+const merge = require('deepmerge');
 
-module.exports = config => {
+module.exports = (config) => {
   config.set(
     merge(createDefaultConfig(config), {
       files: [

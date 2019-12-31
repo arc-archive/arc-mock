@@ -1238,11 +1238,9 @@ DataGenerator.clone = function(obj) {
   }
   if (obj instanceof Object) {
     copy = {};
-    for (let attr in obj) {
-      if (obj.hasOwnProperty(attr)) {
-        copy[attr] = DataGenerator.clone(obj[attr]);
-      }
-    }
+    Object.keys(obj).forEach((key) => {
+      copy[key] = DataGenerator.clone(obj[key]);
+    });
     return copy;
   }
   throw new Error('Unable to copy obj! Its type isn\'t supported.');

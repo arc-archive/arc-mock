@@ -1,10 +1,19 @@
 {
+  "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
   "version": "3.0.7",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
+  "keywords": [
+    "advanced-rest-client",
+    "tests",
+    "helper",
+    "database"
+  ],
   "authors": [
-    "Pawel Psztyc",
+    "Pawel Psztyc"
+  ],
+  "contributors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "bugs": {
@@ -48,16 +57,10 @@
     "test:compatibility:watch": "karma start --compatibility auto --auto-watch=true --single-run=false",
     "test:sl": "karma start karma.sl.config.js --compatibility auto --coverage"
   },
-  "bugs": {
-    "url": "https://github.com/advanced-rest-client/arc-data-generator/issues",
-    "email": "arc@mulesoft.com"
-  },
-  "contributors": [
-    "Pawel Psztyc",
-    "The Advanced REST client authors <arc@mulesoft.com>"
-  ],
-  "dependencies": {
-    "chance": "^1.0.18",
-    "pouchdb": "^7.0.0"
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
