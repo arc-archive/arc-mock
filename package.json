@@ -34,7 +34,6 @@
     "@advanced-rest-client/testing-karma-sl": "^1.1.0",
     "@open-wc/testing": "^2.4.2",
     "@open-wc/testing-karma": "^3.2.24",
-    "@polymer/gen-typescript-declarations": "^1.6.2",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "lit-html": "^1.1.2",
@@ -44,7 +43,6 @@
     "lint-staged": "^9.5.0"
   },
   "scripts": {
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
     "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
     "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
     "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
