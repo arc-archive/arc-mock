@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "license": "Apache-2.0",
   "main": "arc-data-generator.js",
   "keywords": [
