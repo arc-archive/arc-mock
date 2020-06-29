@@ -54,6 +54,10 @@ export declare interface SavedCreateOptions extends BaseRequestOptions {
   project?: string;
 }
 
+export declare interface InsertSavedResult {
+  projects: object[];
+  requests: object[];
+}
 
 export declare class DataGenerator {
   readonly payloadMethods: string[];
@@ -392,9 +396,9 @@ export declare class DataGenerator {
    * the data store.
    * @param opts See `generateSavedRequestData`
    * for description.
-   * @returns {Promise<object>} Resolved promise when data are inserted into the datastore.
+   * @returns Resolved promise when data are inserted into the datastore.
    */
-  insertSavedIfNotExists(opts?: object): Promise<object>;
+  insertSavedIfNotExists(opts?: object): Promise<InsertSavedResult>;
 
   /**
    * Preforms `insertHistoryRequestData` if no requests data are in
@@ -423,7 +427,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertSavedRequestData(opts?: object): Promise<object>;
+  insertSavedRequestData(opts?: object): Promise<InsertSavedResult>;
 
   /**
    * Generates and saves history data to the data store.

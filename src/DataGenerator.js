@@ -6,6 +6,7 @@ import 'chance/dist/chance.min.js';
 /** @typedef {import('./DataGenerator').MethodCreateOptions} MethodCreateOptions */
 /** @typedef {import('./DataGenerator').SavedCreateOptions} SavedCreateOptions */
 /** @typedef {import('./DataGenerator').HistoryObjectOptions} HistoryObjectOptions */
+/** @typedef {import('./DataGenerator').InsertSavedResult} InsertSavedResult */
 
 /* global Chance, PouchDB */
 /* eslint-disable class-methods-use-this */
@@ -438,7 +439,7 @@ export class DataGenerator {
    * -   `requestsSize` (Number) Number of request to generate. Default to 25.
    * Rest of configuration options are defined in
    * `generateSavedItem`
-   * @return {object} A map with `projects` and `requests` arrays.
+   * @return {InsertSavedResult} A map with `projects` and `requests` arrays.
    */
   generateSavedRequestData(opts = {}) {
     const projects = this.generateProjects(opts);
@@ -845,7 +846,7 @@ export class DataGenerator {
    * the data store.
    * @param {object} opts See `generateSavedRequestData`
    * for description.
-   * @return {Promise<object>} Resolved promise when data are inserted into the datastore.
+   * @return {Promise<InsertSavedResult>} Resolved promise when data are inserted into the datastore.
    */
   async insertSavedIfNotExists(opts = {}) {
     const savedDb = new PouchDB('saved-requests');
@@ -859,6 +860,7 @@ export class DataGenerator {
       requests: response.rows.map((item) => {
         return item.doc;
       }),
+      projects: [],
     };
     const projectsDb = new PouchDB('legacy-projects');
     const projectsResponse = await projectsDb.allDocs({
@@ -915,7 +917,7 @@ export class DataGenerator {
    *
    * @param {object} opts See `generateSavedRequestData`
    * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
+   * @return {Promise<InsertSavedResult>} Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
   async insertSavedRequestData(opts = {}) {
