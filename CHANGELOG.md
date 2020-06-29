@@ -133,3 +133,22 @@
 * updating test commands [e48d79c](https://github.com/advanced-rest-client/arc-data-generator/commit/e48d79c8effceaf922d3703b2c4f9ee21534f014) by Pawel Psztyc
 
 
+<a name="3.1.1"></a>
+## [3.1.1](https://github.com/advanced-rest-client/arc-data-generator/compare/3.0.7...3.1.1) (2020-06-29)
+
+### Build
+
+* bumping version' [9e68629](https://github.com/advanced-rest-client/arc-data-generator/commit/9e68629fb32831019b54261e7eb6aac185bbaa35) by Pawel
+
+
+### Update
+
+* updating types [79210f9](https://github.com/advanced-rest-client/arc-data-generator/commit/79210f96862924b3fb2565fd6b4a6c996fe5d208) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [6596969](https://github.com/advanced-rest-client/arc-data-generator/commit/6596969566da0795d6251e26449d9e1c0c733a87) by Ci agent
+
+
+### Refactor
+
+* creating a class with a fallback for existing components [2a7d1ab](https://github.com/advanced-rest-client/arc-data-generator/commit/2a7d1ab29c9a1412c7a0098ef0718d5742f1417b) by Pawel
+
+
