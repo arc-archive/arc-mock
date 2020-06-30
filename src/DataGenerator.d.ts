@@ -54,9 +54,9 @@ export declare interface SavedCreateOptions extends BaseRequestOptions {
   project?: string;
 }
 
-export declare interface InsertSavedResult {
-  projects: object[];
-  requests: object[];
+export declare interface InsertSavedResult<T> {
+  projects: PouchDB.Core.ExistingDocument<T>[];
+  requests: PouchDB.Core.ExistingDocument<T>[];
 }
 
 export declare class DataGenerator {
@@ -351,7 +351,7 @@ export declare class DataGenerator {
    * @param ab
    * @returns Safe to store string.
    */
-   bufferToBase64(ab: ArrayBuffer|Buffer): string;
+  bufferToBase64(ab: ArrayBuffer|Buffer): string;
 
   /**
    * Converts base64 string to Uint8Array.
@@ -366,7 +366,7 @@ export declare class DataGenerator {
    * - binary {Boolean}
    * - noPassphrase {Boolean}
    */
-  generateCertificate(opts?: object): object;
+  generateCertificate<T>(opts?: object): T;
 
   /**
    * Creates a clientCertificate struct.
@@ -377,7 +377,7 @@ export declare class DataGenerator {
    * - noKey {Boolean}
    * - noCreated {Boolean}
    */
-  generateClientCertificate(opts?: object): object;
+  generateClientCertificate<T>(opts?: object): T;
 
   /**
    * Creates a list of ClientCertificate struct.
@@ -389,7 +389,7 @@ export declare class DataGenerator {
    * - noKey {Boolean}
    * - noCreated {Boolean}
    */
-  generateClientCertificates(opts?: object): object[];
+  generateClientCertificates<T>(opts?: object): T[];
 
   /**
    * Preforms `insertSavedRequestData` if no requests data are in
@@ -398,7 +398,7 @@ export declare class DataGenerator {
    * for description.
    * @returns Resolved promise when data are inserted into the datastore.
    */
-  insertSavedIfNotExists(opts?: object): Promise<InsertSavedResult>;
+  insertSavedIfNotExists<T>(opts?: object): Promise<InsertSavedResult<T>>;
 
   /**
    * Preforms `insertHistoryRequestData` if no requests data are in
@@ -407,7 +407,7 @@ export declare class DataGenerator {
    * for description.
    * @returns Resolved promise when data are inserted into the datastore.
    */
-  insertHistoryIfNotExists(opts?: object): Promise<object[]>;
+  insertHistoryIfNotExists<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Creates `_id` on the original insert object if it wasn't created before and
@@ -427,7 +427,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertSavedRequestData(opts?: object): Promise<InsertSavedResult>;
+  insertSavedRequestData<T>(opts?: object): Promise<InsertSavedResult<T>>;
 
   /**
    * Generates and saves history data to the data store.
@@ -437,7 +437,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertHistoryRequestData(opts?: object): Promise<object[]>;
+  insertHistoryRequestData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves a list of project objects.
@@ -447,7 +447,7 @@ export declare class DataGenerator {
    * - requestId - Request id to add to `requests` array
    * - autoRequestId - If set it generates request ID to add to `requests` array
    */
-  insertProjectsData(opts?: object): Promise<object[]>;
+  insertProjectsData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves websocket data to the data store.
@@ -457,7 +457,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertWebsocketData(opts?: object): Promise<object[]>;
+  insertWebsocketData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves url history data to the data store.
@@ -467,7 +467,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertUrlHistoryData(opts?: object): Promise<object[]>;
+  insertUrlHistoryData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves variables data to the data store.
@@ -477,7 +477,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertVariablesData(opts?: object): Promise<object[]>;
+  insertVariablesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves headers sets data to the data store.
@@ -487,7 +487,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertHeadersSetsData(opts?: object): Promise<object[]>;
+  insertHeadersSetsData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves cookies data to the data store.
@@ -497,7 +497,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertCookiesData(opts?: object): Promise<object[]>;
+  insertCookiesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves basic auth data to the data store.
@@ -507,7 +507,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertBasicAuthData(opts?: object): Promise<object[]>;
+  insertBasicAuthData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Generates and saves host rules data to the data store.
@@ -517,13 +517,13 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertHostRulesData(opts?: object): Promise<object[]>;
+  insertHostRulesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
-  insertApiData(opts?: object): Promise<object[]>;
+  insertApiData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   certificateToStore(cert: object): object;
 
-  insertCertificatesData(opts?: object): Promise<object[]>;
+  insertCertificatesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Destroys saved and projects database.
@@ -620,49 +620,49 @@ export declare class DataGenerator {
    * `_pouch_` prefix
    * @returns Promise resolved to all read docs.
    */
-  getDatastoreData(name: string): Promise<object[]>;
+  getDatastoreData<T>(name: string): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all saved requests
-  getDatastoreRequestData(): Promise<object[]>;
+  getDatastoreRequestData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all legacy projects
-  getDatastoreProjectsData(): Promise<object[]>;
+  getDatastoreProjectsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all history requests
-  getDatastoreHistoryData(): Promise<object[]>;
+  getDatastoreHistoryData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all variables
-  getDatastoreVariablesData(): Promise<object[]>;
+  getDatastoreVariablesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all environments
-  getDatastoreEnvironmentsData(): Promise<object[]>;
+  getDatastoreEnvironmentsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all headers sets
-  getDatastoreHeadersData(): Promise<object[]>;
+  getDatastoreHeadersData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all cookies
-  getDatastoreCookiesData(): Promise<object[]>;
+  getDatastoreCookiesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all socket urls
-  getDatastoreWebsocketsData(): Promise<object[]>;
+  getDatastoreWebsocketsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all url history
-  getDatastoreUrlsData(): Promise<object[]>;
+  getDatastoreUrlsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all saved authorization data.
-  getDatastoreAuthData(): Promise<object[]>;
+  getDatastoreAuthData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all host rules data.
-  getDatastoreHostRulesData(): Promise<object[]>;
+  getDatastoreHostRulesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all api-index data.
-  getDatastoreApiIndexData(): Promise<object[]>;
+  getDatastoreApiIndexData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all api-data data.
-  getDatastoreHostApiData(): Promise<object[]>;
+  getDatastoreHostApiData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all client certificates and the data.
-  getDatastoreClientCertificates(): Promise<object[]>;
+  getDatastoreClientCertificates<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   /**
    * Updates an object in an data store.
