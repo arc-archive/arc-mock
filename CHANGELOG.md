@@ -172,3 +172,18 @@
 * fixing types for insert oprtation [d3a1e24](https://github.com/advanced-rest-client/arc-data-generator/commit/d3a1e24ac0aad1285f399fa57174c1788e7b8a72) by Pawel
 
 
+<a name="3.1.3"></a>
+## [3.1.3](https://github.com/advanced-rest-client/arc-data-generator/compare/3.1.1...3.1.3) (2020-07-06)
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [5dd6cc4](https://github.com/advanced-rest-client/arc-data-generator/commit/5dd6cc42b8083dbdb485de65213687ac19a76430) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [dd79297](https://github.com/advanced-rest-client/arc-data-generator/commit/dd792974b46b98e03e557e37325cb9bd4a96349e) by Ci agent
+
+
+### Bug Fixes
+
+* fixing types export [c433d90](https://github.com/advanced-rest-client/arc-data-generator/commit/c433d9037c5e6e0736f85c751321422d61d93cde) by Pawel
+* fixing types for insert oprtation [d3a1e24](https://github.com/advanced-rest-client/arc-data-generator/commit/d3a1e24ac0aad1285f399fa57174c1788e7b8a72) by Pawel
+
+
