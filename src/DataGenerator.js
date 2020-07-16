@@ -710,11 +710,7 @@ export class DataGenerator {
     copy.size = copy.size || 25;
     const result = [];
     for (let i = 0; i < copy.size; i++) {
-      result.push(
-        this.generateApiIndex({
-          order: i,
-        })
-      );
+      result.push(this.generateApiIndex({ ...copy, order: i }));
     }
     return result;
   }

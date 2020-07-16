@@ -59,6 +59,16 @@ export declare interface InsertSavedResult<T> {
   requests: PouchDB.Core.ExistingDocument<T>[];
 }
 
+export declare interface ApiIndexCreateOptions {
+  versionSize: number;
+  order: number;
+}
+
+export declare interface ApiIndexListCreateOptions extends ApiIndexCreateOptions {
+  size: number;
+}
+
+
 export declare class DataGenerator {
   readonly payloadMethods: string[];
 
@@ -332,13 +342,13 @@ export declare class DataGenerator {
    */
   generateBasicAuthData(opts?: object): object[];
 
-  generateApiIndex(opts?: object): object;
+  generateApiIndex(opts?: ApiIndexListCreateOptions): object;
 
-  generateApiIndexList(opts: object): object[];
+  generateApiIndexList(opts: ApiIndexListCreateOptions): object[];
 
-  generateApiData(index: number): object;
+  generateApiData(index: any): object;
 
-  generateApiDataList(indexes: object[]): object[];
+  generateApiDataList(indexes: any[]): object[];
 
   /**
    * Transforms ASCII string to buffer.
@@ -519,7 +529,7 @@ export declare class DataGenerator {
    */
   insertHostRulesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
-  insertApiData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertApiData<T>(opts?: ApiIndexListCreateOptions): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   certificateToStore(cert: object): object;
 
