@@ -238,7 +238,7 @@ export declare class DataGenerator {
    * `generateSavedItem`
    * @returns A map with `projects` and `requests` arrays.
    */
-  generateSavedRequestData(opts?: object): object;
+  generateSavedRequestData<T>(opts?: object): InsertSavedResult<T>;
 
   /**
    * Generates history requests list
