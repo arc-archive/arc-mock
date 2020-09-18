@@ -7,14 +7,33 @@ import 'chance/dist/chance.min.js';
 /** @typedef {import('./DataGenerator').SavedCreateOptions} SavedCreateOptions */
 /** @typedef {import('./DataGenerator').HistoryObjectOptions} HistoryObjectOptions */
 /** @typedef {import('./DataGenerator').InsertSavedResult} InsertSavedResult */
+/** @typedef {import('./DataGenerator').CertificateCreateOptions} CertificateCreateOptions */
+/** @typedef {import('./DataGenerator').ArcCertificateObject} ArcCertificateObject */
+/** @typedef {import('./DataGenerator').ArcCertificateDataObject} ArcCertificateDataObject */
+/** @typedef {import('./DataGenerator').ArcExportCertificateObject} ArcExportCertificateObject */
+/** @typedef {import('./DataGenerator').CookieCreateOptions} CookieCreateOptions */
+/** @typedef {import('./DataGenerator').CookieObject} CookieObject */
+/** @typedef {import('./DataGenerator').ApiIndexListCreateOptions} ApiIndexListCreateOptions */
+/** @typedef {import('./DataGenerator').ApiIndexObject} ApiIndexObject */
+/** @typedef {import('./DataGenerator').ApiDataObject} ApiDataObject */
+/** @typedef {import('./DataGenerator').SizeCreateOptions} SizeCreateOptions */
+/** @typedef {import('./DataGenerator').BasicAuthObject} BasicAuthObject */
+/** @typedef {import('./DataGenerator').HostRuleObject} HostRuleObject */
+/** @typedef {import('./DataGenerator').VariablesCreateOptions} VariablesCreateOptions */
+/** @typedef {import('./DataGenerator').VariableObject} VariableObject */
+/** @typedef {import('./DataGenerator').HistoryObject} HistoryObject */
+/** @typedef {import('./DataGenerator').ProjectObject} ProjectObject */
+/** @typedef {import('./DataGenerator').SavedObject} SavedObject */
+/** @typedef {import('./DataGenerator').SavedRequestCreateOptions} SavedRequestCreateOptions */
+/** @typedef {import('./DataGenerator').UrlObject} UrlObject */
+/** @typedef {import('./DataGenerator').GenerateSavedResult} GenerateSavedResult */
+/** @typedef {import('./DataGenerator').ArcCertificateIndexDataObject} ArcCertificateIndexDataObject */
+/** @typedef {import('./DataGenerator').ArcCertificateIndexObject} ArcCertificateIndexObject */
 
 /* global Chance, PouchDB */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-continue */
-
-// @ts-ignore
-const chance = new Chance();
 
 const stringPool =
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -39,13 +58,19 @@ export class DataGenerator {
 
   constructor() {
     this.LAST_TIME = Date.now();
+    /**
+     * @type {Chance.Chance}
+     */
+    // @ts-ignore
+    this.chance = new Chance();
   }
 
   /**
    * Sets a midnight on the timestamp
    * @param {number} time
+   * @return {number}
    */
-  setMidninght(time) {
+  setMidnight(time) {
     const now = new Date(time);
     now.setMilliseconds(0);
     now.setSeconds(0);
@@ -57,12 +82,11 @@ export class DataGenerator {
   /**
    * Generates a random ARC legacy project object.
    *
-   * @param {ProjectCreateOptions=} opts Create options:
-   * - requestId - Request id to add to `requests` array
-   * - autoRequestId - If set it generates request ID to add to `requests` array
-   * @return {object} ARC's object.
+   * @param {ProjectCreateOptions=} opts Create options
+   * @return {ProjectObject} ARC's object.
    */
   createProjectObject(opts = {}) {
+    const { chance } = this;
     const project = {
       _id: chance.guid({ version: 5 }),
       name: chance.sentence({ words: 2 }),
@@ -88,6 +112,7 @@ export class DataGenerator {
    * @return {string} Valid HTTP headers string.
    */
   generateHeaders(contentType, opts = {}) {
+    const { chance } = this;
     let headers = '';
     if (!opts.noHeaders) {
       const headersSize = chance.integer({
@@ -114,6 +139,7 @@ export class DataGenerator {
    * @return {string} Randomly picked HTTP method name.
    */
   generateMethod(isPayload, opts = {}) {
+    const { chance } = this;
     if (opts.methodsPools) {
       return chance.pick(opts.methodsPools);
     }
@@ -126,7 +152,7 @@ export class DataGenerator {
   /**
    * Randomly generates a boolean flag describing if the request can
    * carry a payload.
-   * @param {object=} opts Configuration options:
+   * @param {SavedCreateOptions=} opts Configuration options:
    * -   `noPayload` (Boolean) If set the request will not have payload
    * -   `forcePayload` (Boolean) The request will always have a payload.
    *      THe `noPayload` property takes precedence over this setting.
@@ -134,6 +160,7 @@ export class DataGenerator {
    * `false` otherwise.
    */
   generateIsPayload(opts = {}) {
+    const { chance } = this;
     let isPayload = false;
     if (!opts.noPayload) {
       if (opts.forcePayload || chance.bool()) {
@@ -148,7 +175,8 @@ export class DataGenerator {
    * @return {string} Value of the `content-type` header
    */
   generateContentType() {
-    return chance.pick(this.contentTypes);
+    const { chance } = this;
+    return chance.pickone(this.contentTypes);
   }
 
   /**
@@ -156,6 +184,7 @@ export class DataGenerator {
    * @return {string} The x-www-form-urlencoded payload.
    */
   generateUrlEncodedData() {
+    const { chance } = this;
     const size = chance.integer({ min: 1, max: 10 });
     let result = '';
     for (let i = 0; i < size; i++) {
@@ -174,6 +203,7 @@ export class DataGenerator {
    * @return {string} JSON payload
    */
   generateJsonData() {
+    const { chance } = this;
     const size = chance.integer({
       min: 1,
       max: 10,
@@ -201,6 +231,7 @@ export class DataGenerator {
    * @return {string} XML payload
    */
   generateXmlData() {
+    const { chance } = this;
     const size = chance.integer({ min: 1, max: 10 });
     let result = '<feed>';
     for (let i = 0; i < size; i++) {
@@ -218,13 +249,14 @@ export class DataGenerator {
    * Generates random payload data for given `contentType`.
    * The `contentType` must be one of the `contentTypes`.
    *
-   * @param {string} contentType Content type of the data.
+   * @param {string=} contentType Content type of the data.
    * @return {string} Payload message.
    */
   generatePayload(contentType) {
     if (!contentType) {
       return undefined;
     }
+    const { chance } = this;
     switch (contentType) {
       case 'text/plain':
         return chance.paragraph();
@@ -244,6 +276,7 @@ export class DataGenerator {
    * @return {number} The timestamp
    */
   generateRequestTime() {
+    const { chance } = this;
     const d = new Date();
     let year = d.getFullYear();
     let month = d.getMonth();
@@ -252,14 +285,14 @@ export class DataGenerator {
       month = 11;
       year--;
     }
-    const randomDay = chance.date({ year, month });
+    const randomDay = /** @type Date */ (chance.date({ year, month }));
     return randomDay.getTime();
   }
 
   /**
    * Generates Google Drive item ID.
    *
-   * @param {object} opts Configuration options:
+   * @param {SavedCreateOptions=} opts Configuration options:
    * -   `noGoogleDrive` (Boolean) if set then it will never generate Drive ID.
    * @return {string|undefined} Google Drive ID or undefined.
    */
@@ -267,6 +300,7 @@ export class DataGenerator {
     if (opts.noGoogleDrive) {
       return undefined;
     }
+    const { chance } = this;
     return chance.string({
       length: 32,
       pool: stringPool,
@@ -276,11 +310,12 @@ export class DataGenerator {
   /**
    * Generates a description for a request.
    *
-   * @param {object} opts Configuration options:
+   * @param {SavedCreateOptions=} opts Configuration options:
    * -   `noDescription` (Boolean) if set then it will never generate a desc.
-   * @return {String|undefined} Items description.
+   * @return {string|undefined} Items description.
    */
   generateDescription(opts) {
+    const { chance } = this;
     if (opts && opts.noDescription) {
       return undefined;
     }
@@ -291,9 +326,10 @@ export class DataGenerator {
    * Generates random saved request item.
    *
    * @param {SavedCreateOptions=} opts Options to generate the request
-   * @return {object} A request object
+   * @return {SavedObject} A request object
    */
   generateSavedItem(opts = {}) {
+    const { chance } = this;
     const isPayload = this.generateIsPayload(opts);
     const method = this.generateMethod(isPayload, opts);
     const contentType = isPayload ? this.generateContentType() : undefined;
@@ -304,7 +340,7 @@ export class DataGenerator {
     const driveId = this.generateDriveId(opts);
     const description = this.generateDescription(opts);
 
-    const item = {
+    const item = /** @type SavedObject */ ({
       url: chance.url(),
       method,
       headers,
@@ -312,7 +348,7 @@ export class DataGenerator {
       updated: time,
       type: 'saved',
       name: requestName,
-    };
+    });
     if (driveId) {
       item.driveId = driveId;
     }
@@ -334,9 +370,10 @@ export class DataGenerator {
    * Generates a history object.
    *
    * @param {HistoryObjectOptions=} opts Options to generate the request
-   * @return {object} A request object
+   * @return {HistoryObject} A request object
    */
   generateHistoryObject(opts = {}) {
+    const { chance } = this;
     this.LAST_TIME -= chance.integer({ min: 1.8e6, max: 8.64e7 });
     const isPayload = this.generateIsPayload(opts);
     const method = this.generateMethod(isPayload, opts);
@@ -364,11 +401,12 @@ export class DataGenerator {
   /**
    * Picks a random project from the list of passed in `opts` projects.
    *
-   * @param {object} opts Configuration options:
+   * @param {SavedRequestCreateOptions=} opts Configuration options:
    * -   `projects` (Array<Object>) List of generated projects
-   * @return {object|undefined} Project id or undefined.
+   * @return {ProjectObject|undefined} Project id or undefined.
    */
   pickProject(opts = {}) {
+    const { chance } = this;
     if (!opts.projects) {
       return undefined;
     }
@@ -387,12 +425,8 @@ export class DataGenerator {
   /**
    * Generates a list of saved requests.
    *
-   * @param {object} opts Configuration options:
-   * -   `projects` (Array<Object>) List of generated projects
-   * -   `requestsSize` (Number) Number of request to generate. Default to 25.
-   * Rest of configuration options are defined in
-   * `generateSavedItem()`
-   * @return {Array<Object>} List of requests.
+   * @param {SavedRequestCreateOptions=} opts Configuration options
+   * @return {SavedObject[]} List of requests.
    */
   generateRequests(opts = {}) {
     const list = [];
@@ -416,11 +450,8 @@ export class DataGenerator {
   /**
    * Generates a list of project objects.
    *
-   * @param {object} opts Configuration options:
-   * - `projectsSize` (Number) A number of projects to generate.
-   * - requestId - Request id to add to `requests` array
-   * - autoRequestId - If set it generates request ID to add to `requests` array
-   * @return {Array<Object>} List of generated project objects.
+   * @param {SavedRequestCreateOptions=} opts Configuration options
+   * @return {ProjectObject[]} List of generated project objects.
    */
   generateProjects(opts = {}) {
     const size = opts.projectsSize || 5;
@@ -434,12 +465,8 @@ export class DataGenerator {
   /**
    * Generates requests data. That includes projects and requests.
    *
-   * @param {object} opts Configuration options:
-   * -   `projectsSize` (Number) A number of projects to generate.
-   * -   `requestsSize` (Number) Number of request to generate. Default to 25.
-   * Rest of configuration options are defined in
-   * `generateSavedItem`
-   * @return {InsertSavedResult} A map with `projects` and `requests` arrays.
+   * @param {SavedRequestCreateOptions=} opts Configuration options
+   * @return {GenerateSavedResult} A map with `projects` and `requests` arrays.
    */
   generateSavedRequestData(opts = {}) {
     const projects = this.generateProjects(opts);
@@ -455,11 +482,11 @@ export class DataGenerator {
   /**
    * Generates history requests list
    *
-   * @param {object} opts Configuration options:
+   * @param {HistoryObjectOptions} opts Configuration options:
    * -   `requestsSize` (Number) Number of request to generate. Default to 25.
    * Rest of configuration options are defined in
    * `generateHistoryObject`
-   * @return {object[]} List of history requests objects
+   * @return {HistoryObject[]} List of history requests objects
    */
   generateHistoryRequestsData(opts = {}) {
     const size = opts.requestsSize || 25;
@@ -472,11 +499,12 @@ export class DataGenerator {
 
   /**
    * Generates a random data for a variable object
-   * @param {object=} opts
+   * @param {VariablesCreateOptions=} opts
    * - {Boolean} defaultEnv When set it always set environment to "default"
-   * @return {object} A variable object.
+   * @return {VariableObject} A variable object.
    */
   generateVariableObject(opts = {}) {
+    const { chance } = this;
     let isDefault;
     if (opts.defaultEnv) {
       isDefault = true;
@@ -485,11 +513,13 @@ export class DataGenerator {
     } else {
       isDefault = chance.bool();
     }
+    
     const result = {
       enabled: chance.bool({ likelihood: 85 }),
       value: chance.sentence({ words: 2 }),
       variable: chance.word(),
       _id: chance.guid({ version: 5 }),
+      environment: '',
     };
     if (isDefault) {
       result.environment = 'default';
@@ -502,9 +532,9 @@ export class DataGenerator {
   /**
    * Generates variables list
    *
-   * @param {object=} opts Configuration options:
+   * @param {VariablesCreateOptions=} opts Configuration options:
    * -   `size` (Number) Number of variables to generate. Default to 25.
-   * @return {object[]} List of variables
+   * @return {VariableObject[]} List of variables
    */
   generateVariablesData(opts = {}) {
     const size = opts.size || 25;
@@ -516,52 +546,11 @@ export class DataGenerator {
   }
 
   /**
-   * Generate a header set datastore entry
-   *
-   * @param {object} opts Generation options:
-   * -   `noHeaders` (Boolean) will not generate headers string (will set empty
-   *      string)
-   * -   `noPayload` (Boolean) If set the request will not have payload
-   * -   `forcePayload` (Boolean) The request will always have a payload.
-   *      THe `noPayload` property takes precedence over this setting.
-   * @return {object}
+   * Generates random Cookie data
+   * @returns {CookieObject}
    */
-  generateHeaderSetObject(opts) {
-    const time = chance.hammertime();
-
-    const isPayload = this.generateIsPayload(opts);
-    const contentType = isPayload ? this.generateContentType() : undefined;
-    const headers = this.generateHeaders(contentType, opts);
-
-    const result = {
-      created: time,
-      updated: time,
-      order: chance.integer({ min: 0, max: 10 }),
-      name: chance.sentence({ words: 2 }),
-      headers,
-      _id: chance.guid({ version: 5 }),
-    };
-    return result;
-  }
-
-  /**
-   * Generates headers sets list
-   *
-   * @param {object=} opts Configuration options:
-   * -   `size` (Number) Number of items to generate. Default to 25.
-   * @return {object[]} List of datastore entries.
-   */
-  generateHeadersSetsData(opts = {}) {
-    const size = opts.size || 25;
-    const result = [];
-    for (let i = 0; i < size; i++) {
-      result.push(this.generateHeaderSetObject(opts));
-    }
-    return result;
-  }
-
-  // Generates random Cookie data
   generateCookieObject() {
+    const { chance } = this;
     const time = chance.hammertime();
     const result = {
       created: time,
@@ -584,9 +573,9 @@ export class DataGenerator {
   /**
    * Generates cookies list
    *
-   * @param {object=} opts Configuration options:
+   * @param {CookieCreateOptions=} opts Configuration options:
    * -   `size` (Number) Number of items to generate. Default to 25.
-   * @return {object[]} List of datastore entries.
+   * @return {CookieObject[]} List of datastore entries.
    */
   generateCookiesData(opts = {}) {
     const size = opts.size || 25;
@@ -597,8 +586,12 @@ export class DataGenerator {
     return result;
   }
 
-  // Generates random URL data object
+  /**
+   * Generates random URL data object
+   * @return {UrlObject}
+   */
   generateUrlObject() {
+    const { chance } = this;
     const result = {
       time: chance.hammertime(),
       cnt: chance.integer({ min: 100, max: 1000 }),
@@ -610,9 +603,8 @@ export class DataGenerator {
   /**
    * Generates urls list
    *
-   * @param {object} opts Configuration options:
-   * -   `size` (Number) Number of items to generate. Default to 25.
-   * @return {object[]} List of datastore entries.
+   * @param {SizeCreateOptions=} opts Configuration options
+   * @return {UrlObject[]} List of datastore entries.
    */
   generateUrlsData(opts = {}) {
     const size = opts.size || 25;
@@ -625,9 +617,10 @@ export class DataGenerator {
 
   /**
    * Generates random URL data object.
-   * @return {object}
+   * @return {HostRuleObject}
    */
   generateHostRuleObject() {
+    const { chance } = this;
     const result = {
       _id: chance.guid({ version: 5 }),
       from: chance.url(),
@@ -641,9 +634,9 @@ export class DataGenerator {
   /**
    * Generates host rules
    *
-   * @param {object} opts Configuration options:
+   * @param {SizeCreateOptions=} opts Configuration options:
    * -   `size` (Number) Number of items to generate. Default to 25.
-   * @return {object[]} List of datastore entries.
+   * @return {HostRuleObject[]} List of datastore entries.
    */
   generateHostRulesData(opts = {}) {
     const copy = { ...opts };
@@ -657,9 +650,10 @@ export class DataGenerator {
 
   /**
    * Generates random Basic authorization object.
-   * @return {object}
+   * @return {BasicAuthObject}
    */
   generateBasicAuthObject() {
+    const { chance } = this;
     const result = {
       _id: `basic/${chance.string()}`,
       type: 'basic',
@@ -671,9 +665,9 @@ export class DataGenerator {
   /**
    * Generates basic authorization data
    *
-   * @param {object=} opts Configuration options:
+   * @param {SizeCreateOptions=} opts Configuration options:
    * -   `size` (Number) Number of items to generate. Default to 25.
-   * @return {object[]} List of datastore entries.
+   * @return {BasicAuthObject[]} List of datastore entries.
    */
   generateBasicAuthData(opts = {}) {
     const copy = { ...opts };
@@ -685,7 +679,12 @@ export class DataGenerator {
     return result;
   }
 
+  /**
+   * @param {ApiIndexListCreateOptions=} opts
+   * @returns {ApiIndexObject}
+   */
   generateApiIndex(opts = {}) {
+    const { chance } = this;
     const result = {};
     const versionsSize = opts.versionSize
       ? opts.versionSize
@@ -705,7 +704,11 @@ export class DataGenerator {
     return result;
   }
 
-  generateApiIndexList(opts) {
+  /**
+   * @param {ApiIndexListCreateOptions=} opts
+   * @returns {ApiIndexObject[]}
+   */
+  generateApiIndexList(opts={}) {
     const copy = { ...opts };
     copy.size = copy.size || 25;
     const result = [];
@@ -715,6 +718,10 @@ export class DataGenerator {
     return result;
   }
 
+  /**
+   * @param {ApiIndexObject} index
+   * @returns {ApiDataObject[]}
+   */
   generateApiData(index) {
     const result = [];
     index.versions.forEach((version) => {
@@ -729,6 +736,10 @@ export class DataGenerator {
     return result;
   }
 
+  /**
+   * @param {ApiIndexObject[]} indexes
+   * @returns {ApiDataObject[]}
+   */
   generateApiDataList(indexes) {
     const size = indexes.length;
     let result = [];
@@ -749,7 +760,7 @@ export class DataGenerator {
   }
 
   /**
-   * Converts incomming data to base64 string.
+   * Converts incoming data to base64 string.
    * @param {ArrayBuffer|Buffer} ab
    * @return {string} Safe to store string.
    */
@@ -770,19 +781,20 @@ export class DataGenerator {
 
   /**
    * Creates a certificate struct.
-   * @param {object=} opts
+   * @param {CertificateCreateOptions=} opts
    * - binary {Boolean}
    * - noPassphrase {Boolean}
-   * @return {object}
+   * @return {ArcCertificateDataObject}
    */
   generateCertificate(opts = {}) {
-    let data = chance.paragraph();
-    if (opts.binary) {
-      data = this.strToBuffer(data);
-    }
-    const result = {
+    const { chance } = this;
+    const data = chance.paragraph();
+    const result = /** @type ArcCertificateDataObject */ ({
       data,
-    };
+    });
+    if (opts.binary) {
+      result.data = this.strToBuffer(data);
+    }
     if (!opts.noPassphrase) {
       result.passphrase = chance.word();
     }
@@ -791,15 +803,11 @@ export class DataGenerator {
 
   /**
    * Creates a clientCertificate struct.
-   * @param {object=} opts
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
-   * - type {string} - `p12` or `pem`
-   * - noKey {Boolean}
-   * - noCreated {Boolean}
-   * @return {object}
+   * @param {CertificateCreateOptions=} opts Create options
+   * @return {ArcCertificateObject}
    */
   generateClientCertificate(opts = {}) {
+    const { chance } = this;
     const type = opts.type ? opts.type : chance.pick(['p12', 'pem']);
     const cert = this.generateCertificate(opts);
     const name = chance.word();
@@ -819,14 +827,8 @@ export class DataGenerator {
 
   /**
    * Creates a list of ClientCertificate struct.
-   * @param {object=} opts
-   * - size {number} - default 15
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
-   * - type {string} - `p12` or `pem`
-   * - noKey {Boolean}
-   * - noCreated {Boolean}
-   * @return {object[]}
+   * @param {CertificateCreateOptions=} opts Create options
+   * @return {ArcCertificateObject[]}
    */
   generateClientCertificates(opts = {}) {
     const size = opts.size || 15;
@@ -838,10 +840,41 @@ export class DataGenerator {
   }
 
   /**
+   * Creates a ClientCertificate transformed to the export object.
+   * 
+   * @param {CertificateCreateOptions=} opts
+   * @return {ArcExportCertificateObject}
+   */
+  generateExportClientCertificate(opts = {}) {
+    const { chance } = this;
+    const item = /** @type any */ (this.generateClientCertificate(opts));
+    if (item.key) {
+      item.pKey = item.key;
+    }
+    item.key = chance.guid({ version: 5 });
+    item.kind = 'ARC#ClientCertificate';
+    return item;
+  }
+  
+  /**
+   * Creates a list of ClientCertificates transformed for the export object.
+   * 
+   * @param {CertificateCreateOptions=} opts
+   * @return {ArcExportCertificateObject[]}
+   */
+  generateExportClientCertificates(opts = {}) {
+    const size = opts.size || 15;
+    const result = [];
+    for (let i = 0; i < size; i++) {
+      result[result.length] = this.generateExportClientCertificate(opts);
+    }
+    return result;
+  }
+
+  /**
    * Preforms `insertSavedRequestData` if no requests data are in
    * the data store.
-   * @param {object} opts See `generateSavedRequestData`
-   * for description.
+   * @param {SavedRequestCreateOptions=} opts Configuration options
    * @return {Promise<InsertSavedResult>} Resolved promise when data are inserted into the datastore.
    */
   async insertSavedIfNotExists(opts = {}) {
@@ -871,9 +904,9 @@ export class DataGenerator {
   /**
    * Preforms `insertHistoryRequestData` if no requests data are in
    * the data store.
-   * @param {object} opts See `insertHistoryRequestData`
+   * @param {HistoryObjectOptions=} opts See `insertHistoryRequestData`
    * for description.
-   * @return {Promise<object[]>} Resolved promise when data are inserted into the datastore.
+   * @return {Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>} Resolved promise when data are inserted into the datastore.
    */
   async insertHistoryIfNotExists(opts = {}) {
     const db = new PouchDB('history-requests');
@@ -889,201 +922,186 @@ export class DataGenerator {
   /**
    * Creates `_id` on the original insert object if it wasn't created before and
    * updates `_rev` property.
-   * @param {Array<Object>} insertResponse PouchDB build insert response
-   * @param {Array<Object>} insertedData The original array of inserted objects.
+   * 
+   * @template T
+   * @param {(PouchDB.Core.Response|PouchDB.Core.Error)[]} insertResponse PouchDB build insert response
+   * @param {T[]} insertedData The original array of inserted objects.
    * This changes contents of te array items which is passed by reference.
+   * @return {PouchDB.Core.ExistingDocument<T>[]}
    */
   updateRevsAndIds(insertResponse, insertedData) {
-    for (let i = 0, len = insertResponse.length; i < len; i++) {
-      if (insertResponse[i].error) {
-        continue;
+    const result = [];
+    insertResponse.forEach((item, i) => {
+      const error = /** @type PouchDB.Core.Error */ (item);
+      if (error.error) {
+        return;
       }
-      if (!insertedData[i]._id) {
-        /* eslint-disable-next-line no-param-reassign */
-        insertedData[i]._id = insertResponse[i].id;
+      const copy = /** @type any */ ({ ...insertedData[i] });
+      if (!copy._id) {
+        copy._id = item.id;
       }
-      /* eslint-disable-next-line no-param-reassign */
-      insertedData[i]._rev = insertResponse[i].rev;
-    }
+      copy._rev = item.rev;
+      result.push(copy);
+    });
+    return result;
   }
 
   /**
    * Generates saved requests data and inserts them into the data store if they
    * are missing.
    *
-   * @param {object} opts See `generateSavedRequestData`
+   * @param {SavedRequestCreateOptions=} opts See `generateSavedRequestData`
    * for description.
    * @return {Promise<InsertSavedResult>} Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
   async insertSavedRequestData(opts = {}) {
     const data = this.generateSavedRequestData(opts);
+    const result = /** @type InsertSavedResult */ ({
+      projects: [],
+      requests: [],
+    });
     const projectsDb = new PouchDB('legacy-projects');
     const response = await projectsDb.bulkDocs(data.projects);
-    this.updateRevsAndIds(response, data.projects);
+    result.projects = this.updateRevsAndIds(response, data.projects);
     const savedDb = new PouchDB('saved-requests');
     const response2 = await savedDb.bulkDocs(data.requests);
-    this.updateRevsAndIds(response2, data.requests);
-    return data;
+    result.requests = this.updateRevsAndIds(response2, data.requests);
+    return result;
   }
 
   /**
    * Generates and saves history data to the data store.
    *
-   * @param {object} opts See `generateHistoryRequestsData`
+   * @param {HistoryObjectOptions=} opts See `generateHistoryRequestsData`
    * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
+   * @return {Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>} Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
   async insertHistoryRequestData(opts = {}) {
     const data = this.generateHistoryRequestsData(opts);
     const db = new PouchDB('history-requests');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves a list of project objects.
    *
-   * @param {object} opts Configuration options:
+   * @param {SavedRequestCreateOptions=} opts Configuration options:
    * - `projectsSize` (Number) A number of projects to generate.
    * - requestId - Request id to add to `requests` array
    * - autoRequestId - If set it generates request ID to add to `requests` array
-   * @return {Promise}
+   * @return {Promise<PouchDB.Core.ExistingDocument<ProjectObject>[]>}
    */
   async insertProjectsData(opts = {}) {
     const data = this.generateProjects(opts);
     const db = new PouchDB('legacy-projects');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves websocket data to the data store.
    *
-   * @param {object} opts See `generateUrlsData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
+   * @param {SizeCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>} 
    */
   async insertWebsocketData(opts = {}) {
     const data = this.generateUrlsData(opts);
     const db = new PouchDB('websocket-url-history');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves url history data to the data store.
    *
-   * @param {object} opts See `generateUrlsData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
+   * @param {SizeCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>}
    */
   async insertUrlHistoryData(opts = {}) {
     const data = this.generateUrlsData(opts);
     const db = new PouchDB('url-history');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves variables data to the data store.
    *
-   * @param {object} opts See `generateVariablesData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
+   * @param {VariablesCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>} Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
   async insertVariablesData(opts = {}) {
     const data = this.generateVariablesData(opts);
     const db = new PouchDB('variables');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
-  }
-
-  /**
-   * Generates and saves headers sets data to the data store.
-   *
-   * @param {object} opts See `generateHeadersSetsData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
-   */
-  async insertHeadersSetsData(opts = {}) {
-    const data = this.generateHeadersSetsData(opts);
-    const db = new PouchDB('headers-sets');
-    const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves cookies data to the data store.
    *
-   * @param {object} opts See `generateCookiesData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
+   * @param {CookieCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<CookieObject>[]>} 
    */
   async insertCookiesData(opts = {}) {
     const data = this.generateCookiesData(opts);
     const db = new PouchDB('cookies');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves basic auth data to the data store.
    *
-   * @param {object} opts See `generateBasicAuthData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
+   * @param {SizeCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<BasicAuthObject>[]>} Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
   async insertBasicAuthData(opts = {}) {
     const data = this.generateBasicAuthData(opts);
     const db = new PouchDB('auth-data');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
   /**
    * Generates and saves host rules data to the data store.
    *
-   * @param {object} opts See `generateHostRulesData`
-   * for description.
-   * @return {Promise} Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
+   * @param {SizeCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<HostRuleObject>[]>} 
    */
   async insertHostRulesData(opts = {}) {
     const data = this.generateHostRulesData(opts);
     const db = new PouchDB('host-rules');
     const response = await db.bulkDocs(data);
-    this.updateRevsAndIds(response, data);
-    return data;
+    return this.updateRevsAndIds(response, data);
   }
 
+  /**
+   * 
+   * @param {ApiIndexListCreateOptions=} opts 
+   * @return {Promise<(PouchDB.Core.ExistingDocument<any>)[]>}
+   */
   async insertApiData(opts = {}) {
-    const index = this.generateApiIndexList(opts);
-    const data = this.generateApiDataList(index);
+    let index = this.generateApiIndexList(opts);
+    let data = this.generateApiDataList(index);
     const indexDb = new PouchDB('api-index');
     const indexResponse = await indexDb.bulkDocs(index);
-    this.updateRevsAndIds(indexResponse, index);
+    index = this.updateRevsAndIds(indexResponse, index);
     const dataDb = new PouchDB('api-data');
     const dataResponse = await dataDb.bulkDocs(data);
-    this.updateRevsAndIds(dataResponse, data);
+    data = this.updateRevsAndIds(dataResponse, data);
     return [index, data];
   }
 
+  /**
+   * @param {ArcCertificateDataObject} cert 
+   * @returns {ArcCertificateDataObject}
+   */
   certificateToStore(cert) {
     if (typeof cert.data === 'string') {
       return cert;
@@ -1093,6 +1111,10 @@ export class DataGenerator {
     return copy;
   }
 
+  /**
+   * @param {CertificateCreateOptions=} opts 
+   * @returns {Promise<PouchDB.Core.ExistingDocument<ArcCertificateObject>[]>}
+   */
   async insertCertificatesData(opts = {}) {
     const data = this.generateClientCertificates(opts);
     const responses = [];
@@ -1114,13 +1136,12 @@ export class DataGenerator {
       /* eslint-disable-next-line no-await-in-loop */
       responses[responses.length] = await indexDb.post(item);
     }
-    this.updateRevsAndIds(responses, data);
-    return data;
+    return this.updateRevsAndIds(responses, data);
   }
 
   /**
    * Destroys saved and projects database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroySavedRequestData() {
     const savedDb = new PouchDB('saved-requests');
@@ -1131,7 +1152,7 @@ export class DataGenerator {
 
   /**
    * Destroys history database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyHistoryData() {
     const db = new PouchDB('history-requests');
@@ -1140,7 +1161,7 @@ export class DataGenerator {
 
   /**
    * Destroys legacy projects database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async clearLegacyProjects() {
     const db = new PouchDB('legacy-projects');
@@ -1149,7 +1170,7 @@ export class DataGenerator {
 
   /**
    * Destroys websockets URL history database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyWebsocketsData() {
     const db = new PouchDB('websocket-url-history');
@@ -1158,7 +1179,7 @@ export class DataGenerator {
 
   /**
    * Destroys URL history database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyUrlData() {
     const db = new PouchDB('url-history');
@@ -1166,17 +1187,8 @@ export class DataGenerator {
   }
 
   /**
-   * Destroys headers sets database.
-   * @return {Promise} Resolved promise when the data are cleared.
-   */
-  async destroyHeadersData() {
-    const db = new PouchDB('headers-sets');
-    await db.destroy();
-  }
-
-  /**
-   * Destroys variables and anvironments database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * Destroys variables and environments database.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyVariablesData() {
     const db = new PouchDB('variables');
@@ -1187,7 +1199,7 @@ export class DataGenerator {
 
   /**
    * Destroys cookies database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyCookiesData() {
     const db = new PouchDB('cookies');
@@ -1196,7 +1208,7 @@ export class DataGenerator {
 
   /**
    * Destroys auth data database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyAuthData() {
     const db = new PouchDB('auth-data');
@@ -1205,7 +1217,7 @@ export class DataGenerator {
 
   /**
    * Destroys hosts data database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyHostRulesData() {
     const db = new PouchDB('host-rules');
@@ -1214,7 +1226,7 @@ export class DataGenerator {
 
   /**
    * Destroys api-index data database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyApiIndexData() {
     const db = new PouchDB('api-index');
@@ -1223,18 +1235,24 @@ export class DataGenerator {
 
   /**
    * Destroys api-data database.
-   * @return {Promise} Resolved promise when the data are cleared.
+   * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyApiData() {
     const db = new PouchDB('api-data');
     await db.destroy();
   }
 
+  /**
+   * @return {Promise<void>} 
+   */
   async destroyAllApiData() {
     await this.destroyApiIndexData();
     await this.destroyApiData();
   }
 
+  /**
+   * @return {Promise<void>} 
+   */
   async destroyClientCertificates() {
     await new PouchDB('client-certificates').destroy();
     await new PouchDB('client-certificates-data').destroy();
@@ -1249,7 +1267,6 @@ export class DataGenerator {
     await this.destroyHistoryData();
     await this.destroyWebsocketsData();
     await this.destroyUrlData();
-    await this.destroyHeadersData();
     await this.destroyVariablesData();
     await this.destroyCookiesData();
     await this.destroyAuthData();
@@ -1295,7 +1312,7 @@ export class DataGenerator {
    * Reads all data from a data store.
    * @param {string} name Name of the data store to read from. Without
    * `_pouch_` prefix
-   * @return {Promise} Promise resolved to all read docs.
+   * @return {Promise<any[]>} Promise resolved to all read docs.
    */
   async getDatastoreData(name) {
     const db = new PouchDB(name);
@@ -1305,22 +1322,34 @@ export class DataGenerator {
     return response.rows.map((item) => item.doc);
   }
 
-  // Returns a promise with all saved requests
+  /**
+   * Returns a promise with all saved requests
+   * @return {Promise<PouchDB.Core.ExistingDocument<SavedObject>[]>}
+   */
   async getDatastoreRequestData() {
     return this.getDatastoreData('saved-requests');
   }
 
-  // Returns a promise with all legacy projects
+  /**
+   * Returns a promise with all legacy projects
+   * @return {Promise<PouchDB.Core.ExistingDocument<ProjectObject>[]>}
+   */
   async getDatastoreProjectsData() {
     return this.getDatastoreData('legacy-projects');
   }
 
-  // Returns a promise with all history requests
+  /**
+   * Returns a promise with all history requests
+   * @return {Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>}
+   */
   async getDatastoreHistoryData() {
     return this.getDatastoreData('history-requests');
   }
 
-  // Returns a promise with all variables
+  /**
+   * Returns a promise with all variables
+   * @return {Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>}
+   */
   async getDatastoreVariablesData() {
     return this.getDatastoreData('variables');
   }
@@ -1330,47 +1359,58 @@ export class DataGenerator {
     return this.getDatastoreData('variables-environments');
   }
 
-  // Returns a promise with all headers sets
-  async getDatastoreHeadersData() {
-    return this.getDatastoreData('headers-sets');
-  }
-
-  // Returns a promise with all cookies
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<CookieObject>[]>}
+   */
   async getDatastoreCookiesData() {
     return this.getDatastoreData('cookies');
   }
 
-  // Returns a promise with all socket urls
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>}
+   */
   async getDatastoreWebsocketsData() {
     return this.getDatastoreData('websocket-url-history');
   }
 
-  // Returns a promise with all url history
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>}
+   */
   async getDatastoreUrlsData() {
     return this.getDatastoreData('url-history');
   }
 
-  // Returns a promise with all saved authorization data.
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<BasicAuthObject>[]>}
+   */
   async getDatastoreAuthData() {
     return this.getDatastoreData('auth-data');
   }
 
-  // Returns a promise with all host rules data.
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<HostRuleObject>[]>}
+   */
   async getDatastoreHostRulesData() {
     return this.getDatastoreData('host-rules');
   }
 
-  // Returns a promise with all api-index data.
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<ApiIndexObject>[]>}
+   */
   async getDatastoreApiIndexData() {
     return this.getDatastoreData('api-index');
   }
 
-  // Returns a promise with all api-data data.
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<ApiDataObject>[]>}
+   */
   async getDatastoreHostApiData() {
     return this.getDatastoreData('api-data');
   }
 
-  // Returns a promise with all client certificates and the data.
+  /**
+   * @return {Promise<PouchDB.Core.ExistingDocument<(ArcCertificateIndexObject|ArcCertificateIndexDataObject)>[][]>}
+   */
   async getDatastoreClientCertificates() {
     const certs = await this.getDatastoreData('client-certificates');
     const data = await this.getDatastoreData('client-certificates-data');

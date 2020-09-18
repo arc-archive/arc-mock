@@ -1,83 +1,93 @@
 import { assert } from '@open-wc/testing';
-import * as sinon from 'sinon/pkg/sinon-esm.js';
+import sinon from 'sinon';
 import 'pouchdb/dist/pouchdb.js';
-import { DataGenerator } from '../arc-data-generator.js';
+import { DataGenerator } from '../index.js';
 
 /* global PouchDB */
 
 describe('DataGenerator', () => {
-  describe('setMidninght()', () => {
+  describe('setMidnight()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a number', () => {
-      const result = DataGenerator.setMidninght(Date.now());
+      const result = gen.setMidnight(Date.now());
       assert.typeOf(result, 'number');
     });
 
     it('Sets milliseconds to 0', () => {
-      const result = DataGenerator.setMidninght(Date.now());
+      const result = gen.setMidnight(Date.now());
       const d = new Date(result);
       assert.equal(d.getMilliseconds(), 0);
     });
 
     it('Sets seconds to 0', () => {
-      const result = DataGenerator.setMidninght(Date.now());
+      const result = gen.setMidnight(Date.now());
       const d = new Date(result);
       assert.equal(d.getSeconds(), 0);
     });
 
     it('Sets minutes to 0', () => {
-      const result = DataGenerator.setMidninght(Date.now());
+      const result = gen.setMidnight(Date.now());
       const d = new Date(result);
       assert.equal(d.getMinutes(), 0);
     });
 
     it('Sets hours to 0', () => {
-      const result = DataGenerator.setMidninght(Date.now());
+      const result = gen.setMidnight(Date.now());
       const d = new Date(result);
       assert.equal(d.getHours(), 0);
     });
   });
 
   describe('createProjectObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result, 'object');
     });
 
     it('Has _id', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result._id, 'string');
     });
 
     it('Has name', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result.name, 'string');
     });
 
     it('Has order', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result.order, 'number');
     });
 
     it('Has description', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result.description, 'string');
     });
 
     it('Has requests', () => {
-      const result = DataGenerator.createProjectObject();
+      const result = gen.createProjectObject();
       assert.typeOf(result.requests, 'array');
       assert.lengthOf(result.requests, 0);
     });
 
     it('Adds passed requestId', () => {
-      const result = DataGenerator.createProjectObject({
+      const result = gen.createProjectObject({
         requestId: 'test'
       });
       assert.deepEqual(result.requests, ['test']);
     });
 
     it('Auto generates request id', () => {
-      const result = DataGenerator.createProjectObject({
+      const result = gen.createProjectObject({
         autoRequestId: true
       });
       assert.typeOf(result.requests[0], 'string');
@@ -85,48 +95,58 @@ describe('DataGenerator', () => {
   });
 
   describe('generateHeaders()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns headers', () => {
-      const result = DataGenerator.generateHeaders('application/json');
+      const result = gen.generateHeaders('application/json');
       assert.typeOf(result, 'string');
       assert.isAbove(result.length, 2);
     });
 
     it('Will not generate headers when noHeaders is set', () => {
-      const result = DataGenerator.generateHeaders(undefined, {
+      const result = gen.generateHeaders(undefined, {
         noHeaders: true
       });
       assert.equal(result, '');
     });
 
     it('Adds content-type header', () => {
-      const result = DataGenerator.generateHeaders('application/json');
+      const result = gen.generateHeaders('application/json');
       assert.notEqual(result.indexOf('content-type: application/json'), -1);
     });
   });
 
   describe('generateMethod()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateMethod();
+      const result = gen.generateMethod();
       assert.typeOf(result, 'string');
     });
 
     it('Uses no-payload pool', () => {
-      const result = DataGenerator.generateMethod();
-      // This test may not prove that it uses non paylaod mathod but
+      const result = gen.generateMethod();
+      // This test may not prove that it uses non payload method but
       // with enough sample it will be statistically significant
-      assert.notEqual(DataGenerator.nonPayloadMethods.indexOf(result), -1);
+      assert.notEqual(gen.nonPayloadMethods.indexOf(result), -1);
     });
 
     it('Uses payload pool', () => {
-      const result = DataGenerator.generateMethod(true);
-      // This test may not prove that it uses non paylaod mathod but
+      const result = gen.generateMethod(true);
+      // This test may not prove that it uses non payload method but
       // with enough sample it will be statistically significant
-      assert.notEqual(DataGenerator.payloadMethods.indexOf(result), -1);
+      assert.notEqual(gen.payloadMethods.indexOf(result), -1);
     });
 
     it('Uses passed methodsPools', () => {
       const pool = ['a', 'b'];
-      const result = DataGenerator.generateMethod(true, {
+      const result = gen.generateMethod(true, {
         methodsPools: pool
       });
       assert.notEqual(pool.indexOf(result), -1);
@@ -134,20 +154,25 @@ describe('DataGenerator', () => {
   });
 
   describe('generateIsPayload()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a boolean', () => {
-      const result = DataGenerator.generateIsPayload();
+      const result = gen.generateIsPayload();
       assert.typeOf(result, 'boolean');
     });
 
     it('Always returns false for noPayload', () => {
-      const result = DataGenerator.generateIsPayload({
+      const result = gen.generateIsPayload({
         noPayload: true
       });
       assert.isFalse(result);
     });
 
     it('Always returns true for forcePayload', () => {
-      const result = DataGenerator.generateIsPayload({
+      const result = gen.generateIsPayload({
         forcePayload: true
       });
       assert.isTrue(result);
@@ -155,111 +180,138 @@ describe('DataGenerator', () => {
   });
 
   describe('generateContentType()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateContentType();
+      const result = gen.generateContentType();
       assert.typeOf(result, 'string');
     });
 
     it('Is one of predefined types', () => {
-      const result = DataGenerator.generateContentType();
-      assert.notEqual(DataGenerator.contentTypes.indexOf(result), -1);
+      const result = gen.generateContentType();
+      assert.notEqual(gen.contentTypes.indexOf(result), -1);
     });
   });
 
   describe('generateUrlEncodedData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateUrlEncodedData();
+      const result = gen.generateUrlEncodedData();
       assert.typeOf(result, 'string');
     });
 
     it('Has at least one value', () => {
-      const result = DataGenerator.generateUrlEncodedData();
+      const result = gen.generateUrlEncodedData();
       assert.notEqual(result.indexOf('='), -1);
     });
   });
 
   describe('generateJsonData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateJsonData();
+      const result = gen.generateJsonData();
       assert.typeOf(result, 'string');
     });
 
     it('Is valid JSON', () => {
-      const result = DataGenerator.generateJsonData();
+      const result = gen.generateJsonData();
       const data = JSON.parse(result);
       assert.typeOf(data, 'object');
     });
   });
 
   describe('generateXmlData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateXmlData();
+      const result = gen.generateXmlData();
       assert.typeOf(result, 'string');
     });
   });
 
   describe('generatePayload()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns undefined when no content type', () => {
-      const result = DataGenerator.generatePayload();
+      const result = gen.generatePayload();
       assert.isUndefined(result);
     });
 
     it('Calls generateJsonData() for application/json', () => {
-      const spy = sinon.spy(DataGenerator, 'generateJsonData');
-      DataGenerator.generatePayload('application/json');
-      DataGenerator.generateJsonData.restore();
+      const spy = sinon.spy(gen, 'generateJsonData');
+      gen.generatePayload('application/json');
       assert.isTrue(spy.called);
     });
 
     it('Returns a string for application/json', () => {
-      const result = DataGenerator.generatePayload('application/json');
+      const result = gen.generatePayload('application/json');
       assert.typeOf(result, 'string');
     });
 
     it('Calls generateXmlData() for application/xml', () => {
-      const spy = sinon.spy(DataGenerator, 'generateXmlData');
-      DataGenerator.generatePayload('application/xml');
-      DataGenerator.generateXmlData.restore();
+      const spy = sinon.spy(gen, 'generateXmlData');
+      gen.generatePayload('application/xml');
       assert.isTrue(spy.called);
     });
 
     it('Returns a string for application/xml', () => {
-      const result = DataGenerator.generatePayload('application/xml');
+      const result = gen.generatePayload('application/xml');
       assert.typeOf(result, 'string');
     });
 
     it('Calls generateXmlData() for application/x-www-form-urlencoded', () => {
-      const spy = sinon.spy(DataGenerator, 'generateUrlEncodedData');
-      DataGenerator.generatePayload('application/x-www-form-urlencoded');
-      DataGenerator.generateUrlEncodedData.restore();
+      const spy = sinon.spy(gen, 'generateUrlEncodedData');
+      gen.generatePayload('application/x-www-form-urlencoded');
       assert.isTrue(spy.called);
     });
 
     it('Returns a string for application/xml', () => {
-      const result = DataGenerator.generatePayload('application/x-www-form-urlencoded');
+      const result = gen.generatePayload('application/x-www-form-urlencoded');
       assert.typeOf(result, 'string');
     });
 
     it('Returns a string for text/plain', () => {
-      const result = DataGenerator.generatePayload('text/plain');
+      const result = gen.generatePayload('text/plain');
       assert.typeOf(result, 'string');
     });
 
     it('Throws for unknown type', () => {
       assert.throws(() => {
-        DataGenerator.generatePayload('unknown');
+        gen.generatePayload('unknown');
       });
     });
   });
 
   describe('generateRequestTime()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a number', () => {
-      const result = DataGenerator.generateRequestTime();
+      const result = gen.generateRequestTime();
       assert.typeOf(result, 'number');
     });
 
     it('The month is a last month', () => {
-      const result = DataGenerator.generateRequestTime();
+      const result = gen.generateRequestTime();
       const resultDate = new Date(result);
       const date = new Date();
       let month = date.getMonth() - 1;
@@ -270,35 +322,45 @@ describe('DataGenerator', () => {
     });
 
     it('The year is computed', () => {
-      const result = DataGenerator.generateRequestTime();
+      const result = gen.generateRequestTime();
       const resultDate = new Date(result);
       const date = new Date();
       const month = date.getMonth() - 1;
       let year = date.getFullYear();
       if (month === 0) {
-        year--;
+        year -= 1;
       }
       assert.equal(resultDate.getFullYear(), year);
     });
   });
 
   describe('generateDriveId()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateDriveId();
+      const result = gen.generateDriveId();
       assert.typeOf(result, 'string');
     });
 
     it('Returns undefined for noGoogleDrive', () => {
-      const result = DataGenerator.generateDriveId({
-        noGoogleDrive: true
+      const result = gen.generateDriveId({
+        noGoogleDrive: true,
       });
       assert.isUndefined(result);
     });
   });
 
   describe('generateDescription()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns a string', () => {
-      const result = DataGenerator.generateDescription();
+      const result = gen.generateDescription();
       if (result === undefined) {
         // there's 30% chance that generated value is undefined
         return;
@@ -307,7 +369,7 @@ describe('DataGenerator', () => {
     });
 
     it('Always returns undefined for noDescription', () => {
-      const result = DataGenerator.generateDescription({
+      const result = gen.generateDescription({
         noDescription: true
       });
       assert.isUndefined(result);
@@ -315,8 +377,13 @@ describe('DataGenerator', () => {
   });
 
   describe('generateSavedItem()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateSavedItem();
+      const result = gen.generateSavedItem();
       assert.typeOf(result, 'object');
     });
 
@@ -330,19 +397,18 @@ describe('DataGenerator', () => {
       'generateDescription'
     ].forEach((method) => {
       it(`Calls ${method}()`, () => {
-        const spy = sinon.spy(DataGenerator, method);
-        DataGenerator.generateSavedItem();
-        DataGenerator[method].restore();
+        // @ts-ignore
+        const spy = sinon.spy(gen, method);
+        gen.generateSavedItem();
         assert.isTrue(spy.called);
       });
     });
 
     it('Calls generateContentType()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateContentType');
-      DataGenerator.generateSavedItem({
+      const spy = sinon.spy(gen, 'generateContentType');
+      gen.generateSavedItem({
         forcePayload: true
       });
-      DataGenerator.generateContentType.restore();
       assert.isTrue(spy.called);
     });
 
@@ -358,13 +424,13 @@ describe('DataGenerator', () => {
       ['_id', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateSavedItem();
+        const result = gen.generateSavedItem();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
 
     it(`Has description property of a type string`, () => {
-      const result = DataGenerator.generateSavedItem();
+      const result = gen.generateSavedItem();
       if (result.description === undefined) {
         // there's 30% chance that generated value is undefined
         return;
@@ -372,21 +438,21 @@ describe('DataGenerator', () => {
       assert.typeOf(result.description, 'string');
     });
 
-    it('Has projects proeprty', () => {
+    it('Has projects property', () => {
       const project = 'a';
-      const result = DataGenerator.generateSavedItem({
+      const result = gen.generateSavedItem({
         project
       });
       assert.deepEqual(result.projects, [project]);
     });
 
-    it('Type proeprty is set', () => {
-      const result = DataGenerator.generateSavedItem();
+    it('Type property is set', () => {
+      const result = gen.generateSavedItem();
       assert.equal(result.type, 'saved');
     });
 
     it('Has no driveId when noGoogleDrive is set', () => {
-      const result = DataGenerator.generateSavedItem({
+      const result = gen.generateSavedItem({
         noGoogleDrive: true
       });
       assert.isUndefined(result.driveId);
@@ -394,8 +460,13 @@ describe('DataGenerator', () => {
   });
 
   describe('generateHistoryObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateHistoryObject();
+      const result = gen.generateHistoryObject();
       assert.typeOf(result, 'object');
     });
 
@@ -406,19 +477,18 @@ describe('DataGenerator', () => {
       'generatePayload'
     ].forEach((method) => {
       it(`Calls ${method}()`, () => {
-        const spy = sinon.spy(DataGenerator, method);
-        DataGenerator.generateHistoryObject();
-        DataGenerator[method].restore();
+        // @ts-ignore
+        const spy = sinon.spy(gen, method);
+        gen.generateHistoryObject();
         assert.isTrue(spy.called);
       });
     });
 
     it('Calls generateContentType()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateContentType');
-      DataGenerator.generateHistoryObject({
+      const spy = sinon.spy(gen, 'generateContentType');
+      gen.generateHistoryObject({
         forcePayload: true
       });
-      DataGenerator.generateContentType.restore();
       assert.isTrue(spy.called);
     });
 
@@ -432,18 +502,18 @@ describe('DataGenerator', () => {
       ['_id', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateHistoryObject();
+        const result = gen.generateHistoryObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
 
-    it('Type proeprty is set', () => {
-      const result = DataGenerator.generateHistoryObject();
+    it('Type property is set', () => {
+      const result = gen.generateHistoryObject();
       assert.equal(result.type, 'history');
     });
 
     it('Has no _id when noId is used', () => {
-      const result = DataGenerator.generateHistoryObject({
+      const result = gen.generateHistoryObject({
         noId: true
       });
       assert.isUndefined(result._id);
@@ -451,9 +521,17 @@ describe('DataGenerator', () => {
   });
 
   describe('pickProject()', () => {
-    const projects = ['a', 'b', 'c'];
+    let gen = /** @type DataGenerator */ (null);
+    let projects;
+    beforeEach(() => {
+      gen = new DataGenerator();
+      projects = gen.generateProjects({
+        projectsSize: 3,
+      });
+    });
+
     it('Always returns project id', () => {
-      const result = DataGenerator.pickProject({
+      const result = gen.pickProject({
         projects,
         forceProject: true
       });
@@ -461,7 +539,7 @@ describe('DataGenerator', () => {
     });
 
     it('May return project id', () => {
-      const result = DataGenerator.pickProject({
+      const result = gen.pickProject({
         projects
       });
       if (result === undefined) {
@@ -471,64 +549,67 @@ describe('DataGenerator', () => {
     });
 
     it('Returns undefined when no project', () => {
-      const result = DataGenerator.pickProject();
+      const result = gen.pickProject();
       assert.isUndefined(result);
     });
   });
 
   describe('generateRequests()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateRequests();
+      const result = gen.generateRequests();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateRequests();
+      const result = gen.generateRequests();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of requests', () => {
-      const result = DataGenerator.generateRequests({
+      const result = gen.generateRequests({
         requestsSize: 10
       });
       assert.lengthOf(result, 10);
     });
 
     it('Calls pickProject()', () => {
-      const spy = sinon.spy(DataGenerator, 'pickProject');
-      DataGenerator.generateRequests({
+      const spy = sinon.spy(gen, 'pickProject');
+      gen.generateRequests({
         requestsSize: 10
       });
-      DataGenerator.pickProject.restore();
       assert.equal(spy.callCount, 10);
     });
 
     it('Calls generateSavedItem()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateSavedItem');
-      DataGenerator.generateRequests({
+      const spy = sinon.spy(gen, 'generateSavedItem');
+      gen.generateRequests({
         requestsSize: 10
       });
-      DataGenerator.generateSavedItem.restore();
       assert.equal(spy.callCount, 10);
     });
 
     it('Adds project to the request', () => {
-      const projects = [{ _id: 1 }];
-      const result = DataGenerator.generateRequests({
+      const projects = [{ _id: '1', name: 'x', description: 'y', order: 1, requests: [] }];
+      const result = gen.generateRequests({
         requestsSize: 2,
         forceProject: true,
         projects
       });
 
-      assert.deepEqual(result[0].projects, [1]);
+      assert.deepEqual(result[0].projects, ['1']);
     });
 
     it('Adds request to the project', () => {
-      const projects = [{ _id: 1 }];
-      DataGenerator.generateRequests({
+      const projects = [{ _id: '1', name: 'x', description: 'y', order: 1, requests: [] }];
+      gen.generateRequests({
         requestsSize: 2,
         forceProject: true,
-        projects
+        projects,
       });
 
       assert.typeOf(projects[0].requests[0], 'string');
@@ -536,62 +617,69 @@ describe('DataGenerator', () => {
   });
 
   describe('generateProjects()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateProjects();
+      const result = gen.generateProjects();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateProjects();
+      const result = gen.generateProjects();
       assert.lengthOf(result, 5);
     });
 
     it('Returns requested number of requests', () => {
-      const result = DataGenerator.generateProjects({
+      const result = gen.generateProjects({
         projectsSize: 10
       });
       assert.lengthOf(result, 10);
     });
 
     it('Calls createProjectObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'createProjectObject');
-      DataGenerator.generateProjects({
+      const spy = sinon.spy(gen, 'createProjectObject');
+      gen.generateProjects({
         projectsSize: 10
       });
-      DataGenerator.createProjectObject.restore();
       assert.equal(spy.callCount, 10);
     });
   });
 
   describe('generateSavedRequestData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateSavedRequestData();
+      const result = gen.generateSavedRequestData();
       assert.typeOf(result, 'object');
     });
 
     it('Calls generateProjects()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateProjects');
-      DataGenerator.generateSavedRequestData();
-      DataGenerator.generateProjects.restore();
+      const spy = sinon.spy(gen, 'generateProjects');
+      gen.generateSavedRequestData();
       assert.isTrue(spy.called);
     });
 
     it('Calls generateRequests()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateRequests');
-      DataGenerator.generateSavedRequestData();
-      DataGenerator.generateRequests.restore();
+      const spy = sinon.spy(gen, 'generateRequests');
+      gen.generateSavedRequestData();
       assert.isTrue(spy.called);
     });
 
     it('Passes options to generateProjects()', () => {
-      const result = DataGenerator.generateSavedRequestData({
+      const result = gen.generateSavedRequestData({
         projectsSize: 1
       });
       assert.lengthOf(result.projects, 1);
     });
 
     it('Passes options to generateRequests()', () => {
-      const result = DataGenerator.generateSavedRequestData({
+      const result = gen.generateSavedRequestData({
         requestsSize: 1
       });
       assert.lengthOf(result.requests, 1);
@@ -599,36 +687,45 @@ describe('DataGenerator', () => {
   });
 
   describe('generateHistoryRequestsData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateHistoryRequestsData();
+      const result = gen.generateHistoryRequestsData();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateHistoryRequestsData();
+      const result = gen.generateHistoryRequestsData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of requests', () => {
-      const result = DataGenerator.generateHistoryRequestsData({
+      const result = gen.generateHistoryRequestsData({
         requestsSize: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls createProjectObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateHistoryObject');
-      DataGenerator.generateHistoryRequestsData({
+      const spy = sinon.spy(gen, 'generateHistoryObject');
+      gen.generateHistoryRequestsData({
         requestsSize: 5
       });
-      DataGenerator.generateHistoryObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('generateVariableObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateVariableObject();
+      const result = gen.generateVariableObject();
       assert.typeOf(result, 'object');
     });
 
@@ -640,20 +737,20 @@ describe('DataGenerator', () => {
       ['environment', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateVariableObject();
+        const result = gen.generateVariableObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
 
     it('Always creates "default" environment', () => {
-      const result = DataGenerator.generateVariableObject({
+      const result = gen.generateVariableObject({
         defaultEnv: true
       });
       assert.equal(result.environment, 'default');
     });
 
     it('Always creates random environment', () => {
-      const result = DataGenerator.generateVariableObject({
+      const result = gen.generateVariableObject({
         randomEnv: true
       });
       assert.notEqual(result.environment, 'default');
@@ -661,85 +758,45 @@ describe('DataGenerator', () => {
   });
 
   describe('generateVariablesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateVariablesData();
+      const result = gen.generateVariablesData();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateVariablesData();
+      const result = gen.generateVariablesData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of variables', () => {
-      const result = DataGenerator.generateVariablesData({
+      const result = gen.generateVariablesData({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateVariableObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateVariableObject');
-      DataGenerator.generateVariablesData({
+      const spy = sinon.spy(gen, 'generateVariableObject');
+      gen.generateVariablesData({
         size: 5
       });
-      DataGenerator.generateVariableObject.restore();
-      assert.equal(spy.callCount, 5);
-    });
-  });
-
-  describe('generateHeaderSetObject()', () => {
-    it('Returns an object', () => {
-      const result = DataGenerator.generateHeaderSetObject();
-      assert.typeOf(result, 'object');
-    });
-
-    [
-      ['created', 'number'],
-      ['updated', 'number'],
-      ['order', 'number'],
-      ['name', 'string'],
-      ['headers', 'string'],
-      ['_id', 'string']
-    ].forEach((item) => {
-      it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateHeaderSetObject();
-        assert.typeOf(result[item[0]], item[1]);
-      });
-    });
-  });
-
-  describe('generateHeadersSetsData()', () => {
-    it('Returns an array', () => {
-      const result = DataGenerator.generateHeadersSetsData();
-      assert.typeOf(result, 'array');
-    });
-
-    it('List has default number of requests', () => {
-      const result = DataGenerator.generateHeadersSetsData();
-      assert.lengthOf(result, 25);
-    });
-
-    it('Returns requested number of items', () => {
-      const result = DataGenerator.generateHeadersSetsData({
-        size: 5
-      });
-      assert.lengthOf(result, 5);
-    });
-
-    it('Calls generateHeaderSetObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateHeaderSetObject');
-      DataGenerator.generateHeadersSetsData({
-        size: 5
-      });
-      DataGenerator.generateHeaderSetObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('generateCookieObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     it('Returns an object', () => {
-      const result = DataGenerator.generateCookieObject();
+      const result = gen.generateCookieObject();
       assert.typeOf(result, 'object');
     });
 
@@ -759,43 +816,52 @@ describe('DataGenerator', () => {
       ['persistent', 'boolean']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateCookieObject();
+        const result = gen.generateCookieObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
   });
 
   describe('generateCookiesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateCookiesData();
+      const result = gen.generateCookiesData();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateCookiesData();
+      const result = gen.generateCookiesData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of items', () => {
-      const result = DataGenerator.generateCookiesData({
+      const result = gen.generateCookiesData({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateHeaderSetObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateCookieObject');
-      DataGenerator.generateCookiesData({
+      const spy = sinon.spy(gen, 'generateCookieObject');
+      gen.generateCookiesData({
         size: 5
       });
-      DataGenerator.generateCookieObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('generateUrlObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateUrlObject();
+      const result = gen.generateUrlObject();
       assert.typeOf(result, 'object');
     });
 
@@ -805,43 +871,52 @@ describe('DataGenerator', () => {
       ['_id', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateUrlObject();
+        const result = gen.generateUrlObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
   });
 
   describe('generateUrlsData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateUrlsData();
+      const result = gen.generateUrlsData();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateUrlsData();
+      const result = gen.generateUrlsData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of items', () => {
-      const result = DataGenerator.generateUrlsData({
+      const result = gen.generateUrlsData({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateUrlObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateUrlObject');
-      DataGenerator.generateUrlsData({
+      const spy = sinon.spy(gen, 'generateUrlObject');
+      gen.generateUrlsData({
         size: 5
       });
-      DataGenerator.generateUrlObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('generateHostRuleObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateHostRuleObject();
+      const result = gen.generateHostRuleObject();
       assert.typeOf(result, 'object');
     });
 
@@ -853,43 +928,52 @@ describe('DataGenerator', () => {
       ['comment', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateHostRuleObject();
+        const result = gen.generateHostRuleObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
   });
 
   describe('generateHostRulesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateHostRulesData();
+      const result = gen.generateHostRulesData();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of requests', () => {
-      const result = DataGenerator.generateHostRulesData();
+      const result = gen.generateHostRulesData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of items', () => {
-      const result = DataGenerator.generateHostRulesData({
+      const result = gen.generateHostRulesData({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateHostRuleObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateHostRuleObject');
-      DataGenerator.generateHostRulesData({
+      const spy = sinon.spy(gen, 'generateHostRuleObject');
+      gen.generateHostRulesData({
         size: 5
       });
-      DataGenerator.generateHostRuleObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('generateBasicAuthObject()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateBasicAuthObject();
+      const result = gen.generateBasicAuthObject();
       assert.typeOf(result, 'object');
     });
 
@@ -899,54 +983,63 @@ describe('DataGenerator', () => {
       ['url', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
-        const result = DataGenerator.generateBasicAuthObject();
+        const result = gen.generateBasicAuthObject();
         assert.typeOf(result[item[0]], item[1]);
       });
     });
 
     it('Type is "basic"', () => {
-      const result = DataGenerator.generateBasicAuthObject();
+      const result = gen.generateBasicAuthObject();
       assert.equal(result.type, 'basic');
     });
 
     it('_id starts with "basic?"', () => {
-      const result = DataGenerator.generateBasicAuthObject();
+      const result = gen.generateBasicAuthObject();
       assert.equal(result._id.indexOf('basic/'), 0);
     });
   });
 
   describe('generateBasicAuthData()', () => {
-    it('Returns an array', () => {
-      const result = DataGenerator.generateBasicAuthData();
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    it('returns an array', () => {
+      const result = gen.generateBasicAuthData();
       assert.typeOf(result, 'array');
     });
 
-    it('List has default number of requests', () => {
-      const result = DataGenerator.generateBasicAuthData();
+    it('the list has default number of requests', () => {
+      const result = gen.generateBasicAuthData();
       assert.lengthOf(result, 25);
     });
 
     it('Returns requested number of items', () => {
-      const result = DataGenerator.generateBasicAuthData({
+      const result = gen.generateBasicAuthData({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateHostRuleObject()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateBasicAuthObject');
-      DataGenerator.generateBasicAuthData({
+      const spy = sinon.spy(gen, 'generateBasicAuthObject');
+      gen.generateBasicAuthData({
         size: 5
       });
-      DataGenerator.generateBasicAuthObject.restore();
       assert.equal(spy.callCount, 5);
     });
   });
 
 
   describe('generateApiIndex()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateApiIndex();
+      const result = gen.generateApiIndex();
       assert.typeOf(result, 'object');
     });
 
@@ -959,46 +1052,55 @@ describe('DataGenerator', () => {
       ['versions', 'array']
     ].forEach(([property, type]) => {
       it(`Has ${property} property of a type ${type}`, () => {
-        const result = DataGenerator.generateApiIndex();
+        const result = gen.generateApiIndex();
         assert.typeOf(result[property], type);
       });
     });
 
     it('generate versionsSize versions', () => {
-      const result = DataGenerator.generateApiIndex({
-        versionSize: 10
+      const result = gen.generateApiIndex({
+        versionSize: 10,
       });
       assert.lengthOf(result.versions, 10);
     });
   });
 
   describe('generateApiIndexList()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('returns an array', () => {
-      const result = DataGenerator.generateApiIndexList();
+      const result = gen.generateApiIndexList();
       assert.typeOf(result, 'array');
     });
 
     it('has size items', () => {
-      const result = DataGenerator.generateApiIndexList({
+      const result = gen.generateApiIndexList({
         size: 10
       });
       assert.lengthOf(result, 10);
     });
 
     it('calls generateApiIndex() for each item', () => {
-      const spy = sinon.spy(DataGenerator, 'generateApiIndex');
-      DataGenerator.generateApiIndexList({
+      const spy = sinon.spy(gen, 'generateApiIndex');
+      gen.generateApiIndexList({
         size: 2
       });
-      DataGenerator.generateApiIndex.restore();
       assert.equal(spy.callCount, 2);
     });
   });
 
   describe('generateApiData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const index = DataGenerator.generateApiIndex();
-      const result = DataGenerator.generateApiData(index);
+      const index = gen.generateApiIndex();
+      const result = gen.generateApiData(index);
       assert.typeOf(result, 'array');
     });
 
@@ -1009,24 +1111,29 @@ describe('DataGenerator', () => {
       ['indexId', 'string']
     ].forEach(([property, type]) => {
       it(`Has ${property} property of a type ${type}`, () => {
-        const index = DataGenerator.generateApiIndex();
-        const result = DataGenerator.generateApiData(index)[0];
+        const index = gen.generateApiIndex();
+        const result = gen.generateApiData(index)[0];
         assert.typeOf(result[property], type);
       });
     });
 
     it('generate an item for each version', () => {
-      const index = DataGenerator.generateApiIndex({
+      const index = gen.generateApiIndex({
         versionSize: 6
       });
-      const result = DataGenerator.generateApiData(index);
+      const result = gen.generateApiData(index);
       assert.lengthOf(result, 6);
     });
   });
 
   describe('generateClientCertificate()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an object', () => {
-      const result = DataGenerator.generateClientCertificate();
+      const result = gen.generateClientCertificate();
       assert.typeOf(result, 'object');
     });
 
@@ -1038,39 +1145,39 @@ describe('DataGenerator', () => {
       ['created', 'number'],
     ].forEach(([prop, type]) => {
       it(`Has ${prop} property of a type ${type}`, () => {
-        const result = DataGenerator.generateClientCertificate();
+        const result = gen.generateClientCertificate();
         assert.typeOf(result[prop], type);
       });
     });
 
     it('uses passed type', () => {
-      const result = DataGenerator.generateClientCertificate({
+      const result = gen.generateClientCertificate({
         type: 'p12'
       });
       assert.equal(result.type, 'p12');
     });
 
     it('ignores created', () => {
-      const result = DataGenerator.generateClientCertificate({
+      const result = gen.generateClientCertificate({
         noCreated: true
       });
       assert.isUndefined(result.created);
     });
 
     it('creates binary data on a certificate', () => {
-      const result = DataGenerator.generateClientCertificate({
+      const result = gen.generateClientCertificate({
         binary: true
       });
       assert.typeOf(result.cert.data, 'Uint8Array');
     });
 
     it('adds passphrase to a certificate by default', () => {
-      const result = DataGenerator.generateClientCertificate({});
+      const result = gen.generateClientCertificate({});
       assert.typeOf(result.cert.passphrase, 'string');
     });
 
     it('ignores passphrase on a certificate', () => {
-      const result = DataGenerator.generateClientCertificate({
+      const result = gen.generateClientCertificate({
         noPassphrase: true
       });
       assert.isUndefined(result.cert.passphrase);
@@ -1078,54 +1185,160 @@ describe('DataGenerator', () => {
   });
 
   describe('generateClientCertificates()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     it('Returns an array', () => {
-      const result = DataGenerator.generateClientCertificates();
+      const result = gen.generateClientCertificates();
       assert.typeOf(result, 'array');
     });
 
     it('List has default number of items', () => {
-      const result = DataGenerator.generateClientCertificates();
+      const result = gen.generateClientCertificates();
       assert.lengthOf(result, 15);
     });
 
     it('Returns requested number of items', () => {
-      const result = DataGenerator.generateClientCertificates({
+      const result = gen.generateClientCertificates({
         size: 5
       });
       assert.lengthOf(result, 5);
     });
 
     it('Calls generateClientCertificate()', () => {
-      const spy = sinon.spy(DataGenerator, 'generateClientCertificate');
-      DataGenerator.generateClientCertificates({
+      const spy = sinon.spy(gen, 'generateClientCertificate');
+      gen.generateClientCertificates({
         size: 5
       });
-      DataGenerator.generateClientCertificate.restore();
+      assert.equal(spy.callCount, 5);
+    });
+  });
+
+  describe('certificateToStore()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    it('returns the same cert when data is string', () => {
+      const cert = gen.generateCertificate({
+        binary: false,
+      });
+      const result = gen.certificateToStore(cert);
+      assert.deepEqual(result, cert);
+    });
+
+    it('transfers buffer data to string', () => {
+      const cert = gen.generateCertificate({
+        binary: true,
+      });
+      const result = gen.certificateToStore(cert);
+      assert.notDeepEqual(result, cert, 'returns altered object');
+      assert.typeOf(result.data, 'string', 'cert data is a string');
+      assert.equal(result.type, 'buffer', 'adds type property');
+    });
+  });
+
+  describe('generateExportClientCertificate()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    it('returns an object', () => {
+      const result = gen.generateExportClientCertificate();
+      assert.typeOf(result, 'object');
+    });
+
+    it('calls generateClientCertificate()', () => {
+      const spy = sinon.spy(gen, 'generateClientCertificate');
+      gen.generateExportClientCertificate();
+      assert.isTrue(spy.calledOnce);
+    });
+
+    it('adds kind property', () => {
+      const result = gen.generateExportClientCertificate();
+      assert.equal(result.kind, 'ARC#ClientCertificate');
+    });
+
+    it('adds key property', () => {
+      const result = gen.generateExportClientCertificate();
+      assert.typeOf(result.key, 'string');
+    });
+
+    it('moves old key to pKey property', () => {
+      const result = gen.generateExportClientCertificate();
+      assert.typeOf(result.pKey, 'object');
+    });
+
+    it('ignores pKey when nmo key data', () => {
+      const result = gen.generateExportClientCertificate({
+        noKey: true,
+      });
+      assert.isUndefined(result.pKey);
+    });
+  });
+
+  describe('generateExportClientCertificates()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    it('returns an array', () => {
+      const result = gen.generateExportClientCertificates();
+      assert.typeOf(result, 'array');
+    });
+
+    it('has the default number of items', () => {
+      const result = gen.generateExportClientCertificates();
+      assert.lengthOf(result, 15);
+    });
+
+    it('returns requested number of items', () => {
+      const result = gen.generateExportClientCertificates({
+        size: 5
+      });
+      assert.lengthOf(result, 5);
+    });
+
+    it('calls generateExportClientCertificate()', () => {
+      const spy = sinon.spy(gen, 'generateExportClientCertificate');
+      gen.generateExportClientCertificates({
+        size: 5
+      });
       assert.equal(spy.callCount, 5);
     });
   });
 
   describe('insertSavedIfNotExists()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroySavedRequestData();
+      await gen.destroySavedRequestData();
     });
 
     it('Inserts new saved request data', async () => {
-      await DataGenerator.insertSavedIfNotExists();
+      await gen.insertSavedIfNotExists();
       const savedDb = new PouchDB('saved-requests');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 25);
     });
 
     it('Inserts new projects data', async () => {
-      await DataGenerator.insertSavedIfNotExists();
+      await gen.insertSavedIfNotExists();
       const savedDb = new PouchDB('legacy-projects');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 5);
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertSavedIfNotExists();
+      const result = await gen.insertSavedIfNotExists();
       assert.lengthOf(result.requests, 25, 'Has requests array');
       assert.lengthOf(result.projects, 5, 'Has projects array');
 
@@ -1137,41 +1350,46 @@ describe('DataGenerator', () => {
     });
 
     it('Ignores insert of requests when exists', async () => {
-      const insert = await DataGenerator.insertSavedRequestData({
+      const insert = await gen.insertSavedRequestData({
         // More than 1 can cause order problems
-        // Retreived from the data store documents may be in different order
+        // Retrieved from the data store documents may be in different order
         // so it's safer to test single request to reduce tests logic
         requestsSize: 1
       });
 
-      const result = await DataGenerator.insertSavedIfNotExists();
+      const result = await gen.insertSavedIfNotExists();
       assert.deepEqual(result.requests, insert.requests);
     });
 
     it('Ignores insert of projects when exists', async () => {
-      const insert = await DataGenerator.insertSavedRequestData({
+      const insert = await gen.insertSavedRequestData({
         requestsSize: 1,
         projectsSize: 1
       });
-      const result = await DataGenerator.insertSavedIfNotExists();
+      const result = await gen.insertSavedIfNotExists();
       assert.deepEqual(result.projects, insert.projects);
     });
   });
 
   describe('insertHistoryIfNotExists()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyHistoryData();
+      await gen.destroyHistoryData();
     });
 
     it('Inserts new history request data', async () => {
-      await DataGenerator.insertHistoryIfNotExists();
+      await gen.insertHistoryIfNotExists();
       const savedDb = new PouchDB('history-requests');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 25);
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertHistoryIfNotExists();
+      const result = await gen.insertHistoryIfNotExists();
       assert.lengthOf(result, 25, 'Has requests list');
 
       assert.typeOf(result[0]._id, 'string', 'Request has _id');
@@ -1179,32 +1397,37 @@ describe('DataGenerator', () => {
     });
 
     it('Ignores insert of requests when exists', async () => {
-      const insert = await DataGenerator.insertHistoryRequestData({
+      const insert = await gen.insertHistoryRequestData({
         // More than 1 can cause order problems
-        // Retreived from the data store documents may be in different order
+        // Retrieved from the data store documents may be in different order
         // so it's safer to test single request to reduce tests logic
         requestsSize: 1
       });
 
-      const result = await DataGenerator.insertHistoryIfNotExists();
+      const result = await gen.insertHistoryIfNotExists();
       assert.deepEqual(result, insert);
     });
   });
 
   describe('insertSavedRequestData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroySavedRequestData();
+      await gen.destroySavedRequestData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertSavedRequestData();
+      const result = await gen.insertSavedRequestData();
 
       assert.lengthOf(result.requests, 25, 'Has requests array');
       assert.lengthOf(result.projects, 5, 'Has projects array');
     });
 
     it('Project has updated _rev', async () => {
-      const result = await DataGenerator.insertSavedRequestData({
+      const result = await gen.insertSavedRequestData({
         projectsSize: 1,
         requestsSize: 1
       });
@@ -1214,7 +1437,7 @@ describe('DataGenerator', () => {
     });
 
     it('Request has updated _rev', async () => {
-      const result = await DataGenerator.insertSavedRequestData({
+      const result = await gen.insertSavedRequestData({
         projectsSize: 1,
         requestsSize: 1
       });
@@ -1224,28 +1447,32 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateSavedRequestData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateSavedRequestData');
-      await DataGenerator.insertSavedRequestData({
+      const spy = sinon.spy(gen, 'generateSavedRequestData');
+      await gen.insertSavedRequestData({
         projectsSize: 1,
         requestsSize: 1
       });
-      DataGenerator.generateSavedRequestData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertHistoryRequestData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyHistoryData();
+      await gen.destroyHistoryData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertHistoryRequestData();
+      const result = await gen.insertHistoryRequestData();
       assert.lengthOf(result, 25);
     });
 
     it('Request has updated _rev', async () => {
-      const result = await DataGenerator.insertHistoryRequestData({
+      const result = await gen.insertHistoryRequestData({
         requestsSize: 1
       });
 
@@ -1254,27 +1481,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateHistoryRequestsData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateHistoryRequestsData');
-      await DataGenerator.insertHistoryRequestData({
+      const spy = sinon.spy(gen, 'generateHistoryRequestsData');
+      await gen.insertHistoryRequestData({
         requestsSize: 1
       });
-      DataGenerator.generateHistoryRequestsData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertProjectsData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.clearLegacyProjects();
+      await gen.clearLegacyProjects();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertProjectsData();
+      const result = await gen.insertProjectsData();
       assert.lengthOf(result, 5);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertProjectsData({
+      const result = await gen.insertProjectsData({
         projectsSize: 1
       });
 
@@ -1283,27 +1514,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateProjects()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateProjects');
-      await DataGenerator.insertProjectsData({
+      const spy = sinon.spy(gen, 'generateProjects');
+      await gen.insertProjectsData({
         projectsSize: 1
       });
-      DataGenerator.generateProjects.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertWebsocketData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyWebsocketsData();
+      await gen.destroyWebsocketsData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertWebsocketData();
+      const result = await gen.insertWebsocketData();
       assert.lengthOf(result, 25);
     });
 
     it('Request has updated _rev', async () => {
-      const result = await DataGenerator.insertWebsocketData({
+      const result = await gen.insertWebsocketData({
         size: 1
       });
 
@@ -1312,27 +1547,30 @@ describe('DataGenerator', () => {
     });
 
     it('Object generateUrlsData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateUrlsData');
-      await DataGenerator.insertWebsocketData({
+      const spy = sinon.spy(gen, 'generateUrlsData');
+      await gen.insertWebsocketData({
         size: 1
       });
-      DataGenerator.generateUrlsData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertUrlHistoryData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
     beforeEach(async () => {
-      await DataGenerator.destroyUrlData();
+      await gen.destroyUrlData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertUrlHistoryData();
+      const result = await gen.insertUrlHistoryData();
       assert.lengthOf(result, 25);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertUrlHistoryData({
+      const result = await gen.insertUrlHistoryData({
         size: 1
       });
 
@@ -1341,27 +1579,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateUrlsData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateUrlsData');
-      await DataGenerator.insertUrlHistoryData({
+      const spy = sinon.spy(gen, 'generateUrlsData');
+      await gen.insertUrlHistoryData({
         size: 1
       });
-      DataGenerator.generateUrlsData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertVariablesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyVariablesData();
+      await gen.destroyVariablesData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertVariablesData();
+      const result = await gen.insertVariablesData();
       assert.lengthOf(result, 25);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertVariablesData({
+      const result = await gen.insertVariablesData({
         size: 1
       });
 
@@ -1370,56 +1612,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateVariablesData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateVariablesData');
-      await DataGenerator.insertVariablesData({
+      const spy = sinon.spy(gen, 'generateVariablesData');
+      await gen.insertVariablesData({
         size: 1
       });
-      DataGenerator.generateVariablesData.restore();
-      assert.isTrue(spy.called);
-    });
-  });
-
-  describe('insertHeadersSetsData()', () => {
-    beforeEach(async () => {
-      await DataGenerator.destroyHeadersData();
-    });
-
-    it('Returns generated data', async () => {
-      const result = await DataGenerator.insertHeadersSetsData();
-      assert.lengthOf(result, 25);
-    });
-
-    it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertHeadersSetsData({
-        size: 1
-      });
-
-      assert.typeOf(result[0]._id, 'string', 'Object has _id');
-      assert.typeOf(result[0]._rev, 'string', 'Object has _rev');
-    });
-
-    it('Calls generateHeadersSetsData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateHeadersSetsData');
-      await DataGenerator.insertHeadersSetsData({
-        size: 1
-      });
-      DataGenerator.generateHeadersSetsData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertCookiesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyCookiesData();
+      await gen.destroyCookiesData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertCookiesData();
+      const result = await gen.insertCookiesData();
       assert.lengthOf(result, 25);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertCookiesData({
+      const result = await gen.insertCookiesData({
         size: 1
       });
 
@@ -1428,27 +1645,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateCookiesData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateCookiesData');
-      await DataGenerator.insertCookiesData({
+      const spy = sinon.spy(gen, 'generateCookiesData');
+      await gen.insertCookiesData({
         size: 1
       });
-      DataGenerator.generateCookiesData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertBasicAuthData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyAuthData();
+      await gen.destroyAuthData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertBasicAuthData();
+      const result = await gen.insertBasicAuthData();
       assert.lengthOf(result, 25);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertBasicAuthData({
+      const result = await gen.insertBasicAuthData({
         size: 1
       });
 
@@ -1457,27 +1678,31 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateBasicAuthData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateBasicAuthData');
-      await DataGenerator.insertBasicAuthData({
+      const spy = sinon.spy(gen, 'generateBasicAuthData');
+      await gen.insertBasicAuthData({
         size: 1
       });
-      DataGenerator.generateBasicAuthData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertHostRulesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyHostRulesData();
+      await gen.destroyHostRulesData();
     });
 
     it('Returns generated data', async () => {
-      const result = await DataGenerator.insertHostRulesData();
+      const result = await gen.insertHostRulesData();
       assert.lengthOf(result, 25);
     });
 
     it('Object has updated _rev', async () => {
-      const result = await DataGenerator.insertHostRulesData({
+      const result = await gen.insertHostRulesData({
         size: 1
       });
 
@@ -1486,65 +1711,72 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateHostRulesData()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateHostRulesData');
-      await DataGenerator.insertHostRulesData({
+      const spy = sinon.spy(gen, 'generateHostRulesData');
+      await gen.insertHostRulesData({
         size: 1
       });
-      DataGenerator.generateHostRulesData.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertApiData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyAllApiData();
+      await gen.destroyAllApiData();
     });
 
     it('returns generated data', async () => {
-      const result = await DataGenerator.insertApiData();
+      const result = await gen.insertApiData();
       assert.lengthOf(result[0], 25);
       assert.isAbove(result[1].length, 25);
     });
 
     it('object has updated _rev', async () => {
-      const result = await DataGenerator.insertApiData({
-        size: 1
+      const result = await gen.insertApiData({
+        size: 1,
       });
       assert.typeOf(result[0][0]._id, 'string', 'Object has _id');
       assert.typeOf(result[0][0]._rev, 'string', 'Object has _rev');
     });
 
     it('Calls generateApiIndexList()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateApiIndexList');
-      await DataGenerator.insertApiData({
-        size: 1
+      const spy = sinon.spy(gen, 'generateApiIndexList');
+      await gen.insertApiData({
+        size: 1,
       });
-      DataGenerator.generateApiIndexList.restore();
       assert.isTrue(spy.called);
     });
 
     it('Calls generateApiDataList()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateApiDataList');
-      await DataGenerator.insertApiData({
-        size: 1
+      const spy = sinon.spy(gen, 'generateApiDataList');
+      await gen.insertApiData({
+        size: 1,
       });
-      DataGenerator.generateApiDataList.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('insertCertificatesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.destroyClientCertificates();
+      await gen.destroyClientCertificates();
     });
 
     it('returns generated data', async () => {
-      const result = await DataGenerator.insertCertificatesData();
+      const result = await gen.insertCertificatesData();
       assert.lengthOf(result, 15);
     });
 
     it('object has updated _rev', async () => {
-      const result = await DataGenerator.insertCertificatesData({
+      const result = await gen.insertCertificatesData({
         size: 1
       });
       assert.typeOf(result[0]._id, 'string', 'Object has _id');
@@ -1552,29 +1784,33 @@ describe('DataGenerator', () => {
     });
 
     it('Calls generateClientCertificates()', async () => {
-      const spy = sinon.spy(DataGenerator, 'generateClientCertificates');
-      await DataGenerator.insertCertificatesData({
+      const spy = sinon.spy(gen, 'generateClientCertificates');
+      await gen.insertCertificatesData({
         size: 1
       });
-      DataGenerator.generateClientCertificates.restore();
       assert.isTrue(spy.called);
     });
   });
 
   describe('destroySavedRequestData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
     beforeEach(async () => {
-      await DataGenerator.insertSavedRequestData();
+      await gen.insertSavedRequestData();
     });
 
     it('Clears saved-requests store', async () => {
-      await DataGenerator.destroySavedRequestData();
+      await gen.destroySavedRequestData();
       const savedDb = new PouchDB('saved-requests');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
     });
 
     it('Clears legacy-requests store', async () => {
-      await DataGenerator.destroySavedRequestData();
+      await gen.destroySavedRequestData();
       const db = new PouchDB('legacy-requests');
       const response = await db.allDocs();
       assert.equal(response.total_rows, 0);
@@ -1582,12 +1818,17 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyHistoryData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertHistoryRequestData();
+      await gen.insertHistoryRequestData();
     });
 
     it('Clears history-requests store', async () => {
-      await DataGenerator.destroyHistoryData();
+      await gen.destroyHistoryData();
       const savedDb = new PouchDB('history-requests');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1595,12 +1836,17 @@ describe('DataGenerator', () => {
   });
 
   describe('clearLegacyProjects()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertProjectsData();
+      await gen.insertProjectsData();
     });
 
     it('Clears legacy-projects store', async () => {
-      await DataGenerator.clearLegacyProjects();
+      await gen.clearLegacyProjects();
       const savedDb = new PouchDB('legacy-projects');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1608,12 +1854,17 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyWebsocketsData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertWebsocketData();
+      await gen.insertWebsocketData();
     });
 
     it('Clears websocket-url-history store', async () => {
-      await DataGenerator.destroyWebsocketsData();
+      await gen.destroyWebsocketsData();
       const savedDb = new PouchDB('websocket-url-history');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1621,45 +1872,42 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyUrlData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertUrlHistoryData();
+      await gen.insertUrlHistoryData();
     });
 
     it('Clears url-history store', async () => {
-      await DataGenerator.destroyUrlData();
+      await gen.destroyUrlData();
       const savedDb = new PouchDB('url-history');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
     });
   });
 
-  describe('destroyHeadersData()', () => {
-    beforeEach(async () => {
-      await DataGenerator.insertHeadersSetsData();
-    });
-
-    it('Clears headers-sets store', async () => {
-      await DataGenerator.destroyHeadersData();
-      const savedDb = new PouchDB('headers-sets');
-      const docs = await savedDb.allDocs();
-      assert.equal(docs.total_rows, 0);
-    });
-  });
-
   describe('destroyVariablesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertVariablesData();
+      await gen.insertVariablesData();
     });
 
     it('Clears variables store', async () => {
-      await DataGenerator.destroyVariablesData();
+      await gen.destroyVariablesData();
       const savedDb = new PouchDB('variables');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
     });
 
     it('Clears variables-environments store', async () => {
-      await DataGenerator.destroyVariablesData();
+      await gen.destroyVariablesData();
       const savedDb = new PouchDB('variables-environments');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1667,12 +1915,17 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyCookiesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertCookiesData();
+      await gen.insertCookiesData();
     });
 
     it('Clears cookies store', async () => {
-      await DataGenerator.destroyCookiesData();
+      await gen.destroyCookiesData();
       const savedDb = new PouchDB('cookies');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1680,12 +1933,17 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyAuthData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertBasicAuthData();
+      await gen.insertBasicAuthData();
     });
 
     it('Clears auth-data store', async () => {
-      await DataGenerator.destroyAuthData();
+      await gen.destroyAuthData();
       const savedDb = new PouchDB('auth-data');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1693,12 +1951,17 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyHostRulesData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
-      await DataGenerator.insertHostRulesData();
+      await gen.insertHostRulesData();
     });
 
     it('Clears host-rules store', async () => {
-      await DataGenerator.destroyHostRulesData();
+      await gen.destroyHostRulesData();
       const savedDb = new PouchDB('host-rules');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1706,13 +1969,18 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyApiIndexData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
       const db = new PouchDB('api-index');
-      await db.put({ _id: 'test-' + Date.now() });
+      await db.put({ _id: `test-${Date.now()}` });
     });
 
     it('Clears api-index store', async () => {
-      await DataGenerator.destroyApiIndexData();
+      await gen.destroyApiIndexData();
       const savedDb = new PouchDB('api-index');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1720,13 +1988,18 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyApiData()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
       const db = new PouchDB('api-data');
-      await db.put({ _id: 'test-' + Date.now() });
+      await db.put({ _id: `test-${Date.now()}` });
     });
 
     it('Clears api-index store', async () => {
-      await DataGenerator.destroyApiData();
+      await gen.destroyApiData();
       const savedDb = new PouchDB('api-data');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1734,13 +2007,18 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyClientCertificates()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
     beforeEach(async () => {
       const db = new PouchDB('client-certificates');
-      await db.put({ _id: 'test-' + Date.now() });
+      await db.put({ _id: `test-${Date.now()}` });
     });
 
     it('Clears client-certificates store', async () => {
-      await DataGenerator.destroyClientCertificates();
+      await gen.destroyClientCertificates();
       const savedDb = new PouchDB('client-certificates');
       const docs = await savedDb.allDocs();
       assert.equal(docs.total_rows, 0);
@@ -1748,13 +2026,13 @@ describe('DataGenerator', () => {
   });
 
   describe('destroyAll()', () => {
+    let gen = /** @type DataGenerator */ (null);
     const spies = [];
     const fns = [
       'destroySavedRequestData',
       'destroyHistoryData',
       'destroyWebsocketsData',
       'destroyUrlData',
-      'destroyHeadersData',
       'destroyVariablesData',
       'destroyCookiesData',
       'destroyAuthData',
@@ -1763,14 +2041,16 @@ describe('DataGenerator', () => {
       'destroyApiData'
     ];
 
-    before(async function() {
+    before(async () => {
+      gen = new DataGenerator();
       fns.forEach((fn) => {
-        const spy = sinon.spy(DataGenerator, fn);
+        // @ts-ignore
+        const spy = sinon.spy(gen, fn);
         spies.push(spy);
       });
-      await DataGenerator.destroyAll();
+      await gen.destroyAll();
       fns.forEach((fn) => {
-        DataGenerator[fn].restore();
+        gen[fn].restore();
       });
     });
 
@@ -1782,11 +2062,17 @@ describe('DataGenerator', () => {
   });
 
   describe('clone()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+    
+
     it('Creates a copy', () => {
       const src = {
         a: 'true'
       };
-      const result = DataGenerator.clone(src);
+      const result = gen.clone(src);
       assert.deepEqual(result, src);
       assert.isFalse(result === src);
     });
@@ -1796,56 +2082,66 @@ describe('DataGenerator', () => {
       const src = {
         a: d
       };
-      const result = DataGenerator.clone(src);
+      const result = gen.clone(src);
       assert.equal(result.a.getTime(), src.a.getTime());
       assert.isFalse(result.a === d);
     });
 
     it('Handles Array', () => {
       const src = ['a', 'b', { inner: true }, ['inner']];
-      const result = DataGenerator.clone(src);
+      const result = gen.clone(src);
       assert.deepEqual(result, src);
       assert.isFalse(result === src);
     });
   });
 
   describe('Data getters', () => {
-    before(function() {
-      return DataGenerator.destroyAll();
+    let gen = /** @type DataGenerator */ (null);
+    before(async () => {
+      gen = new DataGenerator();
+      await gen.destroyAll();
     });
 
-    after(function() {
-      return DataGenerator.destroyAll();
-    });
+    after(() => gen.destroyAll());
 
     [
       ['getDatastoreRequestData', 'insertSavedRequestData', 25],
       ['getDatastoreProjectsData', 'insertProjectsData', 10],
       ['getDatastoreHistoryData', 'insertHistoryRequestData', 25],
       ['getDatastoreVariablesData', 'insertVariablesData', 25],
-      ['getDatastoreHeadersData', 'insertHeadersSetsData', 25],
       ['getDatastoreWebsocketsData', 'insertWebsocketData', 25],
       ['getDatastoreUrlsData', 'insertUrlHistoryData', 25],
       ['getDatastoreAuthData', 'insertBasicAuthData', 25],
       ['getDatastoreHostRulesData', 'insertHostRulesData', 25],
       ['getDatastoreCookiesData', 'insertCookiesData', 25],
-    ].forEach((item) => {
-      it(`${item[0]}() returns the data`, async () => {
-        await DataGenerator[item[1]]();
-        const data = await DataGenerator[item[0]]();
+      ['getDatastoreApiIndexData', 'insertApiData', 25],
+    ].forEach(([getFn, insertFn, size]) => {
+      it(`${getFn}() returns the data`, async () => {
+        await gen[insertFn]();
+        const data = await gen[getFn]();
         assert.typeOf(data, 'array');
-        assert.lengthOf(data, item[2]);
+        assert.lengthOf(data, Number(size));
       });
     });
 
     it(`getDatastoreClientCertificates() returns the data`, async () => {
-      await DataGenerator.insertCertificatesData();
-      const data = await DataGenerator.getDatastoreClientCertificates();
+      await gen.insertCertificatesData();
+      const data = await gen.getDatastoreClientCertificates();
       assert.typeOf(data, 'array');
       assert.lengthOf(data, 2, 'has both results');
       const [certs, cData] = data;
       assert.lengthOf(certs, 15, 'has certificates list');
       assert.lengthOf(cData, 15, 'has certificates data list');
+    });
+
+    it(`getDatastoreHostApiData() returns the data`, async () => {
+      await gen.destroyApiData();
+      await gen.insertApiData({
+        versionSize: 1,
+      });
+      const data = await gen.getDatastoreHostApiData();
+      assert.typeOf(data, 'array');
+      assert.lengthOf(data, 25, 'has both results');
     });
   });
 });

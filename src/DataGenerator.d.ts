@@ -1,3 +1,5 @@
+import { Chance } from 'chance';
+
 export declare interface ProjectCreateOptions {
   /**
    * Request id to add to `requests` array
@@ -8,6 +10,14 @@ export declare interface ProjectCreateOptions {
    */
   autoRequestId?: boolean;
 }
+
+export declare interface SizeCreateOptions {
+  /**
+   * The number of items to generate
+   */
+  size?: number;
+}
+
 export declare interface HeaderCreateOptions {
   /**
    * Will not generate headers string
@@ -37,6 +47,10 @@ export declare interface HistoryObjectOptions extends BaseRequestOptions {
    * If set it won't generate ID
    */
   noId?: boolean;
+  /**
+   * Number of request to generate. Default to 25.
+   */
+  requestsSize?: number;
 }
 
 export declare interface SavedCreateOptions extends BaseRequestOptions {
@@ -54,20 +68,170 @@ export declare interface SavedCreateOptions extends BaseRequestOptions {
   project?: string;
 }
 
-export declare interface InsertSavedResult<T> {
-  projects: PouchDB.Core.ExistingDocument<T>[];
-  requests: PouchDB.Core.ExistingDocument<T>[];
+export declare interface InsertSavedResult {
+  projects: PouchDB.Core.ExistingDocument<ProjectObject>[];
+  requests: PouchDB.Core.ExistingDocument<SavedObject>[];
+}
+
+export declare interface GenerateSavedResult {
+  projects: ProjectObject[];
+  requests: SavedObject[];
 }
 
 export declare interface ApiIndexCreateOptions {
-  versionSize: number;
+  versionSize?: number;
+  order?: number;
+}
+
+export declare interface ApiIndexListCreateOptions extends ApiIndexCreateOptions, SizeCreateOptions {
+}
+
+export declare interface ApiIndexObject {
   order: number;
+  title: string;
+  type: string;
+  _id: string;
+  versions: string[];
+  latest: string;
 }
 
-export declare interface ApiIndexListCreateOptions extends ApiIndexCreateOptions {
-  size: number;
+export declare interface ApiDataObject {
+  data: string;
+  indexId: string;
+  _id: string;
+  version: string;
 }
 
+export declare interface CertificateCreateOptions {
+  binary?: boolean;
+  noPassphrase?: boolean;
+  noKey?: boolean;
+  noCreated?: boolean;
+  type?: 'p12' | 'pem';
+  size?: number;
+}
+
+export declare interface ArcCertificateDataObject {
+  data: string|Uint8Array;
+  passphrase?: string;
+  type?: string;
+}
+
+export declare interface ArcCertificateObject {
+  type: string;
+  name: string;
+  cert: ArcCertificateDataObject;
+  key?: ArcCertificateDataObject;
+  created?: number;
+  dataKey?: string;
+}
+
+export declare interface ArcCertificateIndexObject {
+  type: string;
+  name: string;
+  created?: number;
+  dataKey: string;
+}
+
+export declare interface ArcCertificateIndexDataObject {
+  cert: ArcCertificateDataObject;
+  key?: ArcCertificateDataObject;
+}
+
+export declare interface ArcExportCertificateObject {
+  type: string;
+  name: string;
+  cert: ArcCertificateDataObject;
+  pKey?: ArcCertificateDataObject;
+  key: string;
+  kind: string;
+  created?: number;
+}
+
+export declare interface CookieCreateOptions extends SizeCreateOptions {
+}
+export declare interface CookieObject {
+  created: number;
+  updated: number;
+  expires: number;
+  maxAge: number;
+  name: string;
+  value: string;
+  _id: string;
+  domain: string;
+  hostOnly: boolean;
+  httpOnly: boolean;
+  lastAccess: number;
+  path: string;
+  persistent: boolean;
+}
+
+export declare interface BasicAuthObject {
+  _id: string;
+  type: string;
+  url: string;
+}
+
+export declare interface HostRuleObject {
+  _id: string;
+  from: string;
+  to: string;
+  comment: string;
+  enabled: boolean;
+}
+
+export declare interface VariablesCreateOptions extends SizeCreateOptions {
+  defaultEnv?: boolean;
+  randomEnv?: boolean;
+}
+
+export declare interface VariableObject {
+  _id: string;
+  variable: string;
+  value: string;
+  enabled: boolean;
+  environment: string;
+}
+
+export declare interface HistoryObject {
+  _id?: string;
+  url: string;
+  method: string;
+  headers: string;
+  payload?: string;
+  created: number;
+  updated: number;
+  type: string;
+}
+
+export declare interface SavedRequestCreateOptions extends ProjectCreateOptions {
+  projectsSize?: number;
+  requestsSize?: number;
+  projects?: ProjectObject[];
+  project?: string;
+  forceProject?: boolean;
+}
+
+export declare interface SavedObject extends HistoryObject {
+  name: string;
+  driveId?: string;
+  description?: string;
+  projects?: string[];
+}
+
+export declare interface ProjectObject {
+  _id: string;
+  name: string;
+  order: number;
+  description: string;
+  requests: string[];
+}
+
+export declare interface UrlObject {
+  _id: string;
+  cnt: number;
+  time: number;
+}
 
 export declare class DataGenerator {
   readonly payloadMethods: string[];
@@ -75,21 +239,22 @@ export declare class DataGenerator {
   readonly nonPayloadMethods: string[];
 
   readonly contentTypes: string[];
+  LAST_TIME: number;
+  chance: Chance.Chance;
 
+  constructor();
   /**
    * Sets a midnight on the timestamp
    */
-  setMidninght(time: number): number;
+  setMidnight(time: number): number;
 
   /**
    * Generates a random ARC legacy project object.
    *
-   * @param opts Create options:
-   * - requestId - Request id to add to `requests` array
-   * - autoRequestId - If set it generates request ID to add to `requests` array
+   * @param opts Create options
    * @returns ARC's object.
    */
-  createProjectObject(opts?: ProjectCreateOptions): object;
+  createProjectObject(opts?: ProjectCreateOptions): ProjectObject;
 
   /**
    * Generates HTTP headers string.
@@ -114,14 +279,10 @@ export declare class DataGenerator {
   /**
    * Randomly generates a boolean flag describing if the request can
    * carry a payload.
-   * @param opts Configuration options:
-   * -   `noPayload` (Boolean) If set the request will not have payload
-   * -   `forcePayload` (Boolean) The request will always have a payload.
-   *      The `noPayload` property takes precedence over this setting.
-   * @returns `true` if the request can carry a payload and
-   * `false` otherwise.
+   * @param opts Configuration options
+   * @returns `true` if the request can carry a payload and `false` otherwise.
    */
-  generateIsPayload(opts?: object): boolean;
+  generateIsPayload(opts?: SavedCreateOptions): boolean;
 
   /**
    * Generates a `content-type` header value.
@@ -154,7 +315,7 @@ export declare class DataGenerator {
    * @param contentType Content type of the data.
    * @returns Payload message.
    */
-  generatePayload(contentType?: string): string;
+  generatePayload(contentType?: string): string|undefined;
 
   /**
    * Generates a request timestamp that is within last month.
@@ -169,7 +330,7 @@ export declare class DataGenerator {
    * -   `noGoogleDrive` (Boolean) if set then it will never generate Drive ID.
    * @returns {string|undefined} Google Drive ID or undefined.
    */
-  generateDriveId(opts?: object): string|undefined;
+  generateDriveId(opts?: SavedCreateOptions): string|undefined;
 
   /**
    * Generates a description for a request.
@@ -178,7 +339,7 @@ export declare class DataGenerator {
    * -   `noDescription` (Boolean) if set then it will never generate a desc.
    * @returns {string|undefined} Items description.
    */
-  generateDescription(opts?: object): string|undefined;
+  generateDescription(opts?: SavedCreateOptions): string|undefined;
 
   /**
    * Generates random saved request item.
@@ -186,7 +347,7 @@ export declare class DataGenerator {
    * @param opts Options to generate the request
    * @returns A request object
    */
-  generateSavedItem(opts?: SavedCreateOptions): object;
+  generateSavedItem(opts?: SavedCreateOptions): SavedObject;
 
   /**
    * Generates a history object.
@@ -194,16 +355,15 @@ export declare class DataGenerator {
    * @param opts Options to generate the request.
    * @returns A request object
    */
-  generateHistoryObject(opts?: HistoryObjectOptions): object;
+  generateHistoryObject(opts?: HistoryObjectOptions): HistoryObject;
 
   /**
    * Picks a random project from the list of passed in `opts` projects.
    *
-   * @param opts Configuration options:
-   * -   `projects` (Array<Object>) List of generated projects
+   * @param opts Configuration options
    * @returns {object|undefined} Project id or undefined.
    */
-  pickProject(opts?: object): object| undefined;
+  pickProject(opts?: SavedRequestCreateOptions): ProjectObject| undefined;
 
   /**
    * Generates a list of saved requests.
@@ -215,7 +375,7 @@ export declare class DataGenerator {
    * `generateSavedItem()`
    * @returns List of requests.
    */
-  generateRequests(opts?: object): object[];
+  generateRequests(opts?: SavedRequestCreateOptions): SavedObject[];
 
   /**
    * Generates a list of project objects.
@@ -226,7 +386,7 @@ export declare class DataGenerator {
    * - autoRequestId - If set it generates request ID to add to `requests` array
    * @returns List of generated project objects.
    */
-  generateProjects(opts?: object): object[];
+  generateProjects(opts?: SavedRequestCreateOptions): ProjectObject[];
 
   /**
    * Generates requests data. That includes projects and requests.
@@ -238,18 +398,17 @@ export declare class DataGenerator {
    * `generateSavedItem`
    * @returns A map with `projects` and `requests` arrays.
    */
-  generateSavedRequestData<T>(opts?: object): InsertSavedResult<T>;
+  generateSavedRequestData(opts?: SavedRequestCreateOptions): GenerateSavedResult;
 
   /**
    * Generates history requests list
    *
-   * @param opts Configuration options:
-   * -   `requestsSize` (Number) Number of request to generate. Default to 25.
+   * @param opts Configuration options
    * Rest of configuration options are defined in
    * `generateHistoryObject`
    * @returns List of history requests objects
    */
-  generateHistoryRequestsData(opts?: object): object[];
+  generateHistoryRequestsData(opts?: HistoryObjectOptions): HistoryObject[];
 
   /**
    * Generates a random data for a variable object
@@ -257,41 +416,18 @@ export declare class DataGenerator {
    * - {Boolean} defaultEnv When set it always set environment to "default"
    * @returns A variable object.
    */
-  generateVariableObject(opts?: object): object;
+  generateVariableObject(opts?: VariablesCreateOptions): VariableObject;
 
   /**
    * Generates variables list
    *
-   * @param opts Configuration options:
-   * -   `size` (Number) Number of variables to generate. Default to 25.
+   * @param opts Configuration options
    * @returns List of variables
    */
-  generateVariablesData(opts?: object): object[];
-
-  /**
-   * Generate a header set datastore entry
-   *
-   * @param opts Generation options:
-   * -   `noHeaders` (Boolean) will not generate headers string (will set empty
-   *      string)
-   * -   `noPayload` (Boolean) If set the request will not have payload
-   * -   `forcePayload` (Boolean) The request will always have a payload.
-   *      THe `noPayload` property takes precedence over this setting.
-   * @returns
-   */
-  generateHeaderSetObject(opts?: object): object;
-
-  /**
-   * Generates headers sets list
-   *
-   * @param opts Configuration options:
-   * -   `size` (Number) Number of items to generate. Default to 25.
-   * @returns List of datastore entries.
-   */
-  generateHeadersSetsData(opts?: object): object[];
+  generateVariablesData(opts?: VariablesCreateOptions): VariableObject[];
 
   // Generates random Cookie data
-  generateCookieObject(): object;
+  generateCookieObject(): CookieObject;
 
   /**
    * Generates cookies list
@@ -300,10 +436,10 @@ export declare class DataGenerator {
    * -   `size` (Number) Number of items to generate. Default to 25.
    * @returns List of datastore entries.
    */
-  generateCookiesData(opts?: object): object[];
+  generateCookiesData(opts?: CookieCreateOptions): CookieObject[];
 
   // Generates random URL data object
-  generateUrlObject(): object;
+  generateUrlObject(): UrlObject;
 
   /**
    * Generates urls list
@@ -312,12 +448,12 @@ export declare class DataGenerator {
    * -   `size` (Number) Number of items to generate. Default to 25.
    * @returns List of datastore entries.
    */
-  generateUrlsData(opts?: object): object[];
+  generateUrlsData(opts?: SizeCreateOptions): UrlObject[];
 
   /**
    * Generates random URL data object.
    */
-  generateHostRuleObject(): object;
+  generateHostRuleObject(): HostRuleObject;
 
   /**
    * Generates host rules
@@ -326,12 +462,12 @@ export declare class DataGenerator {
    * -   `size` (Number) Number of items to generate. Default to 25.
    * @returns List of datastore entries.
    */
-  generateHostRulesData(opts?: object): object[];
+  generateHostRulesData(opts?: SizeCreateOptions): HostRuleObject[];
 
   /**
    * Generates random Basic authorization object.
    */
-  generateBasicAuthObject(): object;
+  generateBasicAuthObject(): BasicAuthObject;
 
   /**
    * Generates basic authorization data
@@ -340,15 +476,15 @@ export declare class DataGenerator {
    * -   `size` (Number) Number of items to generate. Default to 25.
    * @returns List of datastore entries.
    */
-  generateBasicAuthData(opts?: object): object[];
+  generateBasicAuthData(opts?: SizeCreateOptions): BasicAuthObject[];
 
-  generateApiIndex(opts?: ApiIndexListCreateOptions): object;
+  generateApiIndex(opts?: ApiIndexListCreateOptions): ApiIndexObject;
 
-  generateApiIndexList(opts: ApiIndexListCreateOptions): object[];
+  generateApiIndexList(opts?: ApiIndexListCreateOptions): ApiIndexObject[];
 
-  generateApiData(index: any): object;
+  generateApiData(index: ApiIndexObject): ApiDataObject[];
 
-  generateApiDataList(indexes: any[]): object[];
+  generateApiDataList(indexes: ApiIndexObject[]): ApiDataObject[];
 
   /**
    * Transforms ASCII string to buffer.
@@ -357,7 +493,7 @@ export declare class DataGenerator {
   strToBuffer(asciiString: string): Uint8Array;
 
   /**
-   * Converts incomming data to base64 string.
+   * Converts incoming data to base64 string.
    * @param ab
    * @returns Safe to store string.
    */
@@ -371,35 +507,32 @@ export declare class DataGenerator {
   base64ToBuffer(str: string): Uint8Array;
 
   /**
-   * Creates a certificate struct.
-   * @param opts
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
+   * Creates a certificate structure.
+   * @param opts Create options
    */
-  generateCertificate<T>(opts?: object): T;
+  generateCertificate(opts?: CertificateCreateOptions): ArcCertificateDataObject;
 
   /**
-   * Creates a clientCertificate struct.
-   * @param opts
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
-   * - type - `p12` or `pem`
-   * - noKey {Boolean}
-   * - noCreated {Boolean}
+   * Creates a clientCertificate structure.
+   * @param opts Create options
    */
-  generateClientCertificate<T>(opts?: object): T;
+  generateClientCertificate(opts?: CertificateCreateOptions): ArcCertificateObject;
 
   /**
-   * Creates a list of ClientCertificate struct.
-   * @param opts
-   * - size {number} - default 15
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
-   * - type - `p12` or `pem`
-   * - noKey {Boolean}
-   * - noCreated {Boolean}
+   * Creates a list of ClientCertificate structure.
+   * @param opts Create options
    */
-  generateClientCertificates<T>(opts?: object): T[];
+  generateClientCertificates(opts?: CertificateCreateOptions): ArcCertificateObject[];
+
+  /**
+   * Creates a ClientCertificate transformed to the export object.
+   */
+  generateExportClientCertificate(opts?: CertificateCreateOptions): ArcExportCertificateObject;
+
+  /**
+   * Creates a list of ClientCertificates transformed for the export object.
+   */
+  generateExportClientCertificates(opts?: CertificateCreateOptions): ArcExportCertificateObject[];
 
   /**
    * Preforms `insertSavedRequestData` if no requests data are in
@@ -408,16 +541,14 @@ export declare class DataGenerator {
    * for description.
    * @returns Resolved promise when data are inserted into the datastore.
    */
-  insertSavedIfNotExists<T>(opts?: object): Promise<InsertSavedResult<T>>;
+  insertSavedIfNotExists(opts?: SavedRequestCreateOptions): Promise<InsertSavedResult>;
 
   /**
    * Preforms `insertHistoryRequestData` if no requests data are in
    * the data store.
-   * @param opts See `insertHistoryRequestData`
-   * for description.
    * @returns Resolved promise when data are inserted into the datastore.
    */
-  insertHistoryIfNotExists<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertHistoryIfNotExists(opts?: HistoryObjectOptions): Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>;
 
   /**
    * Creates `_id` on the original insert object if it wasn't created before and
@@ -426,7 +557,7 @@ export declare class DataGenerator {
    * @param insertedData The original array of inserted objects.
    * This changes contents of te array items which is passed by reference.
    */
-  updateRevsAndIds(insertResponse: object[], insertedData: object[]): void;
+  updateRevsAndIds<T>(insertResponse: (PouchDB.Core.Response|PouchDB.Core.Error)[], insertedData: T[]): PouchDB.Core.ExistingDocument<T>[];
 
   /**
    * Generates saved requests data and inserts them into the data store if they
@@ -437,7 +568,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertSavedRequestData<T>(opts?: object): Promise<InsertSavedResult<T>>;
+  insertSavedRequestData(opts?: SavedRequestCreateOptions): Promise<InsertSavedResult>;
 
   /**
    * Generates and saves history data to the data store.
@@ -447,7 +578,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertHistoryRequestData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertHistoryRequestData(opts?: HistoryObjectOptions): Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>;
 
   /**
    * Generates and saves a list of project objects.
@@ -457,7 +588,7 @@ export declare class DataGenerator {
    * - requestId - Request id to add to `requests` array
    * - autoRequestId - If set it generates request ID to add to `requests` array
    */
-  insertProjectsData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertProjectsData(opts?: SavedRequestCreateOptions): Promise<PouchDB.Core.ExistingDocument<ProjectObject>[]>;
 
   /**
    * Generates and saves websocket data to the data store.
@@ -467,7 +598,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertWebsocketData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertWebsocketData(opts?: SizeCreateOptions): Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>;
 
   /**
    * Generates and saves url history data to the data store.
@@ -477,27 +608,14 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertUrlHistoryData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertUrlHistoryData(opts?: SizeCreateOptions): Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>;
 
   /**
    * Generates and saves variables data to the data store.
-   *
-   * @param opts See `generateVariablesData`
-   * for description.
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertVariablesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
-
-  /**
-   * Generates and saves headers sets data to the data store.
-   *
-   * @param opts See `generateHeadersSetsData`
-   * for description.
-   * @returns Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
-   */
-  insertHeadersSetsData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertVariablesData(opts?: VariablesCreateOptions): Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>;
 
   /**
    * Generates and saves cookies data to the data store.
@@ -507,7 +625,7 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertCookiesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertCookiesData(opts?: CookieCreateOptions): Promise<PouchDB.Core.ExistingDocument<CookieObject>[]>;
 
   /**
    * Generates and saves basic auth data to the data store.
@@ -517,23 +635,21 @@ export declare class DataGenerator {
    * @returns Resolved promise when data are inserted into the datastore.
    * Promise resolves to generated data object
    */
-  insertBasicAuthData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertBasicAuthData(opts?: SizeCreateOptions): Promise<PouchDB.Core.ExistingDocument<BasicAuthObject>[]>;
 
   /**
    * Generates and saves host rules data to the data store.
    *
-   * @param opts See `generateHostRulesData`
-   * for description.
+   * @param opts Create options
    * @returns Resolved promise when data are inserted into the datastore.
-   * Promise resolves to generated data object
    */
-  insertHostRulesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertHostRulesData(opts?: SizeCreateOptions): Promise<PouchDB.Core.ExistingDocument<HostRuleObject>[]>;
 
-  insertApiData<T>(opts?: ApiIndexListCreateOptions): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertApiData(opts?: ApiIndexListCreateOptions): Promise<PouchDB.Core.ExistingDocument<any>[]>;
 
-  certificateToStore(cert: object): object;
+  certificateToStore(cert: ArcCertificateDataObject): ArcCertificateDataObject;
 
-  insertCertificatesData<T>(opts?: object): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  insertCertificatesData(opts?: CertificateCreateOptions): Promise<PouchDB.Core.ExistingDocument<ArcCertificateObject>[]>;
 
   /**
    * Destroys saved and projects database.
@@ -566,13 +682,7 @@ export declare class DataGenerator {
   destroyUrlData(): Promise<void>;
 
   /**
-   * Destroys headers sets database.
-   * @returns Resolved promise when the data are cleared.
-   */
-  destroyHeadersData(): Promise<void>;
-
-  /**
-   * Destroys variables and anvironments database.
+   * Destroys variables and environments database.
    * @returns Resolved promise when the data are cleared.
    */
   destroyVariablesData(): Promise<void>;
@@ -633,46 +743,43 @@ export declare class DataGenerator {
   getDatastoreData<T>(name: string): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
   // Returns a promise with all saved requests
-  getDatastoreRequestData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreRequestData(): Promise<PouchDB.Core.ExistingDocument<SavedObject>[]>;
 
   // Returns a promise with all legacy projects
-  getDatastoreProjectsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreProjectsData(): Promise<PouchDB.Core.ExistingDocument<ProjectObject>[]>;
 
   // Returns a promise with all history requests
-  getDatastoreHistoryData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreHistoryData(): Promise<PouchDB.Core.ExistingDocument<HistoryObject>[]>;
 
   // Returns a promise with all variables
-  getDatastoreVariablesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreVariablesData(): Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>;
 
   // Returns a promise with all environments
   getDatastoreEnvironmentsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
 
-  // Returns a promise with all headers sets
-  getDatastoreHeadersData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
-
   // Returns a promise with all cookies
-  getDatastoreCookiesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreCookiesData(): Promise<PouchDB.Core.ExistingDocument<CookieObject>[]>;
 
   // Returns a promise with all socket urls
-  getDatastoreWebsocketsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreWebsocketsData(): Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>;
 
   // Returns a promise with all url history
-  getDatastoreUrlsData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreUrlsData(): Promise<PouchDB.Core.ExistingDocument<UrlObject>[]>;
 
   // Returns a promise with all saved authorization data.
-  getDatastoreAuthData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreAuthData(): Promise<PouchDB.Core.ExistingDocument<BasicAuthObject>[]>;
 
   // Returns a promise with all host rules data.
-  getDatastoreHostRulesData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreHostRulesData<T>(): Promise<PouchDB.Core.ExistingDocument<HostRuleObject>[]>;
 
   // Returns a promise with all api-index data.
-  getDatastoreApiIndexData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreApiIndexData<T>(): Promise<PouchDB.Core.ExistingDocument<ApiIndexObject>[]>;
 
   // Returns a promise with all api-data data.
-  getDatastoreHostApiData<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreHostApiData<T>(): Promise<PouchDB.Core.ExistingDocument<ApiDataObject>[]>;
 
   // Returns a promise with all client certificates and the data.
-  getDatastoreClientCertificates<T>(): Promise<PouchDB.Core.ExistingDocument<T>[]>;
+  getDatastoreClientCertificates<T>(): Promise<PouchDB.Core.ExistingDocument<(ArcCertificateIndexObject|ArcCertificateIndexDataObject)[]>[]>;
 
   /**
    * Updates an object in an data store.
