@@ -421,6 +421,7 @@ describe('DataGenerator', () => {
       ['type', 'string'],
       ['name', 'string'],
       ['driveId', 'string'],
+      ['midnight', 'number'],
       ['_id', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {
@@ -499,6 +500,7 @@ describe('DataGenerator', () => {
       ['created', 'number'],
       ['updated', 'number'],
       ['type', 'string'],
+      ['midnight', 'number'],
       ['_id', 'string']
     ].forEach((item) => {
       it(`Has ${item[0]} property of a type ${item[1]}`, () => {

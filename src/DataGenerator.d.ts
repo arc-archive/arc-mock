@@ -202,6 +202,7 @@ export declare interface HistoryObject {
   created: number;
   updated: number;
   type: string;
+  midnight: number;
 }
 
 export declare interface SavedRequestCreateOptions extends ProjectCreateOptions {

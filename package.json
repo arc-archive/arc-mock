@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
-  "version": "3.1.6",
+  "version": "3.1.7",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -44,7 +44,7 @@
     "lint-staged": "^10.4.0",
     "prettier": "^2.1.2",
     "sinon": "^9.0.3",
-    "typescript": "^4.0.2",
+    "typescript": "^4.0.3",
     "typescript-lit-html-plugin": "^0.9.0"
   },
   "scripts": {

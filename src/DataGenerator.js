@@ -72,10 +72,7 @@ export class DataGenerator {
    */
   setMidnight(time) {
     const now = new Date(time);
-    now.setMilliseconds(0);
-    now.setSeconds(0);
-    now.setMinutes(0);
-    now.setHours(0);
+    now.setHours(0, 0, 0, 0);
     return now.getTime();
   }
 
@@ -339,6 +336,7 @@ export class DataGenerator {
     const requestName = chance.sentence({ words: 2 });
     const driveId = this.generateDriveId(opts);
     const description = this.generateDescription(opts);
+    const midnight = this.setMidnight(time);
 
     const item = /** @type SavedObject */ ({
       url: chance.url(),
@@ -348,6 +346,7 @@ export class DataGenerator {
       updated: time,
       type: 'saved',
       name: requestName,
+      midnight,
     });
     if (driveId) {
       item.driveId = driveId;
@@ -381,6 +380,7 @@ export class DataGenerator {
     const headers = this.generateHeaders(contentType, opts);
     const payload = this.generatePayload(contentType);
     const url = chance.url();
+    const midnight = this.setMidnight(this.LAST_TIME);
     const item = {
       url,
       method,
@@ -388,6 +388,7 @@ export class DataGenerator {
       created: this.LAST_TIME,
       updated: this.LAST_TIME,
       type: 'history',
+      midnight,
     };
     if (payload) {
       item.payload = payload;
