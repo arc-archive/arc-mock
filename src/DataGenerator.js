@@ -408,7 +408,7 @@ export class DataGenerator {
    */
   pickProject(opts = {}) {
     const { chance } = this;
-    if (!opts.projects) {
+    if (!opts.projects || !opts.projects.length) {
       return undefined;
     }
     let allow;
