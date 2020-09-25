@@ -431,8 +431,8 @@ export class DataGenerator {
    */
   generateRequests(opts = {}) {
     const list = [];
-    const size = opts.requestsSize || 25;
-    for (let i = 0; i < size; i++) {
+    const { requestsSize=25 } = opts;
+    for (let i = 0; i < requestsSize; i++) {
       const project = this.pickProject(opts);
       const _opts = { ...opts };
       _opts.project = project && project._id;
@@ -455,9 +455,9 @@ export class DataGenerator {
    * @return {ProjectObject[]} List of generated project objects.
    */
   generateProjects(opts = {}) {
-    const size = opts.projectsSize || 5;
+    const { projectsSize=5 } = opts;
     const result = [];
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < projectsSize; i++) {
       result.push(this.createProjectObject(opts));
     }
     return result;
@@ -490,9 +490,9 @@ export class DataGenerator {
    * @return {HistoryObject[]} List of history requests objects
    */
   generateHistoryRequestsData(opts = {}) {
-    const size = opts.requestsSize || 25;
+    const { requestsSize=25 } = opts;
     const result = [];
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < requestsSize; i++) {
       result.push(this.generateHistoryObject(opts));
     }
     return result;
