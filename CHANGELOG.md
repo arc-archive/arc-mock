@@ -227,3 +227,16 @@
 * fixing options passing to API data generator [cad4968](https://github.com/advanced-rest-client/arc-data-generator/commit/cad49687062a6ebb2bbfa7066dfdfae76b0bce07) by Pawel
 
 
+<a name="3.1.10"></a>
+## [3.1.10](https://github.com/advanced-rest-client/arc-data-generator/compare/3.1.8...3.1.10) (2020-10-08)
+
+### Features
+
+* adding response generators [a83403b](https://github.com/advanced-rest-client/arc-data-generator/commit/a83403bf98928c9b3eb49d1ff851f2b53b280439) by Pawel
+
+
+### Bug Fixes
+
+* fixing project pick when array is empty [e997cb6](https://github.com/advanced-rest-client/arc-data-generator/commit/e997cb6e3d64536fa61232c8bfb28d9406d5e3a4) by Pawel
+
+
