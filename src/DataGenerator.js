@@ -1,6 +1,8 @@
 import 'pouchdb/dist/pouchdb.js';
 import 'chance/dist/chance.min.js';
 
+import { HeadersGenerator } from './HeadersGenerator.js';
+
 /** @typedef {import('./DataGenerator').ProjectCreateOptions} ProjectCreateOptions */
 /** @typedef {import('./DataGenerator').HeaderCreateOptions} HeaderCreateOptions */
 /** @typedef {import('./DataGenerator').MethodCreateOptions} MethodCreateOptions */
@@ -29,6 +31,15 @@ import 'chance/dist/chance.min.js';
 /** @typedef {import('./DataGenerator').GenerateSavedResult} GenerateSavedResult */
 /** @typedef {import('./DataGenerator').ArcCertificateIndexDataObject} ArcCertificateIndexDataObject */
 /** @typedef {import('./DataGenerator').ArcCertificateIndexObject} ArcCertificateIndexObject */
+/** @typedef {import('./DataGenerator').ResponseRedirectOptions} ResponseRedirectOptions */
+/** @typedef {import('./DataGenerator').RedirectStatusOptions} RedirectStatusOptions */
+/** @typedef {import('./DataGenerator').RedirectStatusObject} RedirectStatusObject */
+/** @typedef {import('./DataGenerator').HarTimingsOptions} HarTimingsOptions */
+/** @typedef {import('./DataGenerator').ResponseOptions} ResponseOptions */
+/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ResponseRedirect} ResponseRedirect */
+/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.RequestTime} RequestTime */
+/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
+/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
 
 /* global Chance, PouchDB */
 /* eslint-disable class-methods-use-this */
@@ -47,13 +58,8 @@ export class DataGenerator {
     return ['GET', 'HEAD'];
   }
 
-  get contentTypes() {
-    return [
-      'application/x-www-form-urlencoded',
-      'application/json',
-      'application/xml',
-      'text/plain',
-    ];
+  get redirectCodes() {
+    return [301, 302, 303, 307, 308];
   }
 
   constructor() {
@@ -138,12 +144,12 @@ export class DataGenerator {
   generateMethod(isPayload, opts = {}) {
     const { chance } = this;
     if (opts.methodsPools) {
-      return chance.pick(opts.methodsPools);
+      return chance.pickone(opts.methodsPools);
     }
     if (isPayload) {
-      return chance.pick(this.payloadMethods);
+      return chance.pickone(this.payloadMethods);
     }
-    return chance.pick(this.nonPayloadMethods);
+    return chance.pickone(this.nonPayloadMethods);
   }
 
   /**
@@ -172,8 +178,7 @@ export class DataGenerator {
    * @return {string} Value of the `content-type` header
    */
   generateContentType() {
-    const { chance } = this;
-    return chance.pickone(this.contentTypes);
+    return HeadersGenerator.generateContentType();
   }
 
   /**
@@ -264,7 +269,7 @@ export class DataGenerator {
       case 'application/xml':
         return this.generateXmlData();
       default:
-        throw new Error('Unknown payload.');
+        return '';
     }
   }
 
@@ -515,13 +520,13 @@ export class DataGenerator {
       isDefault = chance.bool();
     }
     
-    const result = {
+    const result = /** @type VariableObject */ ({
       enabled: chance.bool({ likelihood: 85 }),
       value: chance.sentence({ words: 2 }),
-      variable: chance.word(),
+      name: chance.word(),
       _id: chance.guid({ version: 5 }),
       environment: '',
-    };
+    });
     if (isDefault) {
       result.environment = 'default';
     } else {
@@ -593,11 +598,15 @@ export class DataGenerator {
    */
   generateUrlObject() {
     const { chance } = this;
-    const result = {
-      time: chance.hammertime(),
+    const url = chance.url();
+    const time = chance.hammertime();
+    const result = /** @type UrlObject */ ({
+      time,
       cnt: chance.integer({ min: 100, max: 1000 }),
       _id: chance.url(),
-    };
+      url,
+      midnight: this.setMidnight(time),
+    });
     return result;
   }
 
@@ -873,6 +882,131 @@ export class DataGenerator {
   }
 
   /**
+   * Generates HAR timings object
+   * @param {HarTimingsOptions} [opts={}] Generate data options
+   * @returns {RequestTime}
+   */
+  generateHarTimings(opts = {}) {
+    const { chance } = this;
+    const result = /** @type RequestTime */ ({
+      blocked: chance.integer({ min: 0, max: 100 }),
+      connect: chance.integer({ min: 0, max: 100 }),
+      receive: chance.integer({ min: 0, max: 100 }),
+      send: chance.integer({ min: 0, max: 100 }),
+      wait: chance.integer({ min: 0, max: 100 }),
+      dns: chance.integer({ min: 0, max: 100 }),
+    });
+    if (opts.ssl) {
+      result.ssl = chance.integer({ min: 0, max: 100 });
+    }
+    return result;
+  }
+
+  /**
+   * @param {RedirectStatusOptions=} [opts={}] Generate data options
+   * @returns {RedirectStatusObject}
+   */
+  generateRedirectStatus(opts = {}) {
+    const code = typeof opts.code === 'number' ? opts.code : this.chance.pickone(this.redirectCodes);
+    const messages = {
+      301: 'Moved Permanently',
+      302: 'Found',
+      303: 'See Other',
+      307: 'Temporary Redirect',
+      308: 'Permanent Redirect',
+    };
+    const status = opts.status ? opts.status : messages[code];
+    return {
+      code,
+      status,
+    }
+  }
+
+  /**
+   * Generates ARC redirect response object
+   * @param {ResponseRedirectOptions=} [opts={}] Generate data options
+   * @returns {ResponseRedirect}
+   */
+  generateRedirectResponse(opts={}) {
+    const ct = opts.body ? this.generateContentType() : undefined;
+    let headers = this.generateHeaders(ct);
+    const url = HeadersGenerator.generateLink();
+    headers += `\nlocation: ${url}`;
+    const { code, status } = this.generateRedirectStatus(opts);
+    const body = opts.body ? this.generatePayload(ct) : undefined;
+    const startTime = this.chance.hammertime();
+    const length = this.chance.integer({ min: 10, max: 4000 });
+    const result = /** @type ResponseRedirect */({
+      response: {
+        status: code,
+        statusText: status,
+        headers,
+        payload: body,
+      },
+      startTime,
+      endTime: startTime + length,
+    });
+    if (opts.timings) {
+      result.timings = this.generateHarTimings(opts);
+    }
+    return result;
+  }
+
+  /**
+   * Generates a response object.
+   * @param {ResponseOptions=} [opts={}] Generate options
+   * @returns {Response} The response object
+   */
+  generateResponse(opts={}) {
+    const ct = opts.noBody ? undefined : this.generateContentType();
+    const body = opts.noBody ? undefined : this.generatePayload(ct);
+    const headers = HeadersGenerator.generateHeaders('response', ct);
+    const statusGroup = opts.statusGroup ? opts.statusGroup : this.chance.integer({ min: 2, max: 5 });
+    const sCode = this.chance.integer({ min: 0, max: 99 }).toString();
+    const code = Number(`${statusGroup}${sCode.padStart(2, '0')}`);
+    const status = this.chance.word();
+    const length = this.chance.integer({ min: 10, max: 4000 });
+    const result = /** @type Response */({
+      status: code,
+      statusText: status,
+      headers,
+      loadingTime: length,
+    });
+    if (opts.timings) {
+      result.timings = this.generateHarTimings(opts);
+    }
+    if (!opts.noBody) {
+      result.payload = body;
+    }
+    if (!opts.noSize) {
+      const hSize = headers.length;
+      const bSize = body ? body.length : 0;
+      result.size = {
+        request: this.chance.integer({ min: 10 }),
+        response: hSize + bSize,
+      };
+    }
+    if (opts.redirects) {
+      const size = this.chance.integer({ min: 1, max: 4 });
+      const cnf = { timing: true, body: true };
+      result.redirects = new Array(size).fill(0).map(() => this.generateRedirectResponse(cnf));
+    }
+    return result;
+  }
+
+  /**
+   * @returns {ErrorResponse}
+   */
+  generateErrorResponse() {
+    const error = new Error(this.chance.paragraph());
+    const result = /** @type ErrorResponse */({
+      status: 0,
+      error,
+    });
+    return result;
+  }
+
+  /**
    * Preforms `insertSavedRequestData` if no requests data are in
    * the data store.
    * @param {SavedRequestCreateOptions=} opts Configuration options
@@ -1124,16 +1258,17 @@ export class DataGenerator {
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
       const dataDoc = {
-        cert: this.certificateToStore(item.cert),
+        cert: this.certificateToStore(/** @type ArcCertificateDataObject */ (item.cert)),
       };
       delete item.cert;
       if (item.key) {
-        dataDoc.key = this.certificateToStore(item.key);
+        dataDoc.key = this.certificateToStore(/** @type ArcCertificateDataObject */ (item.key));
         delete item.key;
       }
       /* eslint-disable-next-line no-await-in-loop */
       const dataRes = await dataDb.post(dataDoc);
-      item.dataKey = dataRes.id;
+      // @ts-ignore
+      item._id = dataRes.id;
       /* eslint-disable-next-line no-await-in-loop */
       responses[responses.length] = await indexDb.post(item);
     }

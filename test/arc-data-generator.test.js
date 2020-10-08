@@ -185,14 +185,9 @@ describe('DataGenerator', () => {
       gen = new DataGenerator();
     });
 
-    it('Returns a string', () => {
+    it('returns a string', () => {
       const result = gen.generateContentType();
       assert.typeOf(result, 'string');
-    });
-
-    it('Is one of predefined types', () => {
-      const result = gen.generateContentType();
-      assert.notEqual(gen.contentTypes.indexOf(result), -1);
     });
   });
 
@@ -292,10 +287,9 @@ describe('DataGenerator', () => {
       assert.typeOf(result, 'string');
     });
 
-    it('Throws for unknown type', () => {
-      assert.throws(() => {
-        gen.generatePayload('unknown');
-      });
+    it('returns empty string for an unknown type', () => {
+      const result = gen.generatePayload('unknown');
+      assert.equal(result, '');
     });
   });
 
@@ -734,7 +728,7 @@ describe('DataGenerator', () => {
     [
       ['enabled', 'boolean'],
       ['value', 'string'],
-      ['variable', 'string'],
+      ['name', 'string'],
       ['_id', 'string'],
       ['environment', 'string']
     ].forEach((item) => {
@@ -1033,7 +1027,6 @@ describe('DataGenerator', () => {
     });
   });
 
-
   describe('generateApiIndex()', () => {
     let gen = /** @type DataGenerator */ (null);
     beforeEach(() => {
@@ -1159,22 +1152,17 @@ describe('DataGenerator', () => {
       assert.equal(result.type, 'p12');
     });
 
-    it('ignores created', () => {
-      const result = gen.generateClientCertificate({
-        noCreated: true
-      });
-      assert.isUndefined(result.created);
-    });
-
     it('creates binary data on a certificate', () => {
       const result = gen.generateClientCertificate({
         binary: true
       });
+      // @ts-ignore
       assert.typeOf(result.cert.data, 'Uint8Array');
     });
 
     it('adds passphrase to a certificate by default', () => {
       const result = gen.generateClientCertificate({});
+      // @ts-ignore
       assert.typeOf(result.cert.passphrase, 'string');
     });
 
@@ -1182,6 +1170,7 @@ describe('DataGenerator', () => {
       const result = gen.generateClientCertificate({
         noPassphrase: true
       });
+      // @ts-ignore
       assert.isUndefined(result.cert.passphrase);
     });
   });
@@ -1312,6 +1301,186 @@ describe('DataGenerator', () => {
         size: 5
       });
       assert.equal(spy.callCount, 5);
+    });
+  });
+
+  describe('generateHarTimings()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    [
+      'blocked', 'connect', 'receive', 'send', 'wait', 'dns',
+    ].forEach((name) => {
+      it(`has ${name} property`, () => {
+        const result = gen.generateHarTimings();
+        assert.typeOf(result[name], 'number');
+      });
+    });
+
+    it('has no ssl property by default', () => {
+      const result = gen.generateHarTimings();
+      assert.isUndefined(result.ssl);
+    });
+
+    it('adds ssl property', () => {
+      const result = gen.generateHarTimings({ ssl: true });
+      assert.typeOf(result.ssl, 'number');
+    });
+  });
+
+  describe('generateRedirectStatus()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    it('returns valid status code', () => {
+      const result = gen.generateRedirectStatus();
+      assert.typeOf(result.code, 'number', 'code is a number');
+      assert.include(gen.redirectCodes, result.code, 'code is a redirect code');
+    });
+
+    it('uses passed code', () => {
+      const result = gen.generateRedirectStatus({ code: 999 });
+      assert.equal(result.code, 999);
+    });
+
+    it('returns the status', () => {
+      const result = gen.generateRedirectStatus();
+      assert.typeOf(result.status, 'string', 'status is a string');
+    });
+
+    it('returns the passed status', () => {
+      const result = gen.generateRedirectStatus({ status: 'test' });
+      assert.equal(result.status, 'test');
+    });
+  });
+
+  describe('generateRedirectResponse()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    [
+      ['response', 'object'],
+      ['startTime', 'number'],
+      ['endTime', 'number'],
+    ].forEach(([prop, type]) => {
+      it(`has the ${prop} property by default`, () => {
+        const result = gen.generateRedirectResponse();
+        assert.typeOf(result[prop], type);
+      });
+    });
+
+    it('has no timings property by default', () => {
+      const result = gen.generateRedirectResponse();
+      assert.isUndefined(result.timings);
+    });
+
+    it('add the timings property', () => {
+      const result = gen.generateRedirectResponse({ timings: true });
+      assert.typeOf(result.timings, 'object');
+    });
+
+    [
+      ['status', 'number'],
+      ['statusText', 'string'],
+      ['headers', 'string'],
+    ].forEach(([prop, type]) => {
+      it(`has the ${prop} property on the response`, () => {
+        const result = gen.generateRedirectResponse();
+        assert.typeOf(result.response[prop], type);
+      });
+    });
+
+    it('has the location property on the headers', () => {
+      const result = gen.generateRedirectResponse();
+      assert.include(result.response.headers, 'location: ');
+    });
+
+    it('has the payload property on the request', () => {
+      const result = gen.generateRedirectResponse({ body: true });
+      assert.typeOf(result.response.payload, 'string');
+    });
+
+    it('ignores the payload when not in options', () => {
+      const result = gen.generateRedirectResponse();
+      assert.isUndefined(result.response.payload, 'string');
+    });
+
+    it('has the timings property', () => {
+      const result = gen.generateRedirectResponse({ timings: true });
+      assert.typeOf(result.timings, 'object');
+    });
+  });
+
+  describe('generateResponse()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    [
+      ['status', 'number'],
+      ['statusText', 'string'],
+      ['headers', 'string'],
+      ['payload', 'string'],
+      ['loadingTime', 'number'],
+      ['size', 'object'],
+    ].forEach(([prop, type]) => {
+      it(`has the ${prop} property by default`, () => {
+        const result = gen.generateResponse();
+        assert.typeOf(result[prop], type);
+      });
+    });
+
+    it('ignores the payload when in options', () => {
+      const result = gen.generateResponse({ noBody: true });
+      assert.isUndefined(result.payload);
+    });
+
+    it('ignores the size when in options', () => {
+      const result = gen.generateResponse({ noSize: true });
+      assert.isUndefined(result.size);
+    });
+
+    it('has the timings property', () => {
+      const result = gen.generateResponse({ timings: true });
+      assert.typeOf(result.timings, 'object');
+    });
+
+    it('has the redirects property', () => {
+      const result = gen.generateResponse({ redirects: true });
+      assert.typeOf(result.redirects, 'array');
+    });
+
+    it('has the specific response group', () => {
+      let result = gen.generateResponse({ statusGroup: 2 });
+      assert.isAbove(result.status, 199);
+      assert.isBelow(result.status, 300);
+      result = gen.generateResponse({ statusGroup: 3 });
+      assert.isAbove(result.status, 299);
+      assert.isBelow(result.status, 400);
+    });
+  });
+
+  describe('generateErrorResponse()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    [
+      ['error', 'error'],
+      ['status', 'number'],
+    ].forEach(([prop, type]) => {
+      it(`has the ${prop} property by default`, () => {
+        const result = gen.generateErrorResponse();
+        assert.typeOf(result[prop], type);
+      });
     });
   });
 

@@ -1,4 +1,5 @@
 import { Chance } from 'chance';
+import { Variable, Project, UrlHistory, HostRule, ClientCertificate, DataExport, ArcResponse } from '@advanced-rest-client/arc-types'
 
 export declare interface ProjectCreateOptions {
   /**
@@ -111,41 +112,19 @@ export declare interface CertificateCreateOptions {
   size?: number;
 }
 
-export declare interface ArcCertificateDataObject {
-  data: string|Uint8Array;
-  passphrase?: string;
-  type?: string;
+export declare interface ArcCertificateDataObject extends ClientCertificate.Certificate {
 }
 
-export declare interface ArcCertificateObject {
-  type: string;
-  name: string;
-  cert: ArcCertificateDataObject;
-  key?: ArcCertificateDataObject;
-  created?: number;
-  dataKey?: string;
+export declare interface ArcCertificateObject extends ClientCertificate.RequestCertificate {
 }
 
-export declare interface ArcCertificateIndexObject {
-  type: string;
-  name: string;
-  created?: number;
-  dataKey: string;
+export declare interface ArcCertificateIndexObject extends ClientCertificate.CertificateIndex {
 }
 
-export declare interface ArcCertificateIndexDataObject {
-  cert: ArcCertificateDataObject;
-  key?: ArcCertificateDataObject;
+export declare interface ArcCertificateIndexDataObject extends ClientCertificate.ClientCertificate {
 }
 
-export declare interface ArcExportCertificateObject {
-  type: string;
-  name: string;
-  cert: ArcCertificateDataObject;
-  pKey?: ArcCertificateDataObject;
-  key: string;
-  kind: string;
-  created?: number;
+export declare interface ArcExportCertificateObject extends DataExport.ExportArcClientCertificateData {
 }
 
 export declare interface CookieCreateOptions extends SizeCreateOptions {
@@ -172,12 +151,8 @@ export declare interface BasicAuthObject {
   url: string;
 }
 
-export declare interface HostRuleObject {
+export declare interface HostRuleObject extends HostRule.HostRule {
   _id: string;
-  from: string;
-  to: string;
-  comment: string;
-  enabled: boolean;
 }
 
 export declare interface VariablesCreateOptions extends SizeCreateOptions {
@@ -185,11 +160,10 @@ export declare interface VariablesCreateOptions extends SizeCreateOptions {
   randomEnv?: boolean;
 }
 
-export declare interface VariableObject {
-  _id: string;
-  variable: string;
-  value: string;
-  enabled: boolean;
+export declare interface VariableObject extends Variable.Variable {
+  /**
+   * The name of the environment the variable is added to.
+   */
   environment: string;
 }
 
@@ -220,18 +194,80 @@ export declare interface SavedObject extends HistoryObject {
   projects?: string[];
 }
 
-export declare interface ProjectObject {
+export declare interface ProjectObject extends Project.Project {
   _id: string;
-  name: string;
-  order: number;
-  description: string;
-  requests: string[];
 }
 
-export declare interface UrlObject {
+export declare interface UrlObject extends UrlHistory.UrlHistory {
   _id: string;
-  cnt: number;
-  time: number;
+}
+
+export declare interface RedirectStatusOptions {
+  /**
+   * The redirection code. Otherwise a random pick is used
+   */
+  code?: number;
+  /**
+   * The status message to use.
+   */
+  status?: string;
+}
+
+export declare interface RedirectStatusObject {
+  /**
+   * The redirection code.
+   */
+  code: number;
+  /**
+   * The status message.
+   */
+  status: string;
+}
+
+export declare interface HarTimingsOptions {
+  /**
+   * Whether to add ssl entry.
+   */
+  ssl?: boolean;
+}
+
+
+export declare interface ResponseRedirectOptions extends RedirectStatusOptions, HarTimingsOptions {
+  /**
+   * When set it adds body to the response
+   */
+  body?: boolean;
+  /**
+   * The redirection code. Otherwise a random pick is used
+   */
+  code?: number;
+  /**
+   * Whether to generate timings object
+   */
+  timings?: boolean;
+}
+
+export declare interface ResponseOptions extends HarTimingsOptions {
+  /**
+   * When set it does not generate a response payload.
+   */
+  noBody?: boolean;
+  /**
+   * The first number of the status group. Other 2 are auto generated
+   */
+  statusGroup?: number;
+  /**
+   * Whether to generate timings object
+   */
+  timings?: boolean;
+  /**
+   * When set it ignores size information
+   */
+  noSize?: boolean;
+  /**
+   * Adds redirects to the request
+   */
+  redirects?: boolean;
 }
 
 export declare class DataGenerator {
@@ -240,6 +276,7 @@ export declare class DataGenerator {
   readonly nonPayloadMethods: string[];
 
   readonly contentTypes: string[];
+  readonly redirectCodes: number[];
   LAST_TIME: number;
   chance: Chance.Chance;
 
@@ -534,6 +571,35 @@ export declare class DataGenerator {
    * Creates a list of ClientCertificates transformed for the export object.
    */
   generateExportClientCertificates(opts?: CertificateCreateOptions): ArcExportCertificateObject[];
+
+  /**
+   * Generates HAR timings object
+   * @param {HarTimingsOptions} [opts={}] Generate data options
+   * @returns {RequestTime}
+   */
+  generateHarTimings(opts?: HarTimingsOptions): ArcResponse.RequestTime;
+
+  /**
+   * @param {RedirectStatusOptions=} [opts={}] Generate data options
+   * @returns {RedirectStatusObject}
+   */
+  generateRedirectStatus(opts?: RedirectStatusOptions): RedirectStatusObject;
+
+  /**
+   * Generates ARC redirect response object
+   * @param {ResponseRedirectOptions=} [opts={}] Generate data options
+   * @returns {ResponseRedirect}
+   */
+  generateRedirectResponse(opts?: ResponseRedirectOptions): ArcResponse.ResponseRedirect;
+
+  /**
+   * Generates a response object.
+   * @param {ResponseOptions=} [opts={}] Generate options
+   * @returns {Response} The response object
+   */
+  generateResponse(opts?: ResponseOptions): ArcResponse.Response;
+
+  generateErrorResponse(): ArcResponse.ErrorResponse;
 
   /**
    * Preforms `insertSavedRequestData` if no requests data are in

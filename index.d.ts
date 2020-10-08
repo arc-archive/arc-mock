@@ -8,3 +8,4 @@ export {
   SavedCreateOptions,
   InsertSavedResult,
 } from './src/DataGenerator';
+export { HeadersGenerator, HeadersSchema, HeaderSchemaItem } from './src/HeadersGenerator';
