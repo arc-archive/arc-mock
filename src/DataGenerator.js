@@ -36,10 +36,12 @@ import { HeadersGenerator } from './HeadersGenerator.js';
 /** @typedef {import('./DataGenerator').RedirectStatusObject} RedirectStatusObject */
 /** @typedef {import('./DataGenerator').HarTimingsOptions} HarTimingsOptions */
 /** @typedef {import('./DataGenerator').ResponseOptions} ResponseOptions */
+/** @typedef {import('./DataGenerator').TransportRequestOptions} TransportRequestOptions */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ResponseRedirect} ResponseRedirect */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.RequestTime} RequestTime */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
+/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
 
 /* global Chance, PouchDB */
 /* eslint-disable class-methods-use-this */
@@ -260,8 +262,6 @@ export class DataGenerator {
     }
     const { chance } = this;
     switch (contentType) {
-      case 'text/plain':
-        return chance.paragraph();
       case 'application/x-www-form-urlencoded':
         return this.generateUrlEncodedData();
       case 'application/json':
@@ -269,7 +269,7 @@ export class DataGenerator {
       case 'application/xml':
         return this.generateXmlData();
       default:
-        return '';
+        return chance.paragraph();
     }
   }
 
@@ -958,7 +958,7 @@ export class DataGenerator {
    * @returns {Response} The response object
    */
   generateResponse(opts={}) {
-    const ct = opts.noBody ? undefined : this.generateContentType();
+    const ct = opts.noBody ? undefined : HeadersGenerator.generateContentType();
     const body = opts.noBody ? undefined : this.generatePayload(ct);
     const headers = HeadersGenerator.generateHeaders('response', ct);
     const statusGroup = opts.statusGroup ? opts.statusGroup : this.chance.integer({ min: 2, max: 5 });
@@ -992,6 +992,37 @@ export class DataGenerator {
       result.redirects = new Array(size).fill(0).map(() => this.generateRedirectResponse(cnf));
     }
     return result;
+  }
+
+  /**
+   * Generates a response object.
+   * @param {TransportRequestOptions=} [opts={}] Generate options
+   * @returns {TransportRequest} The response object
+   */
+  generateTransportRequest(opts={}) {
+    const ct = opts.noBody ? undefined : HeadersGenerator.generateContentType();
+    const body = opts.noBody ? undefined : this.generatePayload(ct);
+    const headers = HeadersGenerator.generateHeaders('request', ct);
+    const method = this.generateMethod(!opts.noBody);
+    const url = this.chance.url();
+    const request = /** @type TransportRequest */ ({
+      url,
+      method,
+      startTime: Date.now() - 1000,
+      endTime: Date.now(),
+      headers,
+    });
+    if (body) {
+      request.payload = body;
+    }
+    if (!opts.noHttpMessage) {
+      request.httpMessage = `GET / HTTP 1.1\n${headers}\n`;
+      if (body) {
+        request.httpMessage += `\n${body}\n`;
+      }
+      request.httpMessage += '\n';
+    }
+    return request;
   }
 
   /**

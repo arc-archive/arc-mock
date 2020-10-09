@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { Variable, Project, UrlHistory, HostRule, ClientCertificate, DataExport, ArcResponse } from '@advanced-rest-client/arc-types'
+import { Variable, Project, UrlHistory, HostRule, ClientCertificate, DataExport, ArcResponse, ArcRequest } from '@advanced-rest-client/arc-types'
 
 export declare interface ProjectCreateOptions {
   /**
@@ -268,6 +268,18 @@ export declare interface ResponseOptions extends HarTimingsOptions {
    * Adds redirects to the request
    */
   redirects?: boolean;
+}
+
+
+export declare interface TransportRequestOptions {
+  /**
+   * When set it does not generate a request payload.
+   */
+  noBody?: boolean;
+  /**
+   * When set it does not generate a source HTTP message
+   */
+  noHttpMessage?: boolean;
 }
 
 export declare class DataGenerator {
@@ -598,6 +610,13 @@ export declare class DataGenerator {
    * @returns {Response} The response object
    */
   generateResponse(opts?: ResponseOptions): ArcResponse.Response;
+
+  /**
+   * Generates a response object.
+   * @param opts Generate options
+   * @returns The response object
+   */
+  generateTransportRequest(opts?: TransportRequestOptions): ArcRequest.TransportRequest;
 
   generateErrorResponse(): ArcResponse.ErrorResponse;
 

@@ -287,9 +287,9 @@ describe('DataGenerator', () => {
       assert.typeOf(result, 'string');
     });
 
-    it('returns empty string for an unknown type', () => {
+    it('returns random string for an unknown type', () => {
       const result = gen.generatePayload('unknown');
-      assert.equal(result, '');
+      assert.isAbove(result.length, 1);
     });
   });
 
@@ -1464,6 +1464,43 @@ describe('DataGenerator', () => {
       result = gen.generateResponse({ statusGroup: 3 });
       assert.isAbove(result.status, 299);
       assert.isBelow(result.status, 400);
+    });
+  });
+
+  describe('generateTransportRequest()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    [
+      ['url', 'string'],
+      ['method', 'string'],
+      ['startTime', 'number'],
+      ['endTime', 'number'],
+      ['headers', 'string'],
+      ['payload', 'string'],
+      ['httpMessage', 'string'],
+    ].forEach(([prop, type]) => {
+      it(`has the ${prop} property by default`, () => {
+        const result = gen.generateTransportRequest();
+        assert.typeOf(result[prop], type);
+      });
+    });
+
+    it('has not body when requested', () => {
+      const result = gen.generateTransportRequest({ noBody: true });
+      assert.isUndefined(result.payload);
+    });
+
+    it('has not httpMessage when requested', () => {
+      const result = gen.generateTransportRequest({ noHttpMessage: true });
+      assert.isUndefined(result.httpMessage);
+    });
+
+    it('has not content-type on headers', () => {
+      const result = gen.generateTransportRequest();
+      assert.include(result.headers, 'content-type: ');
     });
   });
 
