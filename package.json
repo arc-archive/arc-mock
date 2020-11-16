@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-data-generator",
   "description": "Generates data for ARC demo pages and tests",
-  "version": "3.1.11",
+  "version": "3.1.12",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -53,7 +53,7 @@
     "lint": "npm run lint:eslint",
     "format": "npm run format:eslint",
     "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium firefox webkit",
-    "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers webkit"
+    "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium"
   },
   "eslintConfig": {
     "extends": [

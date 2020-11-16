@@ -1208,6 +1208,33 @@ export class DataGenerator {
   }
 
   /**
+   * Generates and saves variables data to the data store and then environments generated from the variables.
+   *
+   * @param {VariablesCreateOptions=} opts Create options
+   * @return {Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>} Resolved promise when data are inserted into the datastore.
+   * Promise resolves to generated data object
+   */
+  async insertVariablesAndEnvironments(opts = {}) {
+    const result = await this.insertVariablesData(opts);
+    const items = [];
+    const names = [];
+    result.forEach((variable) => {
+      if (variable.environment !== 'default' && !names.includes(variable.environment)) {
+        names.push(variable.environment)
+        items.push({
+          name: variable.environment,
+          created: Date.now(),
+        });
+      }
+    });
+    if (items.length) {
+      const db = new PouchDB('variables-environments');
+      await db.bulkDocs(items);
+    }
+    return result;
+  }
+
+  /**
    * Generates and saves cookies data to the data store.
    *
    * @param {CookieCreateOptions=} opts Create options

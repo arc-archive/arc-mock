@@ -1828,6 +1828,40 @@ describe('DataGenerator', () => {
     });
   });
 
+  describe('insertVariablesAndEnvironments()', () => {
+    let gen = /** @type DataGenerator */ (null);
+    beforeEach(() => {
+      gen = new DataGenerator();
+    });
+
+    beforeEach(async () => {
+      await gen.destroyVariablesData();
+    });
+
+    it('returns generated data', async () => {
+      const result = await gen.insertVariablesAndEnvironments();
+      assert.lengthOf(result, 25);
+    });
+
+    it('inserts environments for variable\'s environment', async () => {
+      const result = await gen.insertVariablesAndEnvironments({
+        size: 10,
+        defaultEnv: false,
+        randomEnv: true,
+      });
+      let count = 0;
+      const names = [];
+      result.forEach((variable) => {
+        if (!names.includes(variable.environment)) {
+          names.push(variable.environment)
+          count += 1;
+        }
+      });
+      const inserted = await gen.getDatastoreEnvironmentsData();
+      assert.lengthOf(inserted, count);
+    });
+  });
+
   describe('insertCookiesData()', () => {
     let gen = /** @type DataGenerator */ (null);
     beforeEach(() => {

@@ -704,6 +704,13 @@ export declare class DataGenerator {
   insertVariablesData(opts?: VariablesCreateOptions): Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>;
 
   /**
+   * Generates and saves variables data to the data store and then environments generated from the variables.
+   * @returns Resolved promise when data are inserted into the datastore.
+   * Promise resolves to generated data object
+   */
+  insertVariablesAndEnvironments(opts?: VariablesCreateOptions): Promise<PouchDB.Core.ExistingDocument<VariableObject>[]>;
+
+  /**
    * Generates and saves cookies data to the data store.
    *
    * @param opts See `generateCookiesData`
