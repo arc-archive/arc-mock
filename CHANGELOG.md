@@ -259,3 +259,25 @@
 * fixing project pick when array is empty [e997cb6](https://github.com/advanced-rest-client/arc-data-generator/commit/e997cb6e3d64536fa61232c8bfb28d9406d5e3a4) by Pawel
 
 
+<a name="3.1.12"></a>
+## [3.1.12](https://github.com/advanced-rest-client/arc-data-generator/compare/3.1.8...3.1.12) (2020-11-16)
+
+### Update
+
+* updating tests runners [b876f12](https://github.com/advanced-rest-client/arc-data-generator/commit/b876f1290aa040c22badbc2c5cbbeebc4313970a) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [10e4a2b](https://github.com/advanced-rest-client/arc-data-generator/commit/10e4a2b1fdf5a73ee0c7ac5898857346d05c474c) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [fca439b](https://github.com/advanced-rest-client/arc-data-generator/commit/fca439b2552c184896b0cda8dd7aabaa57faa4e5) by Ci agent
+
+
+### Features
+
+* adding environments creation [80cede7](https://github.com/advanced-rest-client/arc-data-generator/commit/80cede719bb95db2acab1577a093ce58c4fffb78) by Pawel Psztyc
+* adding transport request generator [ef3c5fe](https://github.com/advanced-rest-client/arc-data-generator/commit/ef3c5fed5b26d6f0585c51256e00157b146ee113) by Pawel
+* adding response generators [a83403b](https://github.com/advanced-rest-client/arc-data-generator/commit/a83403bf98928c9b3eb49d1ff851f2b53b280439) by Pawel
+
+
+### Bug Fixes
+
+* fixing project pick when array is empty [e997cb6](https://github.com/advanced-rest-client/arc-data-generator/commit/e997cb6e3d64536fa61232c8bfb28d9406d5e3a4) by Pawel
+
+
