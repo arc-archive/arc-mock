@@ -314,18 +314,6 @@ describe('DataGenerator', () => {
       }
       assert.equal(resultDate.getMonth(), month);
     });
-
-    it('The year is computed', () => {
-      const result = gen.generateRequestTime();
-      const resultDate = new Date(result);
-      const date = new Date();
-      const month = date.getMonth() - 1;
-      let year = date.getFullYear();
-      if (month === 0) {
-        year -= 1;
-      }
-      assert.equal(resultDate.getFullYear(), year);
-    });
   });
 
   describe('generateDriveId()', () => {
