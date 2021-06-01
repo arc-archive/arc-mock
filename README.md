@@ -2,15 +2,15 @@
 
 Generates data for ARC demo pages and tests
 
+[![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/arc-data-generator.svg)](https://www.npmjs.com/package/@advanced-rest-client/arc-data-generator)
 
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
+[![tests](https://github.com/advanced-rest-client/arc-data-generator/actions/workflows/deployment.yml/badge.svg)](https://github.com/advanced-rest-client/arc-data-generator/actions/workflows/deployment.yml)
 
 ## Usage
 
 ### Installation
-```
+
+```sh
 npm install --save @advanced-rest-client/arc-data-generator
 ```
 
@@ -31,7 +31,7 @@ describe('Action', () => {
 });
 ```
 
-### Development
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/arc-data-generator
@@ -40,6 +40,7 @@ npm install
 ```
 
 ### Running the tests
+
 ```sh
 npm test
 ```
