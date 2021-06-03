@@ -10,9 +10,6 @@ import { HeadersGenerator } from './HeadersGenerator.js';
 /** @typedef {import('./DataGenerator').HistoryObjectOptions} HistoryObjectOptions */
 /** @typedef {import('./DataGenerator').InsertSavedResult} InsertSavedResult */
 /** @typedef {import('./DataGenerator').CertificateCreateOptions} CertificateCreateOptions */
-/** @typedef {import('./DataGenerator').ArcCertificateObject} ArcCertificateObject */
-/** @typedef {import('./DataGenerator').ArcCertificateDataObject} ArcCertificateDataObject */
-/** @typedef {import('./DataGenerator').ArcExportCertificateObject} ArcExportCertificateObject */
 /** @typedef {import('./DataGenerator').CookieCreateOptions} CookieCreateOptions */
 /** @typedef {import('./DataGenerator').CookieObject} CookieObject */
 /** @typedef {import('./DataGenerator').ApiIndexListCreateOptions} ApiIndexListCreateOptions */
@@ -29,8 +26,6 @@ import { HeadersGenerator } from './HeadersGenerator.js';
 /** @typedef {import('./DataGenerator').SavedRequestCreateOptions} SavedRequestCreateOptions */
 /** @typedef {import('./DataGenerator').UrlObject} UrlObject */
 /** @typedef {import('./DataGenerator').GenerateSavedResult} GenerateSavedResult */
-/** @typedef {import('./DataGenerator').ArcCertificateIndexDataObject} ArcCertificateIndexDataObject */
-/** @typedef {import('./DataGenerator').ArcCertificateIndexObject} ArcCertificateIndexObject */
 /** @typedef {import('./DataGenerator').ResponseRedirectOptions} ResponseRedirectOptions */
 /** @typedef {import('./DataGenerator').RedirectStatusOptions} RedirectStatusOptions */
 /** @typedef {import('./DataGenerator').RedirectStatusObject} RedirectStatusObject */
@@ -42,6 +37,13 @@ import { HeadersGenerator } from './HeadersGenerator.js';
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.Certificate} Certificate */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.CertificateIndex} CertificateIndex */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.RequestCertificate} RequestCertificate */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ClientCertificate} ClientCertificate */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCRequestCertificate} ARCRequestCertificate */
+/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCCertificateIndex} ARCCertificateIndex */
+/** @typedef {import('@advanced-rest-client/arc-types').DataExport.ExportArcClientCertificateData} ExportArcClientCertificateData */
 
 /* global Chance, PouchDB */
 /* eslint-disable class-methods-use-this */
@@ -790,16 +792,15 @@ export class DataGenerator {
   }
 
   /**
-   * Creates a certificate struct.
+   * Creates a certificate definition.
+   * 
    * @param {CertificateCreateOptions=} opts
-   * - binary {Boolean}
-   * - noPassphrase {Boolean}
-   * @return {ArcCertificateDataObject}
+   * @returns {Certificate}
    */
   generateCertificate(opts = {}) {
     const { chance } = this;
     const data = chance.paragraph();
-    const result = /** @type ArcCertificateDataObject */ ({
+    const result = /** @type Certificate */ ({
       data,
     });
     if (opts.binary) {
@@ -812,36 +813,68 @@ export class DataGenerator {
   }
 
   /**
-   * Creates a clientCertificate struct.
+   * Generates a Client Certificate index object.
    * @param {CertificateCreateOptions=} opts Create options
-   * @return {ArcCertificateObject}
+   * @returns {CertificateIndex}
    */
-  generateClientCertificate(opts = {}) {
+  generateCertificateIndex(opts = {}) {
     const { chance } = this;
-    const type = opts.type ? opts.type : chance.pick(['p12', 'pem']);
-    const cert = this.generateCertificate(opts);
-    const name = chance.word();
-    const result = {
+    const type = opts.type ? opts.type : chance.pickone(['p12', 'pem']);
+    const result = /** @type CertificateIndex */ ({
       type,
-      name,
-      cert,
-    };
-    if (!opts.noKey) {
-      result.key = this.generateCertificate(opts);
-    }
+      name: chance.word(),
+    });
     if (!opts.noCreated) {
-      result.created = Date.now();
+      result.created = chance.timestamp();
     }
     return result;
   }
 
   /**
-   * Creates a list of ClientCertificate struct.
    * @param {CertificateCreateOptions=} opts Create options
-   * @return {ArcCertificateObject[]}
+   * @returns {RequestCertificate}
+   */
+  generateRequestCertificate(opts = {}) {
+    const { chance } = this;
+    const type = opts.type ? opts.type : chance.pickone(['p12', 'pem']);
+    const cert = this.generateCertificate(opts);
+    const name = chance.word();
+    const result = /** @type RequestCertificate */ ({
+      type,
+      name,
+      cert,
+    });
+    if (!opts.noKey) {
+      result.key = this.generateCertificate(opts);
+    }
+    return result;
+  }
+
+  /**
+   * Creates a ClientCertificate object that is used to create a new certificate.
+   * @param {CertificateCreateOptions=} opts Create options
+   * @return {ClientCertificate}
+   */
+  generateClientCertificate(opts = {}) {
+    const index = this.generateCertificateIndex(opts);
+    const data = this.generateRequestCertificate(opts);
+    const result = /** @type ClientCertificate */ ({
+      ...index,
+      cert: data.cert,
+    });
+    if (data.key) {
+      result.key = data.key;
+    }
+    return result;
+  }
+
+  /**
+   * Creates a list of ClientCertificate objects that are used to create a new certificates.
+   * @param {CertificateCreateOptions=} opts Create options
+   * @return {ClientCertificate[]}
    */
   generateClientCertificates(opts = {}) {
-    const size = opts.size || 15;
+    const { size = 15 } = opts;
     const result = [];
     for (let i = 0; i < size; i++) {
       result[result.length] = this.generateClientCertificate(opts);
@@ -853,7 +886,7 @@ export class DataGenerator {
    * Creates a ClientCertificate transformed to the export object.
    * 
    * @param {CertificateCreateOptions=} opts
-   * @return {ArcExportCertificateObject}
+   * @return {ExportArcClientCertificateData}
    */
   generateExportClientCertificate(opts = {}) {
     const { chance } = this;
@@ -870,7 +903,7 @@ export class DataGenerator {
    * Creates a list of ClientCertificates transformed for the export object.
    * 
    * @param {CertificateCreateOptions=} opts
-   * @return {ArcExportCertificateObject[]}
+   * @return {ExportArcClientCertificateData[]}
    */
   generateExportClientCertificates(opts = {}) {
     const size = opts.size || 15;
@@ -1052,18 +1085,14 @@ export class DataGenerator {
       return this.insertSavedRequestData(opts);
     }
     const result = {
-      requests: response.rows.map((item) => {
-        return item.doc;
-      }),
+      requests: response.rows.map((item) => item.doc),
       projects: [],
     };
     const projectsDb = new PouchDB('legacy-projects');
     const projectsResponse = await projectsDb.allDocs({
       include_docs: true,
     });
-    result.projects = projectsResponse.rows.map((item) => {
-      return item.doc;
-    });
+    result.projects = projectsResponse.rows.map((item) => item.doc);
     return result;
   }
 
@@ -1292,10 +1321,13 @@ export class DataGenerator {
   }
 
   /**
-   * @param {ArcCertificateDataObject} cert 
-   * @returns {ArcCertificateDataObject}
+   * @param {Certificate|Certificate[]} cert Certificate definition. See class description.
+   * @return {Certificate|Certificate[]}
    */
   certificateToStore(cert) {
+    if (Array.isArray(cert)) {
+      return /** @type Certificate[] */ (cert.map((info) => this.certificateToStore(info)));
+    }
     if (typeof cert.data === 'string') {
       return cert;
     }
@@ -1306,7 +1338,7 @@ export class DataGenerator {
 
   /**
    * @param {CertificateCreateOptions=} opts 
-   * @returns {Promise<PouchDB.Core.ExistingDocument<ArcCertificateObject>[]>}
+   * @returns {Promise<PouchDB.Core.ExistingDocument<ARCCertificateIndex>[]>}
    */
   async insertCertificatesData(opts = {}) {
     const data = this.generateClientCertificates(opts);
@@ -1314,21 +1346,29 @@ export class DataGenerator {
     const indexDb = new PouchDB('client-certificates');
     const dataDb = new PouchDB('client-certificates-data');
     for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      const dataDoc = {
-        cert: this.certificateToStore(/** @type ArcCertificateDataObject */ (item.cert)),
-      };
-      delete item.cert;
-      if (item.key) {
-        dataDoc.key = this.certificateToStore(/** @type ArcCertificateDataObject */ (item.key));
-        delete item.key;
+      const cert = data[i];
+      const dataEntity = /** @type ARCRequestCertificate */({
+        cert: this.certificateToStore(cert.cert),
+        type: cert.type,
+      });
+      if (cert.key) {
+        dataEntity.key = this.certificateToStore(cert.key);
       }
+      const indexEntity = /** @type ARCCertificateIndex */({
+        name: cert.name,
+        type: cert.type,
+      });
+      if (cert.created) {
+        indexEntity.created = cert.created;
+      } else {
+        indexEntity.created = Date.now();
+      }
+
       /* eslint-disable-next-line no-await-in-loop */
-      const dataRes = await dataDb.post(dataDoc);
-      // @ts-ignore
-      item._id = dataRes.id;
+      const dataRes = await dataDb.post(dataEntity);
+      indexEntity._id = dataRes.id;
       /* eslint-disable-next-line no-await-in-loop */
-      responses[responses.length] = await indexDb.post(item);
+      responses[responses.length] = await indexDb.post(indexEntity);
     }
     return this.updateRevsAndIds(responses, data);
   }
@@ -1603,7 +1643,7 @@ export class DataGenerator {
   }
 
   /**
-   * @return {Promise<PouchDB.Core.ExistingDocument<(ArcCertificateIndexObject|ArcCertificateIndexDataObject)>[][]>}
+   * @return {Promise<(ARCCertificateIndex|ARCRequestCertificate)[][]>}
    */
   async getDatastoreClientCertificates() {
     const certs = await this.getDatastoreData('client-certificates');

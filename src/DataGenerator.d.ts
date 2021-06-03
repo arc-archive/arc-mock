@@ -1,4 +1,3 @@
-import { Chance } from 'chance';
 import { Variable, Project, UrlHistory, HostRule, ClientCertificate, DataExport, ArcResponse, ArcRequest } from '@advanced-rest-client/arc-types'
 
 export declare interface ProjectCreateOptions {
@@ -110,21 +109,6 @@ export declare interface CertificateCreateOptions {
   noCreated?: boolean;
   type?: 'p12' | 'pem';
   size?: number;
-}
-
-export declare interface ArcCertificateDataObject extends ClientCertificate.Certificate {
-}
-
-export declare interface ArcCertificateObject extends ClientCertificate.RequestCertificate {
-}
-
-export declare interface ArcCertificateIndexObject extends ClientCertificate.CertificateIndex {
-}
-
-export declare interface ArcCertificateIndexDataObject extends ClientCertificate.ClientCertificate {
-}
-
-export declare interface ArcExportCertificateObject extends DataExport.ExportArcClientCertificateData {
 }
 
 export declare interface CookieCreateOptions extends SizeCreateOptions {
@@ -560,29 +544,40 @@ export declare class DataGenerator {
    * Creates a certificate structure.
    * @param opts Create options
    */
-  generateCertificate(opts?: CertificateCreateOptions): ArcCertificateDataObject;
+  generateCertificate(opts?: CertificateCreateOptions): ClientCertificate.Certificate;
+
+  /**
+   * Generates a Client Certificate index object.
+   * @param opts Create options
+   */
+  generateCertificateIndex(opts?: CertificateCreateOptions): ClientCertificate.CertificateIndex;
+
+  /**
+   * @param opts Create options
+   */
+  generateRequestCertificate(opts?: CertificateCreateOptions): ClientCertificate.RequestCertificate;
 
   /**
    * Creates a clientCertificate structure.
    * @param opts Create options
    */
-  generateClientCertificate(opts?: CertificateCreateOptions): ArcCertificateObject;
+  generateClientCertificate(opts?: CertificateCreateOptions): ClientCertificate.ClientCertificate;
 
   /**
    * Creates a list of ClientCertificate structure.
    * @param opts Create options
    */
-  generateClientCertificates(opts?: CertificateCreateOptions): ArcCertificateObject[];
+  generateClientCertificates(opts?: CertificateCreateOptions): ClientCertificate.ClientCertificate[];
 
   /**
    * Creates a ClientCertificate transformed to the export object.
    */
-  generateExportClientCertificate(opts?: CertificateCreateOptions): ArcExportCertificateObject;
+  generateExportClientCertificate(opts?: CertificateCreateOptions): DataExport.ExportArcClientCertificateData;
 
   /**
    * Creates a list of ClientCertificates transformed for the export object.
    */
-  generateExportClientCertificates(opts?: CertificateCreateOptions): ArcExportCertificateObject[];
+  generateExportClientCertificates(opts?: CertificateCreateOptions): DataExport.ExportArcClientCertificateData[];
 
   /**
    * Generates HAR timings object
@@ -740,9 +735,10 @@ export declare class DataGenerator {
 
   insertApiData(opts?: ApiIndexListCreateOptions): Promise<PouchDB.Core.ExistingDocument<any>[]>;
 
-  certificateToStore(cert: ArcCertificateDataObject): ArcCertificateDataObject;
+  certificateToStore(cert: ClientCertificate.Certificate): ClientCertificate.Certificate;
+  certificateToStore(cert: ClientCertificate.Certificate[]): ClientCertificate.Certificate[];
 
-  insertCertificatesData(opts?: CertificateCreateOptions): Promise<PouchDB.Core.ExistingDocument<ArcCertificateObject>[]>;
+  insertCertificatesData(opts?: CertificateCreateOptions): Promise<PouchDB.Core.ExistingDocument<ClientCertificate.ARCCertificateIndex>[]>;
 
   /**
    * Destroys saved and projects database.
@@ -872,7 +868,7 @@ export declare class DataGenerator {
   getDatastoreHostApiData<T>(): Promise<PouchDB.Core.ExistingDocument<ApiDataObject>[]>;
 
   // Returns a promise with all client certificates and the data.
-  getDatastoreClientCertificates<T>(): Promise<PouchDB.Core.ExistingDocument<(ArcCertificateIndexObject|ArcCertificateIndexDataObject)[]>[]>;
+  getDatastoreClientCertificates<T>(): Promise<(ClientCertificate.ARCCertificateIndex|ClientCertificate.ARCRequestCertificate)[][]>;
 
   /**
    * Updates an object in an data store.
