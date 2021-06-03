@@ -1021,7 +1021,7 @@ export class DataGenerator {
     }
     if (opts.redirects) {
       const size = this.chance.integer({ min: 1, max: 4 });
-      const cnf = { timing: true, body: true };
+      const cnf = { timings: opts.timings, body: true };
       result.redirects = new Array(size).fill(0).map(() => this.generateRedirectResponse(cnf));
     }
     return result;
