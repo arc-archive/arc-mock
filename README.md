@@ -1,10 +1,12 @@
-# arc-data-generator
+# ArcMock
 
-Generates data for ARC demo pages and tests
+Generates data for ARC demo pages and tests scenarios.
 
 [![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/arc-data-generator.svg)](https://www.npmjs.com/package/@advanced-rest-client/arc-data-generator)
 
 [![tests](https://github.com/advanced-rest-client/arc-data-generator/actions/workflows/deployment.yml/badge.svg)](https://github.com/advanced-rest-client/arc-data-generator/actions/workflows/deployment.yml)
+
+**Note** API surface changed in version 4.x.
 
 ## Usage
 
@@ -18,14 +20,15 @@ npm install --save @advanced-rest-client/arc-data-generator
 
 ```js
 import { assert } from '@open-wc/testing';
-import { DataGenerator } from '@advanced-rest-client/arc-data-generator/arc-data-generator.js';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
 
 describe('Action', () => {
   before(async () => {
-    await DataGenerator.insertSavedIfNotExists();
+    const generator = new ArcMock();
+    await generator.store.insertSavedIfNotExists();
   });
 
-  it('Has request data', () => {
+  it('has request data', () => {
     // ...
   });
 });

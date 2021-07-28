@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
@@ -11,15 +11,8 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
-    "plugins": [
-      {
-        "name": "typescript-lit-html-plugin"
-      }
-    ]
+    "plugins": []
   },
-  "include": [
-    "**/*.js",
-    "node_modules/@open-wc/**/*.js"
-  ],
-  "exclude": ["node_modules/!(@open-wc)"]
+  "include": ["**/*.js", "**/*.d.ts"],
+  "exclude": []
 }
