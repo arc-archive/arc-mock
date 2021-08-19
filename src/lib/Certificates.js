@@ -1,6 +1,6 @@
 import { Lorem, Random, Types, Utils } from '@pawel-up/data-mock';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.Certificate} Certificate */
 /** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.CertificateIndex} CertificateIndex */
 /** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.RequestCertificate} RequestCertificate */
@@ -12,7 +12,7 @@ import { Lorem, Random, Types, Utils } from '@pawel-up/data-mock';
 
 export class Certificates {
   /**
-   * @param {DataMockInit=} init 
+   * @param {ArcDataMockInit=} init 
    */
   constructor(init={}) {
     this.lorem = new Lorem(init);
@@ -145,7 +145,7 @@ export class Certificates {
    */
   toStore(cert) {
     if (Array.isArray(cert)) {
-      return /** @type Certificate[] */ (cert.map((info) => this.toStore(info)));
+      return /** @type Certificate[] */ (cert.map(info => this.toStore(info)));
     }
     if (typeof cert.data === 'string') {
       return cert;

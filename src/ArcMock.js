@@ -1,19 +1,19 @@
 import { DataMock } from '@pawel-up/data-mock';
-import { Authorization } from './lib/Authorization';
-import { Certificates } from './lib/Certificates';
-import { Cookies } from './lib/Cookies';
-import { HostRules } from './lib/HostRules';
-import { Http } from './lib/Http';
-import { RestApi } from './lib/RestApi';
-import { Store } from './lib/Store';
-import { Urls } from './lib/Urls';
-import { Variables } from './lib/Variables';
+import { Authorization } from './lib/Authorization.js';
+import { Certificates } from './lib/Certificates.js';
+import { Cookies } from './lib/Cookies.js';
+import { HostRules } from './lib/HostRules.js';
+import { Http } from './lib/Http.js';
+import { RestApi } from './lib/RestApi.js';
+import { Store } from './lib/Store.js';
+import { Urls } from './lib/Urls.js';
+import { Variables } from './lib/Variables.js';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../').ArcDataMockInit} ArcDataMockInit */
 
 export class ArcMock extends DataMock {
   /**
-   * @param {DataMockInit=} init The library init options.
+   * @param {ArcDataMockInit=} init The library init options.
    */
   constructor(init) {
     super(init);

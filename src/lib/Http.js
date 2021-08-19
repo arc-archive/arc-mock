@@ -1,8 +1,8 @@
 import { Http as Base, Types, Lorem, Time } from '@pawel-up/data-mock';
 import { randomValue } from '@pawel-up/data-mock/src/lib/Http.js';
-import { HttpResponse } from './HttpResponse';
+import { HttpResponse } from './HttpResponse.js';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCSavedRequest} ARCSavedRequest */
 /** @typedef {import('@advanced-rest-client/arc-types').Project.ARCProject} ARCProject */
@@ -15,7 +15,7 @@ import { HttpResponse } from './HttpResponse';
 
 export class Http extends Base {
   /**
-   * @param {DataMockInit=} init 
+   * @param {ArcDataMockInit=} init 
    */
   constructor(init={}) {
     super(init);

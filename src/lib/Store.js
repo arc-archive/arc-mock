@@ -1,14 +1,13 @@
-import 'pouchdb/dist/pouchdb.js';
-import { Authorization } from './Authorization';
-import { Certificates } from './Certificates';
-import { Cookies } from './Cookies';
-import { HostRules } from './HostRules';
-import { Http } from './Http';
-import { RestApi } from './RestApi';
-import { Urls } from './Urls';
-import { Variables } from './Variables';
+import { Authorization } from './Authorization.js';
+import { Certificates } from './Certificates.js';
+import { Cookies } from './Cookies.js';
+import { HostRules } from './HostRules.js';
+import { Http } from './Http.js';
+import { RestApi } from './RestApi.js';
+import { Urls } from './Urls.js';
+import { Variables } from './Variables.js';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCSavedRequest} ARCSavedRequest */
 /** @typedef {import('@advanced-rest-client/arc-types').Project.ARCProject} ARCProject */
@@ -33,7 +32,7 @@ import { Variables } from './Variables';
 
 export class Store {
   /**
-   * @param {DataMockInit=} init 
+   * @param {ArcDataMockInit=} init 
    */
   constructor(init={}) {
     this.http = new Http(init);
@@ -44,6 +43,19 @@ export class Store {
     this.hostRules = new HostRules(init);
     this.restApi = new RestApi(init);
     this.certificates = new Certificates(init);
+    this.PouchRef = init.store;
+  }
+
+  /**
+   * @param {string} name The data store name to create.
+   * @returns {PouchDB.Database}
+   */
+  db(name) {
+    const { PouchRef } = this;
+    if (!PouchRef) {
+      throw new Error(`You need to pass the "store" option with PouchDB reference to use this module.`);
+    }
+    return new PouchRef(name);
   }
 
   /**
@@ -90,10 +102,10 @@ export class Store {
       projects: [],
       requests: [],
     });
-    const projectsDb = new PouchDB('legacy-projects');
+    const projectsDb = this.db('legacy-projects');
     const response = await projectsDb.bulkDocs(data.projects);
     result.projects = this.updateRevsAndIds(response, data.projects);
-    const savedDb = new PouchDB('saved-requests');
+    const savedDb = this.db('saved-requests');
     const response2 = await savedDb.bulkDocs(data.requests);
     result.requests = this.updateRevsAndIds(response2, data.requests);
     return result;
@@ -108,7 +120,7 @@ export class Store {
    */
   async insertHistory(size, init) {
     const data = this.http.listHistory(size, init);
-    const db = new PouchDB('history-requests');
+    const db = this.db('history-requests');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -122,7 +134,7 @@ export class Store {
    */
   async insertProjects(size, init) {
     const data = this.http.listProjects(size, init);
-    const db = new PouchDB('legacy-projects');
+    const db = this.db('legacy-projects');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -136,7 +148,7 @@ export class Store {
    * @return {Promise<InsertSavedResult>} Resolved promise when data are inserted into the datastore.
    */
   async insertSavedIfNotExists(requestsSize, projectsSize, requestsInit, projectInit) {
-    const savedDb = new PouchDB('saved-requests');
+    const savedDb = this.db('saved-requests');
     const response = await savedDb.allDocs({
       include_docs: true,
     });
@@ -144,14 +156,14 @@ export class Store {
       return this.insertSaved(requestsSize, projectsSize, requestsInit, projectInit);
     }
     const result = {
-      requests: response.rows.map((item) => item.doc),
+      requests: response.rows.map(item => item.doc),
       projects: [],
     };
-    const projectsDb = new PouchDB('legacy-projects');
+    const projectsDb = this.db('legacy-projects');
     const projectsResponse = await projectsDb.allDocs({
       include_docs: true,
     });
-    result.projects = projectsResponse.rows.map((item) => item.doc);
+    result.projects = projectsResponse.rows.map(item => item.doc);
     return result;
   }
 
@@ -163,14 +175,14 @@ export class Store {
    * @return {Promise<PouchDB.Core.ExistingDocument<ARCHistoryRequest>[]>} Resolved promise when data are inserted into the datastore.
    */
   async insertHistoryIfNotExists(size, init) {
-    const db = new PouchDB('history-requests');
+    const db = this.db('history-requests');
     const response = await db.allDocs({
       include_docs: true,
     });
     if (!response.rows.length) {
       return this.insertHistory(size, init);
     }
-    return response.rows.map((item) => item.doc);
+    return response.rows.map(item => item.doc);
   }
 
   /**
@@ -178,8 +190,8 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroySaved() {
-    const savedDb = new PouchDB('saved-requests');
-    const projectsDb = new PouchDB('legacy-projects');
+    const savedDb = this.db('saved-requests');
+    const projectsDb = this.db('legacy-projects');
     await savedDb.destroy();
     await projectsDb.destroy();
   }
@@ -189,7 +201,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyHistory() {
-    const db = new PouchDB('history-requests');
+    const db = this.db('history-requests');
     await db.destroy();
   }
 
@@ -198,7 +210,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async clearLegacyProjects() {
-    const db = new PouchDB('legacy-projects');
+    const db = this.db('legacy-projects');
     await db.destroy();
   }
 
@@ -210,7 +222,7 @@ export class Store {
    */
   async insertWebsockets(size) {
     const data = this.urls.urls(size);
-    const db = new PouchDB('websocket-url-history');
+    const db = this.db('websocket-url-history');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -223,7 +235,7 @@ export class Store {
    */
   async insertUrlHistory(size) {
     const data = this.urls.urls(size);
-    const db = new PouchDB('url-history');
+    const db = this.db('url-history');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -233,7 +245,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyWebsockets() {
-    const db = new PouchDB('websocket-url-history');
+    const db = this.db('websocket-url-history');
     await db.destroy();
   }
 
@@ -242,7 +254,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyUrlHistory() {
-    const db = new PouchDB('url-history');
+    const db = this.db('url-history');
     await db.destroy();
   }
 
@@ -255,7 +267,7 @@ export class Store {
    */
   async insertVariables(size, init) {
     const data = this.variables.listVariables(size, init);
-    const db = new PouchDB('variables');
+    const db = this.db('variables');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -281,7 +293,7 @@ export class Store {
       }
     });
     if (items.length) {
-      const db = new PouchDB('variables-environments');
+      const db = this.db('variables-environments');
       await db.bulkDocs(items);
     }
     return result;
@@ -292,8 +304,8 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyVariables() {
-    const db = new PouchDB('variables');
-    const db2 = new PouchDB('variables-environments');
+    const db = this.db('variables');
+    const db2 = this.db('variables-environments');
     await db.destroy();
     await db2.destroy();
   }
@@ -306,7 +318,7 @@ export class Store {
    */
   async insertCookies(size) {
     const data = this.cookies.cookies(size);
-    const db = new PouchDB('cookies');
+    const db = this.db('cookies');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -316,7 +328,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyCookies() {
-    const db = new PouchDB('cookies');
+    const db = this.db('cookies');
     await db.destroy();
   }
 
@@ -328,7 +340,7 @@ export class Store {
    */
   async insertBasicAuth(size) {
     const data = this.authorization.basicList(size);
-    const db = new PouchDB('auth-data');
+    const db = this.db('auth-data');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -338,7 +350,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyBasicAuth() {
-    const db = new PouchDB('auth-data');
+    const db = this.db('auth-data');
     await db.destroy();
   }
 
@@ -350,7 +362,7 @@ export class Store {
    */
   async insertHostRules(size) {
     const data = this.hostRules.rules(size);
-    const db = new PouchDB('host-rules');
+    const db = this.db('host-rules');
     const response = await db.bulkDocs(data);
     return this.updateRevsAndIds(response, data);
   }
@@ -360,7 +372,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyHostRules() {
-    const db = new PouchDB('host-rules');
+    const db = this.db('host-rules');
     await db.destroy();
   }
 
@@ -372,10 +384,10 @@ export class Store {
   async insertApis(size, init) {
     let index = this.restApi.apiIndexList(size, init);
     let data = this.restApi.apiDataList(index);
-    const indexDb = new PouchDB('api-index');
+    const indexDb = this.db('api-index');
     const indexResponse = await indexDb.bulkDocs(index);
     index = this.updateRevsAndIds(indexResponse, index);
-    const dataDb = new PouchDB('api-data');
+    const dataDb = this.db('api-data');
     const dataResponse = await dataDb.bulkDocs(data);
     data = this.updateRevsAndIds(dataResponse, data);
     return [index, data];
@@ -386,7 +398,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyApiIndexes() {
-    const db = new PouchDB('api-index');
+    const db = this.db('api-index');
     await db.destroy();
   }
 
@@ -395,7 +407,7 @@ export class Store {
    * @return {Promise<void>} Resolved promise when the data are cleared.
    */
   async destroyApiData() {
-    const db = new PouchDB('api-data');
+    const db = this.db('api-data');
     await db.destroy();
   }
 
@@ -415,8 +427,8 @@ export class Store {
   async insertCertificates(size, opts) {
     const data = this.certificates.clientCertificates(size, opts);
     const responses = [];
-    const indexDb = new PouchDB('client-certificates');
-    const dataDb = new PouchDB('client-certificates-data');
+    const indexDb = this.db('client-certificates');
+    const dataDb = this.db('client-certificates-data');
     for (let i = 0; i < data.length; i++) {
       const cert = data[i];
       const dataEntity = /** @type ARCRequestCertificate */({
@@ -449,8 +461,8 @@ export class Store {
    * @return {Promise<void>} 
    */
   async destroyClientCertificates() {
-    await new PouchDB('client-certificates').destroy();
-    await new PouchDB('client-certificates-data').destroy();
+    await this.db('client-certificates').destroy();
+    await this.db('client-certificates-data').destroy();
   }
 
   /**
@@ -510,11 +522,11 @@ export class Store {
    * @return {Promise<any[]>} Promise resolved to all read docs.
    */
   async getDatastoreData(name) {
-    const db = new PouchDB(name);
+    const db = this.db(name);
     const response = await db.allDocs({
       include_docs: true,
     });
-    return response.rows.map((item) => item.doc);
+    return response.rows.map(item => item.doc);
   }
 
   /**
@@ -623,7 +635,7 @@ export class Store {
    * @return {Promise<PouchDB.Core.Response>} A promise resolved to insert result.
    */
   async updateObject(dbName, obj) {
-    const db = new PouchDB(dbName);
+    const db = this.db(dbName);
     return db.put(obj, {
       force: true,
     });

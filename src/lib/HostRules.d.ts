@@ -1,15 +1,12 @@
 import { ARCHostRule } from '@advanced-rest-client/arc-types/src/models/HostRule';
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
-import { DataMockInit } from '@pawel-up/data-mock/types';
-
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').HostRule.ARCHostRule} ARCHostRule */
+import { ArcDataMockInit } from '../../types';
 
 export declare class HostRules {
   types: Types;
   lorem: Lorem;
   internet: Internet;
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates random URL data object.

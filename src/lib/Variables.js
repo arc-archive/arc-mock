@@ -1,6 +1,6 @@
 import { Lorem, Types } from '@pawel-up/data-mock';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCVariable} ARCVariable */
 /** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCEnvironment} ARCEnvironment */
 /** @typedef {import('../../types').VariableInit} VariableInit */
@@ -8,7 +8,7 @@ import { Lorem, Types } from '@pawel-up/data-mock';
 
 export class Variables {
   /**
-   * @param {DataMockInit=} init 
+   * @param {ArcDataMockInit=} init 
    */
   constructor(init={}) {
     this.types = new Types(init.seed);

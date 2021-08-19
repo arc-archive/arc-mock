@@ -1,14 +1,14 @@
 import { ExportArcClientCertificateData } from '@advanced-rest-client/arc-types/src/dataexport/DataExport';
 import { Certificate, CertificateIndex, ClientCertificate, RequestCertificate } from '@advanced-rest-client/arc-types/src/models/ClientCertificate';
-import { DataMockInit, Lorem, Random, Types } from '@pawel-up/data-mock';
-import { CertificateCreateInit } from '../../types';
+import { Lorem, Random, Types } from '@pawel-up/data-mock';
+import { ArcDataMockInit, CertificateCreateInit } from '../../types';
 
 export declare class Certificates {
   lorem: Lorem;
   types: Types;
   random: Random;
 
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Creates a certificate definition.

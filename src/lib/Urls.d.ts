@@ -1,15 +1,13 @@
 import { ARCUrlHistory } from '@advanced-rest-client/arc-types/src/models/UrlHistory';
-import { Internet, Types, Time, DataMockInit } from '@pawel-up/data-mock';
-
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
+import { Internet, Types, Time } from '@pawel-up/data-mock';
+import { ArcDataMockInit } from '../../types';
 
 export declare class Urls {
   types: Types;
   internet: Internet;
   time: Time;
   
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates a single ARC URL model item.

@@ -1,4 +1,5 @@
-import { DataMock, DataMockInit } from '@pawel-up/data-mock';
+import { DataMock } from '@pawel-up/data-mock';
+import { ArcDataMockInit } from '../types';
 import { Authorization } from './lib/Authorization';
 import { Certificates } from './lib/Certificates';
 import { Cookies } from './lib/Cookies';
@@ -22,5 +23,5 @@ export declare class ArcMock extends DataMock {
   /**
    * @param init The library init options.
    */
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 }

@@ -1,8 +1,7 @@
 import { ARCProject } from '@advanced-rest-client/arc-types/src/models/Project';
 import { ARCHistoryRequest, ARCSavedRequest, TransportRequest } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
 import { Http as Base, Types, Lorem } from '@pawel-up/data-mock';
-import { DataMockInit } from '@pawel-up/data-mock/types';
-import { GenerateSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, TransportRequestInit } from '../../types';
+import { ArcDataMockInit, GenerateSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, TransportRequestInit } from '../../types';
 import { HttpResponse } from './HttpResponse';
 
 export declare class Http extends Base {
@@ -10,11 +9,7 @@ export declare class Http extends Base {
   types: Types;
   lorem: Lorem;
   response: HttpResponse;
-
-  /**
-   * @param {DataMockInit=} init 
-   */
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates an ARC history object.

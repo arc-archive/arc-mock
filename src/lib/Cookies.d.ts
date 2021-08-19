@@ -1,12 +1,12 @@
 import { ARCCookie } from '@advanced-rest-client/arc-types/src/cookies/Cookies';
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
-import { DataMockInit } from '@pawel-up/data-mock/types';
+import { ArcDataMockInit } from '../../types';
 
 export declare class Cookies {
   types: Types;
   lorem: Lorem;
   internet: Internet;
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates random Cookie data

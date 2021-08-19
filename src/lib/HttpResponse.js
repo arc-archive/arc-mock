@@ -5,7 +5,7 @@ import { Har } from '@pawel-up/data-mock';
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.RequestTime} RequestTime */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
-/** @typedef {import('@pawel-up/data-mock').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@pawel-up/data-mock').DataMockLocale} DataMockLocale */
 /** @typedef {import('../../types').HttpResponseRedirectInit} HttpResponseRedirectInit */
 /** @typedef {import('../../types').HttpResponseArcInit} HttpResponseArcInit */
@@ -13,7 +13,7 @@ import { Har } from '@pawel-up/data-mock';
 export class HttpResponse extends Base {
 
   /**
-   * @param {DataMockInit=} init The library init options.
+   * @param {ArcDataMockInit=} init The library init options.
    */
   constructor(init={}) {
     super(init);

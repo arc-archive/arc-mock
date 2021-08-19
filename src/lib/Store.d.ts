@@ -7,9 +7,7 @@ import { ARCRestApi, ARCRestApiIndex } from '@advanced-rest-client/arc-types/src
 import { ARCUrlHistory } from '@advanced-rest-client/arc-types/src/models/UrlHistory';
 import { ARCEnvironment, ARCVariable } from '@advanced-rest-client/arc-types/src/models/Variable';
 import { ARCHistoryRequest, ARCSavedRequest } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
-import 'pouchdb/dist/pouchdb.js';
-import { DataMockInit } from '../../../../jarrodek/data-mock';
-import { CertificateCreateInit, InsertSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, RestApiIndexInit, VariableInit } from '../../types';
+import { ArcDataMockInit, CertificateCreateInit, InsertSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, RestApiIndexInit, VariableInit } from '../../types';
 import { Authorization } from './Authorization';
 import { Certificates } from './Certificates';
 import { Cookies } from './Cookies';
@@ -18,29 +16,6 @@ import { Http } from './Http';
 import { RestApi } from './RestApi';
 import { Urls } from './Urls';
 import { Variables } from './Variables';
-
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCSavedRequest} ARCSavedRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').Project.ARCProject} ARCProject */
-/** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
-/** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCVariable} ARCVariable */
-/** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCEnvironment} ARCEnvironment */
-/** @typedef {import('@advanced-rest-client/arc-types').Cookies.ARCCookie} ARCCookie */
-/** @typedef {import('@advanced-rest-client/arc-types').AuthData.ARCAuthData} ARCAuthData */
-/** @typedef {import('@advanced-rest-client/arc-types').HostRule.ARCHostRule} ARCHostRule */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ClientCertificate} ClientCertificate */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCCertificateIndex} ARCCertificateIndex */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCRequestCertificate} ARCRequestCertificate */
-/** @typedef {import('@advanced-rest-client/arc-types').RestApi.ARCRestApi} ARCRestApi */
-/** @typedef {import('@advanced-rest-client/arc-types').RestApi.ARCRestApiIndex} ARCRestApiIndex */
-/** @typedef {import('../../types').InsertSavedResult} InsertSavedResult */
-/** @typedef {import('../../types').RequestSavedInit} RequestSavedInit */
-/** @typedef {import('../../types').ProjectCreateInit} ProjectCreateInit */
-/** @typedef {import('../../types').RequestHistoryInit} RequestHistoryInit */
-/** @typedef {import('../../types').VariableInit} VariableInit */
-/** @typedef {import('../../types').RestApiIndexInit} RestApiIndexInit */
-/** @typedef {import('../../types').CertificateCreateInit} CertificateCreateInit */
 
 export declare class Store {
   http: Http;
@@ -52,7 +27,7 @@ export declare class Store {
   restApi: RestApi;
   certificates: Certificates;
 
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Creates `_id` on the original insert object if it wasn't created before and

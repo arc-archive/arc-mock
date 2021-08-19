@@ -34,6 +34,28 @@ describe('Action', () => {
 });
 ```
 
+### Using the `store` namespace
+
+The `store` namespace (or the `Store` class) requires a reference to the PouchDB database. Because PouchDB has a legacy architecture, NodeJS and a browser imports the code differently. This means that your test scenario has to import PouchDB and set the reference to the PouchDB class in the init options.
+
+```javascript
+// in NodeJS
+import PouchDB from 'pouchdb';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
+
+const mock = new ArcMock({ store: PouchDB });
+```
+
+```javascript
+// in a browser
+import 'pouchdb/dist/pouchdb.js';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
+
+/* global PouchDB */
+
+const mock = new ArcMock({ store: PouchDB });
+```
+
 ## Development
 
 ```sh

@@ -1,11 +1,11 @@
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').HostRule.ARCHostRule} ARCHostRule */
 
 export class HostRules {
   /**
-   * @param {DataMockInit=} init
+   * @param {ArcDataMockInit=} init
    */
   constructor(init = {}) {
     this.types = new Types(init.seed);

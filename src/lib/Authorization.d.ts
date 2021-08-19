@@ -1,13 +1,12 @@
 import { ARCAuthData } from '@advanced-rest-client/arc-types/src/models/AuthData';
-import { DataMockInit, Internet, Types } from '@pawel-up/data-mock';
+import { Internet, Types } from '@pawel-up/data-mock';
+import { ArcDataMockInit } from '../../types';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').AuthData.ARCAuthData} ARCAuthData */
 
 export declare class Authorization {
   types: Types;
   internet: Internet;
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates random Basic authorization object.

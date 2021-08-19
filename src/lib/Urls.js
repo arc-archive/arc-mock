@@ -1,11 +1,11 @@
 import { Internet, Types, Time } from '@pawel-up/data-mock';
 
-/** @typedef {import('@pawel-up/data-mock/types').DataMockInit} DataMockInit */
+/** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
 
 export class Urls {
   /**
-   * @param {DataMockInit=} init 
+   * @param {ArcDataMockInit=} init 
    */
   constructor(init={}) {
     this.types = new Types(init.seed);

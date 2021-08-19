@@ -1,13 +1,12 @@
 import { ARCVariable } from '@advanced-rest-client/arc-types/src/models/Variable';
 import { Lorem, Types } from '@pawel-up/data-mock';
-import { DataMockInit } from '@pawel-up/data-mock/types';
-import { VariableInit } from '../../types';
+import { ArcDataMockInit, VariableInit } from '../../types';
 
 export declare class Variables {
   types: Types;
   lorem: Lorem;
   
-  constructor(init?: DataMockInit);
+  constructor(init?: ArcDataMockInit);
 
   /**
    * Generates a random variable

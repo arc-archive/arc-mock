@@ -1,13 +1,18 @@
+import 'pouchdb/dist/pouchdb.js';
 import { assert } from '@open-wc/testing';
 import sinon from 'sinon';
 import { Store } from '../../index.js';
+
+/* global PouchDB */
 
 describe('Store', () => {
   describe('insertSavedIfNotExists()', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { 
+      store = new Store({ store: PouchDB }); 
+    });
 
     beforeEach(async () => {
       await store.destroySaved();
@@ -59,7 +64,9 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { 
+      store = new Store({ store: PouchDB }); 
+    });
 
     beforeEach(async () => {
       await store.destroyHistory();
@@ -95,7 +102,9 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { 
+      store = new Store({ store: PouchDB }); 
+    });
 
     beforeEach(async () => {
       await store.destroySaved();
@@ -131,7 +140,9 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { 
+      store = new Store({ store: PouchDB }); 
+    });
 
     beforeEach(async () => {
       await store.destroyHistory();
@@ -160,7 +171,9 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { 
+      store = new Store({ store: PouchDB }); 
+    });
 
     beforeEach(async () => {
       await store.clearLegacyProjects();
@@ -189,7 +202,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.insertSaved();
@@ -207,7 +220,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertHistory();
@@ -225,7 +238,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertProjects();
@@ -243,7 +256,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyWebsockets();
@@ -272,7 +285,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyUrlHistory();
@@ -301,7 +314,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertWebsockets();
@@ -319,7 +332,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertUrlHistory();
@@ -337,7 +350,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyVariables();
@@ -366,7 +379,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyVariables();
@@ -394,7 +407,7 @@ describe('Store', () => {
       const response = await db.allDocs({
         include_docs: true,
       });
-      const inserted = response.rows.map((item) => item.doc);
+      const inserted = response.rows.map(item => item.doc);
       assert.lengthOf(inserted, count);
     });
   });
@@ -403,7 +416,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertVariables();
@@ -428,7 +441,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyCookies();
@@ -457,7 +470,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertCookies();
@@ -475,7 +488,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyBasicAuth();
@@ -504,7 +517,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertBasicAuth();
@@ -522,7 +535,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyHostRules();
@@ -551,7 +564,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       await store.insertHostRules();
@@ -569,7 +582,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyApisAll();
@@ -604,7 +617,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       const db = new PouchDB('api-index');
@@ -623,7 +636,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       const db = new PouchDB('api-data');
@@ -642,7 +655,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
 
     beforeEach(async () => {
       await store.destroyClientCertificates();
@@ -670,7 +683,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
     beforeEach(async () => {
       const db = new PouchDB('client-certificates');
@@ -704,7 +717,7 @@ describe('Store', () => {
     ]);
 
     before(async () => {
-      store = new Store();
+      store = new Store({ store: PouchDB });
       fns.forEach((fn) => {
         const spy = sinon.spy(store, fn);
         spies.push(spy);
@@ -727,7 +740,7 @@ describe('Store', () => {
     /** @type Store */
     let store;
 
-    before(() => { store = new Store(); });
+    before(() => { store = new Store({ store: PouchDB }) });
     
 
     it('creates a copy', () => {
@@ -762,7 +775,7 @@ describe('Store', () => {
     let store;
 
     before(async () => {
-      store = new Store();
+      store = new Store({ store: PouchDB });
       await store.destroyAll();
     });
 
