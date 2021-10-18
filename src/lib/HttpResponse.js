@@ -1,10 +1,10 @@
 import { HttpResponse as Base, headersValue, payloadValue, typesValue, loremValue } from '@pawel-up/data-mock/src/lib/http/HttpResponse.js';
 import { Har } from '@pawel-up/data-mock';
 
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ResponseRedirect} ResponseRedirect */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.RequestTime} RequestTime */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.ResponseRedirect} ResponseRedirect */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.RequestTime} RequestTime */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.Response} Response */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.ErrorResponse} ErrorResponse */
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 /** @typedef {import('@pawel-up/data-mock').DataMockLocale} DataMockLocale */
 /** @typedef {import('../../types').HttpResponseRedirectInit} HttpResponseRedirectInit */

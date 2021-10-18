@@ -1,4 +1,4 @@
-import { ARCAuthData } from '@advanced-rest-client/arc-types/src/models/AuthData';
+import { ARCAuthData } from '@advanced-rest-client/events/src/models/AuthData';
 import { Internet, Types } from '@pawel-up/data-mock';
 import { ArcDataMockInit } from '../../types';
 

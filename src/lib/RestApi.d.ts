@@ -1,4 +1,4 @@
-import { ARCRestApi, ARCRestApiIndex } from '@advanced-rest-client/arc-types/src/models/RestApi';
+import { ARCRestApi, ARCRestApiIndex } from '@advanced-rest-client/events/src/models/RestApi';
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 import { ArcDataMockInit, RestApiIndexInit } from '../../types';
 

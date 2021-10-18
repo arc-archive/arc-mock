@@ -2,7 +2,7 @@ import { assert } from '@open-wc/testing';
 import sinon from 'sinon';
 import { Cookies } from '../../index.js';
 
-/** @typedef {import('@advanced-rest-client/arc-types').Cookies.ARCCookie} ARCCookie */
+/** @typedef {import('@advanced-rest-client/events').Cookies.ARCCookie} ARCCookie */
 
 describe('Cookies', () => {
   describe('cookie()', () => {

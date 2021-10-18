@@ -1,6 +1,6 @@
 import { HttpResponse as Base } from '@pawel-up/data-mock/src/lib/http/HttpResponse.js';
 import { DataMockLocale, Har } from '@pawel-up/data-mock';
-import { ErrorResponse, Response, ResponseRedirect } from '@advanced-rest-client/arc-types/src/request/ArcResponse';
+import { ErrorResponse, Response, ResponseRedirect } from '@advanced-rest-client/events/src/request/ArcResponse';
 import { ArcDataMockInit, HttpResponseArcInit, HttpResponseRedirectInit } from '../../types';
 
 export declare class HttpResponse extends Base {

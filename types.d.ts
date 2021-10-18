@@ -1,16 +1,8 @@
-import { ARCProject } from '@advanced-rest-client/arc-types/src/models/Project';
-import { ARCSavedRequest } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
+import { ARCProject } from '@advanced-rest-client/events/src/models/Project';
+import { ARCSavedRequest } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { DataMockInit, HarTimingInit, HttpRequestInit, HttpResponseRedirectStatusInit } from '@pawel-up/data-mock/types'
 
 export interface ArcDataMockInit extends DataMockInit {
-  /**
-   * When using the `store` namespace you need to provide the reference to 
-   * the PouchDB data store.
-   * PouchDB has a legacy architecture and the import work differently 
-   * for NodeJS and a browser. Because we don't want this library to work asynchronously,
-   * we require initializing the pouchdb library beforehand.
-   */
-  store?: PouchDB.Static;
 }
 
 export interface RequestHistoryInit extends HttpRequestInit {
@@ -99,9 +91,4 @@ export declare interface HttpResponseArcInit extends HarTimingInit {
 export declare interface RestApiIndexInit {
   versionSize?: number;
   order?: number;
-}
-
-export declare interface InsertSavedResult {
-  projects: PouchDB.Core.ExistingDocument<ARCProject>[];
-  requests: PouchDB.Core.ExistingDocument<ARCSavedRequest>[];
 }

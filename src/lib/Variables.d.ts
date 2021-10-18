@@ -1,4 +1,4 @@
-import { ARCVariable } from '@advanced-rest-client/arc-types/src/models/Variable';
+import { ARCVariable } from '@advanced-rest-client/events/src/models/Variable';
 import { Lorem, Types } from '@pawel-up/data-mock';
 import { ArcDataMockInit, VariableInit } from '../../types';
 

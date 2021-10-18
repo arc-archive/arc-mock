@@ -6,5 +6,4 @@ export { Certificates } from './src/lib/Certificates.js';
 export { Urls } from './src/lib/Urls.js';
 export { Authorization } from './src/lib/Authorization.js';
 export { RestApi } from './src/lib/RestApi.js';
-export { Store } from './src/lib/Store.js';
 export { ArcMock } from './src/ArcMock.js';

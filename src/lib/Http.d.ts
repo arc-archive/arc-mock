@@ -1,5 +1,5 @@
-import { ARCProject } from '@advanced-rest-client/arc-types/src/models/Project';
-import { ARCHistoryRequest, ARCSavedRequest, TransportRequest } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
+import { ARCProject } from '@advanced-rest-client/events/src/models/Project';
+import { ARCHistoryRequest, ARCSavedRequest, TransportRequest } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { Http as Base, Types, Lorem } from '@pawel-up/data-mock';
 import { ArcDataMockInit, GenerateSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, TransportRequestInit } from '../../types';
 import { HttpResponse } from './HttpResponse';

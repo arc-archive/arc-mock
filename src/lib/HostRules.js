@@ -1,7 +1,7 @@
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').HostRule.ARCHostRule} ARCHostRule */
+/** @typedef {import('@advanced-rest-client/events').HostRule.ARCHostRule} ARCHostRule */
 
 export class HostRules {
   /**

@@ -1,4 +1,4 @@
-import { ARCUrlHistory } from '@advanced-rest-client/arc-types/src/models/UrlHistory';
+import { ARCUrlHistory } from '@advanced-rest-client/events/src/models/UrlHistory';
 import { Internet, Types, Time } from '@pawel-up/data-mock';
 import { ArcDataMockInit } from '../../types';
 

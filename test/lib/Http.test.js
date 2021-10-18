@@ -2,7 +2,7 @@ import { assert } from '@open-wc/testing';
 import sinon from 'sinon';
 import { Http } from '../../index.js';
 
-/** @typedef {import('@advanced-rest-client/arc-types').Project.ARCProject} ARCProject */
+/** @typedef {import('@advanced-rest-client/events').Project.ARCProject} ARCProject */
 
 describe('Http', () => {
   describe('project()', () => {

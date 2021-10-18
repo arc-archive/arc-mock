@@ -1,4 +1,4 @@
-import { ARCCookie } from '@advanced-rest-client/arc-types/src/cookies/Cookies';
+import { ARCCookie } from '@advanced-rest-client/events/src/cookies/Cookies';
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 import { ArcDataMockInit } from '../../types';
 

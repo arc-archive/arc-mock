@@ -1,13 +1,13 @@
 import { Lorem, Random, Types, Utils } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.Certificate} Certificate */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.CertificateIndex} CertificateIndex */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.RequestCertificate} RequestCertificate */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ClientCertificate} ClientCertificate */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCRequestCertificate} ARCRequestCertificate */
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.ARCCertificateIndex} ARCCertificateIndex */
-/** @typedef {import('@advanced-rest-client/arc-types').DataExport.ExportArcClientCertificateData} ExportArcClientCertificateData */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.Certificate} Certificate */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.CertificateIndex} CertificateIndex */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.RequestCertificate} RequestCertificate */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.ClientCertificate} ClientCertificate */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.ARCRequestCertificate} ARCRequestCertificate */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.ARCCertificateIndex} ARCCertificateIndex */
+/** @typedef {import('@advanced-rest-client/events').DataExport.ExportArcClientCertificateData} ExportArcClientCertificateData */
 /** @typedef {import('../../types').CertificateCreateInit} CertificateCreateInit */
 
 export class Certificates {

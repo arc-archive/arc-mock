@@ -1,8 +1,8 @@
 import { Lorem, Types } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCVariable} ARCVariable */
-/** @typedef {import('@advanced-rest-client/arc-types').Variable.ARCEnvironment} ARCEnvironment */
+/** @typedef {import('@advanced-rest-client/events').Variable.ARCVariable} ARCVariable */
+/** @typedef {import('@advanced-rest-client/events').Variable.ARCEnvironment} ARCEnvironment */
 /** @typedef {import('../../types').VariableInit} VariableInit */
 
 

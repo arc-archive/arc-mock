@@ -1,4 +1,4 @@
-import { ARCHostRule } from '@advanced-rest-client/arc-types/src/models/HostRule';
+import { ARCHostRule } from '@advanced-rest-client/events/src/models/HostRule';
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 import { ArcDataMockInit } from '../../types';
 

@@ -6,7 +6,6 @@ import { Cookies } from './lib/Cookies';
 import { HostRules } from './lib/HostRules';
 import { Http } from './lib/Http';
 import { RestApi } from './lib/RestApi';
-import { Store } from './lib/Store';
 import { Urls } from './lib/Urls';
 import { Variables } from './lib/Variables';
 
@@ -19,7 +18,6 @@ export declare class ArcMock extends DataMock {
   urls: Urls;
   authorization: Authorization;
   restApi: RestApi;
-  store: Store;
   /**
    * @param init The library init options.
    */

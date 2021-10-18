@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { ArcMock } from '../../index.js';
 
-/** @typedef {import('@advanced-rest-client/arc-types').Cookies.ARCCookie} ARCCookie */
+/** @typedef {import('@advanced-rest-client/events').Cookies.ARCCookie} ARCCookie */
 
 describe('ArcMock', () => {
   describe('constructor()', () => {
@@ -13,7 +13,6 @@ describe('ArcMock', () => {
     [
       'http', 'variables', 'cookies', 'hostRules',
       'certificates', 'urls', 'authorization', 'restApi',
-      'store',
     ].forEach((prop) => {
       it(`creates the ${prop} property`, () => {
         assert.ok(mock[prop]);

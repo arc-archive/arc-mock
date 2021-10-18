@@ -1,8 +1,8 @@
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').RestApi.ARCRestApi} ARCRestApi */
-/** @typedef {import('@advanced-rest-client/arc-types').RestApi.ARCRestApiIndex} ARCRestApiIndex */
+/** @typedef {import('@advanced-rest-client/events').RestApi.ARCRestApi} ARCRestApi */
+/** @typedef {import('@advanced-rest-client/events').RestApi.ARCRestApiIndex} ARCRestApiIndex */
 /** @typedef {import('../../types').RestApiIndexInit} RestApiIndexInit */
 
 export class RestApi {

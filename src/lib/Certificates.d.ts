@@ -1,5 +1,5 @@
-import { ExportArcClientCertificateData } from '@advanced-rest-client/arc-types/src/dataexport/DataExport';
-import { Certificate, CertificateIndex, ClientCertificate, RequestCertificate } from '@advanced-rest-client/arc-types/src/models/ClientCertificate';
+import { ExportArcClientCertificateData } from '@advanced-rest-client/events/src/dataexport/DataExport';
+import { Certificate, CertificateIndex, ClientCertificate, RequestCertificate } from '@advanced-rest-client/events/src/models/ClientCertificate';
 import { Lorem, Random, Types } from '@pawel-up/data-mock';
 import { ArcDataMockInit, CertificateCreateInit } from '../../types';
 

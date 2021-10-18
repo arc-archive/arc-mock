@@ -1,6 +1,6 @@
 import { Lorem, Types, Internet } from '@pawel-up/data-mock';
 
-/** @typedef {import('@advanced-rest-client/arc-types').Cookies.ARCCookie} ARCCookie */
+/** @typedef {import('@advanced-rest-client/events').Cookies.ARCCookie} ARCCookie */
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
 
 export class Cookies {

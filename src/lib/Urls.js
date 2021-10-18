@@ -1,7 +1,7 @@
 import { Internet, Types, Time } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
+/** @typedef {import('@advanced-rest-client/events').UrlHistory.ARCUrlHistory} ARCUrlHistory */
 
 export class Urls {
   /**

@@ -1,7 +1,7 @@
 import { Internet, Types } from '@pawel-up/data-mock';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').AuthData.ARCAuthData} ARCAuthData */
+/** @typedef {import('@advanced-rest-client/events').AuthData.ARCAuthData} ARCAuthData */
 
 export class Authorization {
   /**

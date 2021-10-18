@@ -5,7 +5,6 @@ import { Cookies } from './lib/Cookies.js';
 import { HostRules } from './lib/HostRules.js';
 import { Http } from './lib/Http.js';
 import { RestApi } from './lib/RestApi.js';
-import { Store } from './lib/Store.js';
 import { Urls } from './lib/Urls.js';
 import { Variables } from './lib/Variables.js';
 
@@ -26,6 +25,5 @@ export class ArcMock extends DataMock {
     this.urls = new Urls(init);
     this.authorization = new Authorization(init);
     this.restApi = new RestApi(init);
-    this.store = new Store(init);
   }
 }

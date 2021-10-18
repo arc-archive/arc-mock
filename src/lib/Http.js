@@ -3,10 +3,10 @@ import { randomValue } from '@pawel-up/data-mock/src/lib/Http.js';
 import { HttpResponse } from './HttpResponse.js';
 
 /** @typedef {import('../../types').ArcDataMockInit} ArcDataMockInit */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ARCSavedRequest} ARCSavedRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').Project.ARCProject} ARCProject */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.ARCSavedRequest} ARCSavedRequest */
+/** @typedef {import('@advanced-rest-client/events').Project.ARCProject} ARCProject */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
 /** @typedef {import('../../types').RequestHistoryInit} RequestHistoryInit */
 /** @typedef {import('../../types').RequestSavedInit} RequestSavedInit */
 /** @typedef {import('../../types').ProjectCreateInit} ProjectCreateInit */

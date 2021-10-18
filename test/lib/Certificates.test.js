@@ -2,7 +2,7 @@ import { assert } from '@open-wc/testing';
 import sinon from 'sinon';
 import { Certificates } from '../../index.js';
 
-/** @typedef {import('@advanced-rest-client/arc-types').ClientCertificate.Certificate} Certificate */
+/** @typedef {import('@advanced-rest-client/events').ClientCertificate.Certificate} Certificate */
 
 describe('Certificates', () => {
   describe('toStore()', () => {
