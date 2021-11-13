@@ -1,7 +1,7 @@
-import { ARCProject } from '@advanced-rest-client/events/src/models/Project';
+import { ARCProject, ProjectFolder } from '@advanced-rest-client/events/src/models/Project';
 import { ARCHistoryRequest, ARCSavedRequest, TransportRequest } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { Http as Base, Types, Lorem } from '@pawel-up/data-mock';
-import { ArcDataMockInit, GenerateSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, TransportRequestInit } from '../../types';
+import { ArcDataMockInit, GenerateSavedResult, ProjectCreateInit, RequestHistoryInit, RequestSavedInit, TransportRequestInit, ProjectFolderCreateInit } from '../../types';
 import { HttpResponse } from './HttpResponse';
 
 export declare class Http extends Base {
@@ -61,6 +61,13 @@ export declare class Http extends Base {
    * @returns List of generated project objects.
    */
   listProjects(size?: number, init?: ProjectCreateInit): ARCProject[];
+
+  projectFolder(init?: ProjectFolderCreateInit): ProjectFolder;
+
+  /**
+   * @param size The number of folders to create. Default to 5.
+   */
+  projectFolders(size?: number, init?: ProjectFolderCreateInit): ProjectFolder[];
 
   /**
    * @returns A map with `projects` and `requests` arrays.

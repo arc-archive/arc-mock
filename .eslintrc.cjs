@@ -12,21 +12,10 @@ module.exports = {
     mocha: true,
     es2020: true
   },
-  parser: "@babel/eslint-parser",
   parserOptions: {
-    requireConfigFile: false,
     sourceType: "module",
     ecmaVersion: 2020
   },
-
-  // presets: [
-  //   [
-  //     "@babel/preset-env",
-  //     {
-  //       shippedProposals: true
-  //     }
-  //   ]
-  // ],
 
   plugins: ['no-only-tests'],
 

@@ -23,13 +23,44 @@ export interface TransportRequestInit extends HttpRequestInit {
 
 export interface ProjectCreateInit {
   /**
-   * Request id to add to `requests` array
+   * Request id to add to `requests` array.
+   * This takes precedence over `autoRequestId`.
    */
   requestId?: string;
   /**
-   * If set it generates request ID to add to `requests` array
+   * If set it generates request ID to add to `requests` array.
+   * When both this and `requestId` are not set then no request is being generated.
    */
   autoRequestId?: boolean;
+  /**
+   * Options for creating sub folders in the folder.
+   */
+  folder?: ProjectSubFolderCreateInit;
+}
+
+export interface ProjectFolderCreateInit {
+  /**
+   * Request id to add to `requests` array.
+   * This takes precedence over `autoRequestId`.
+   */
+  requestId?: string;
+  /**
+   * If set it generates request ID to add to `requests` array.
+   * When both this and `requestId` are not set then no request is being generated.
+   */
+  autoRequestId?: boolean;
+  /**
+   * Options for creating sub folders in the folder.
+   */
+  folder?: ProjectSubFolderCreateInit;
+}
+
+export interface ProjectSubFolderCreateInit extends ProjectFolderCreateInit {
+  /**
+   * The number of folders to create.
+   * @default 5
+   */
+  size?: number;
 }
 
 export declare interface GenerateSavedResult {

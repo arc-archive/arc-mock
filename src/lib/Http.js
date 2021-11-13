@@ -6,12 +6,14 @@ import { HttpResponse } from './HttpResponse.js';
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.ARCHistoryRequest} ARCHistoryRequest */
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.ARCSavedRequest} ARCSavedRequest */
 /** @typedef {import('@advanced-rest-client/events').Project.ARCProject} ARCProject */
+/** @typedef {import('@advanced-rest-client/events').Project.ProjectFolder} ProjectFolder */
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
 /** @typedef {import('../../types').RequestHistoryInit} RequestHistoryInit */
 /** @typedef {import('../../types').RequestSavedInit} RequestSavedInit */
 /** @typedef {import('../../types').ProjectCreateInit} ProjectCreateInit */
 /** @typedef {import('../../types').GenerateSavedResult} GenerateSavedResult */
 /** @typedef {import('../../types').TransportRequestInit} TransportRequestInit */
+/** @typedef {import('../../types').ProjectFolderCreateInit} ProjectFolderCreateInit */
 
 export class Http extends Base {
   /**
@@ -158,18 +160,12 @@ export class Http extends Base {
    * @returns {ARCProject}
    */
   project(init={}) {
-    const project = /** @type ARCProject */ ({
+    let project = /** @type ARCProject */ (this.projectFolder(init));
+    project = { ...project, ...{
+      kind: 'ARC#Project',
       _id: this.types.uuid(),
-      name: this.lorem.sentence({ words: 2 }),
       order: 0,
-      description: this.lorem.paragraph(),
-      requests: [],
-    });
-    if (init.requestId) {
-      project.requests.push(init.requestId);
-    } else if (init.autoRequestId) {
-      project.requests.push(this.types.uuid());
-    }
+    }};
     return project;
   }
 
@@ -182,6 +178,44 @@ export class Http extends Base {
     const result = [];
     for (let i = 0; i < size; i++) {
       result.push(this.project(init));
+    }
+    return result;
+  }
+
+  /**
+   * @param {ProjectFolderCreateInit} init 
+   * @returns {ProjectFolder}
+   */
+  projectFolder(init={}) {
+    const folder = /** @type ProjectFolder */ ({
+      kind: 'ARC#ProjectFolder',
+      folders: [],
+      requests: [],
+      name: this.lorem.sentence({ words: 2 }),
+      description: this.lorem.paragraph(),
+      created: this.time.timestamp(),
+      updated: this.time.timestamp(),
+    });
+    if (init.requestId) {
+      folder.requests.push(init.requestId);
+    } else if (init.autoRequestId) {
+      folder.requests.push(this.types.uuid());
+    }
+    if (init.folder) {
+      folder.folders = this.projectFolders(init.folder.size, init.folder);
+    }
+    return folder;
+  }
+
+  /**
+   * @param {number} size The number of folders to create. Default to 5.
+   * @param {ProjectFolderCreateInit} init 
+   * @returns {ProjectFolder[]}
+   */
+  projectFolders(size = 5, init = {}) {
+    const result = [];
+    for (let i = 0; i < size; i++) {
+      result.push(this.projectFolder(init));
     }
     return result;
   }

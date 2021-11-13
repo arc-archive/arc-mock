@@ -16,6 +16,11 @@ describe('Http', () => {
       assert.typeOf(result, 'object');
     });
 
+    it('has the kind', () => {
+      const result = http.project();
+      assert.equal(result.kind, 'ARC#Project');
+    });
+
     it('has the _id', () => {
       const result = http.project();
       assert.typeOf(result._id, 'string');
@@ -54,6 +59,121 @@ describe('Http', () => {
         autoRequestId: true
       });
       assert.typeOf(result.requests[0], 'string');
+    });
+
+    it('has the default folders', () => {
+      const result = http.project();
+      assert.typeOf(result.folders, 'array');
+      assert.lengthOf(result.folders, 0);
+    });
+
+    it('adds the passed configured size of folders', () => {
+      const result = http.project({
+        folder: {
+          size: 10,
+        }
+      });
+      assert.typeOf(result.folders, 'array');
+      assert.lengthOf(result.folders, 10);
+    });
+
+    it('adds a request to the folders', () => {
+      const result = http.project({
+        folder: {
+          size: 2,
+          autoRequestId: true,
+        }
+      });
+      assert.typeOf(result.folders, 'array');
+      const [f1, f2] = result.folders;
+      assert.lengthOf(f1.requests, 1);
+      assert.lengthOf(f2.requests, 1);
+    });
+  });
+
+  describe('projectFolder()', () => {
+    /** @type Http */
+    let http;
+
+    before(() => { http = new Http(); });
+
+    it('returns an object', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result, 'object');
+    });
+
+    it('has the kind', () => {
+      const result = http.projectFolder();
+      assert.equal(result.kind, 'ARC#ProjectFolder');
+    });
+
+    it('has the name', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.name, 'string');
+    });
+
+    it('has the description', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.description, 'string');
+    });
+
+    it('has the created', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.created, 'number');
+    });
+
+    it('has the updated', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.updated, 'number');
+    });
+
+    it('has the requests', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.requests, 'array');
+      assert.lengthOf(result.requests, 0);
+    });
+
+    it('adds passed requestId', () => {
+      const result = http.projectFolder({
+        requestId: 'test'
+      });
+      assert.deepEqual(result.requests, ['test']);
+    });
+
+    it('auto-generates request id', () => {
+      const result = http.projectFolder({
+        autoRequestId: true
+      });
+      assert.typeOf(result.requests[0], 'string');
+    });
+
+    it('has the default folders', () => {
+      const result = http.projectFolder();
+      assert.typeOf(result.folders, 'array');
+      assert.lengthOf(result.folders, 0);
+    });
+
+    it('adds the passed configured size of folders', () => {
+      const result = http.projectFolder({
+        folder: {
+          size: 10,
+        }
+      });
+      assert.typeOf(result.folders, 'array');
+      assert.lengthOf(result.folders, 10);
+    });
+
+    it('adds a request to the folders', () => {
+      const result = http.projectFolder({
+        folder: {
+          size: 2,
+          autoRequestId: true,
+        }
+      });
+      assert.typeOf(result.folders, 'array');
+      const [f1, f2] = result.folders;
+      assert.lengthOf(f1.requests, 1);
+      assert.lengthOf(f2.requests, 1);
     });
   });
 
@@ -275,7 +395,7 @@ describe('Http', () => {
     });
 
     it('adds project to the request', () => {
-      const projects = [{ _id: '1', name: 'x', description: 'y', order: 1, requests: [] }];
+      const projects = /** @type ARCProject[] */ ([{ _id: '1', name: 'x', description: 'y', order: 1, requests: [], folders: [], kind: 'ARC#Project' }]);
       const result = http.listSaved(2, {
         forceProject: true,
         projects,
@@ -285,7 +405,7 @@ describe('Http', () => {
     });
 
     it('adds request to the project', () => {
-      const projects = [{ _id: '1', name: 'x', description: 'y', order: 1, requests: [] }];
+      const projects = /** @type ARCProject[] */ ([{ _id: '1', name: 'x', description: 'y', order: 1, requests: [], folders: [], kind: 'ARC#Project' }]);
       http.listSaved(2, {
         forceProject: true,
         projects,
